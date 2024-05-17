@@ -33,9 +33,22 @@ services:
       - influxdb-data:/var/lib/influxdb2
     networks:
       - link_data_network
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=nicolas
+      - GF_SECURITY_ADMIN_PASSWORD=realtime_bus
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks:
+      - link_data_network
 
 volumes:
   node-red-data:
   influxdb-data:
+  grafana_data:
 networks:
   link_data_network:
