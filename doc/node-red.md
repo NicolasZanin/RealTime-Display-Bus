@@ -7,7 +7,7 @@
 - InfluxDB:
     - username: nicolas
     - passwprd: realtime_bus
-    - token (if not change): CGoc-mTabQnlXRt5GV59MiOn6wb7UGJufc-Ku7lqgtLO-2q7vWn2c0eVANMfQWKBBAnUzUpVaVOb6IkWRrxumA==
+    - token (if not change): XwdqDu_hrjZx0-Sr-oHKhBxutpDKRVl512L3NDIBJHA1Ttylt2ZiSuCfNr4s0QBju7ZthcvdXKiu5aB3bQCTAA==
 
 ## Add Connection
 
@@ -43,7 +43,7 @@ To establish a connection between MQTT and Grafana, we must use Node-RED. Start 
    - Double-click the `influxdb out` node, then click the pencil icon to configure the InfluxDB server.
    - Set the version to 2.0, and enter the URL [http://influxdb:8086](http://influxdb:8086).
    - Add the necessary token (if you need to generate a token, see the section [Add Token in InfluxDB](#add-token-in-influxdb)):
-    CGoc-mTabQnlXRt5GV59MiOn6wb7UGJufc-Ku7lqgtLO-2q7vWn2c0eVANMfQWKBBAnUzUpVaVOb6IkWRrxumA== 
+    XwdqDu_hrjZx0-Sr-oHKhBxutpDKRVl512L3NDIBJHA1Ttylt2ZiSuCfNr4s0QBju7ZthcvdXKiu5aB3bQCTAA== 
      ![settings influx db](doc_picture_node_red/settings_influx_db.png)
    - Click 'Add', then fill in the properties as follows:
      - **Name:** influxdb
@@ -55,6 +55,31 @@ To establish a connection between MQTT and Grafana, we must use Node-RED. Start 
    - Click 'Finish', then click the 'Deploy' button.
 
 This setup enables communication between MQTT and InfluxDB.
+
+## Add InfluxDB to Grafana
+
+1. **Add new data source influxDB**
+- Connect to grafana at [http://localhost:3000](http://localhost:3000).
+- Navigate to `Connections > Add new Connection` and search `InfluxDB` and click on `Add new data source`
+![screenshot add new connection](doc_picture_node_red/screenshot_add_new_connection.png)
+![screenshot add new data source](doc_picture_node_red/screenshot_add_new_datasource.png)
+
+2. **Config influxDB in grafana**
+- Navigate to `Connections > Data sources > influxdb`
+![screenshot button data sources](doc_picture_node_red/screenshot_button_data_sources.png)
+- Select query language `Flux`
+- Add **URL** in **HTTP category** : http://influxdb:8086 
+- Add this settings in **Basic Auth Details**:
+  - **User**: nicolas
+  - **Password**: realtime_bus
+- And finally, add this settings in **InfluxDB Details**
+  - **Organization**: myorg
+  - **Token**: XwdqDu_hrjZx0-Sr-oHKhBxutpDKRVl512L3NDIBJHA1Ttylt2ZiSuCfNr4s0QBju7ZthcvdXKiu5aB3bQCTAA==
+  - **Default Bucket**: mybucket  
+
+  You should had this:
+ ![expected config influxDb in Grafana](doc_picture_node_red/expected_config_influxDb_grafana.png)
+- And finally Click on save and test
   
 ## Add token in influxDB
 
