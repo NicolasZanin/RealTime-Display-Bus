@@ -70,8 +70,8 @@
         "y": 240,
         "wires": [
             [
-                "3f42046c03af1cef",
-                "a349be0d9b8599dd"
+                "a349be0d9b8599dd",
+                "ef588388c9bb02a2"
             ]
         ]
     },
@@ -89,7 +89,7 @@
         "retentionPolicyV18Flux": "",
         "org": "myorg",
         "bucket": "mybucket",
-        "x": 400,
+        "x": 580,
         "y": 240,
         "wires": []
     },
@@ -107,6 +107,44 @@
         "statusType": "auto",
         "x": 400,
         "y": 160,
+        "wires": []
+    },
+    {
+        "id": "ef588388c9bb02a2",
+        "type": "function",
+        "z": "46e7946d59e304e2",
+        "name": "function 1",
+        "func": "const payloadJSON = msg.payload.payload;\nconst data = JSON.parse(payloadJSON.objectJSON);\n\nmsg.payload = {\n        latitude: data.location.latitude,\n        longitude: data.location.longitude,\n        deviceName: payloadJSON.deviceName,\n        devEUI: payloadJSON.devEUI,\n        measurement: \"position\",\n        tags: {},\n        timestamp: new Date(payloadJSON.publishedAt).getTime() * 1000000 // Convert to nanoseconds\n    };\n\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 360,
+        "y": 240,
+        "wires": [
+            [
+                "cb8f7c1d275fb462",
+                "3f42046c03af1cef"
+            ]
+        ]
+    },
+    {
+        "id": "cb8f7c1d275fb462",
+        "type": "debug",
+        "z": "46e7946d59e304e2",
+        "name": "debug 2",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 560,
+        "y": 360,
         "wires": []
     }
 ]
