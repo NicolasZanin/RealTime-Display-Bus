@@ -17,8 +17,5 @@ COPY --from=build-env /app/out .
 EXPOSE 8080
 EXPOSE 8081
 
-ENV ASPNETCORE_ENVIRONMENT Development
-ENV ASPNETCORE_HTTP_PORTS=
-
 # D�finir la commande de d�marrage par d�faut
 ENTRYPOINT ["dotnet", "Server_csharp_uplink.dll"]

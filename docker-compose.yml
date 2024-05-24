@@ -45,6 +45,23 @@ services:
       - grafana_data:/var/lib/grafana
     networks:
       - link_data_network
+  api_csharp_uplink:
+    image: server_csharp_uplink
+    container_name: api_csharp_uplink
+    build:
+      context: ./Server_csharp_uplink
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+      - "8001:8001"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_HTTP_PORTS: 
+    depends_on:
+      - node-red
+      - influxdb
+    networks:
+      - link_data_network
 
 volumes:
   node-red-data:
