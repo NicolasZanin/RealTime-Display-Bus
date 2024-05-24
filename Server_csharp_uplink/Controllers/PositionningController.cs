@@ -3,7 +3,7 @@
 namespace Server_csharp_uplink.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class PositionningController : ControllerBase
     {
         private readonly ILogger<PositionningController> _logger;
@@ -13,16 +13,15 @@ namespace Server_csharp_uplink.Controllers
             _logger = logger;
         }
 
-        [HttpPost(Name = "PositionSensor")]
-        public String Post()
+        [HttpGet()]
+        public IActionResult timeBusToNextStation([FromQuery] int idStation)
         {
-            return "Hello World\n";
-        }
+            if (idStation < 0)
+            {
+                return BadRequest("idStation must be a non-negative integer");
+            }
 
-        [HttpGet(Name = "Start")]
-        public String Get()
-        {
-            return "Hello World\n";
+            return Ok("5 mn");
         }
     }
 }
