@@ -1,4 +1,4 @@
 .vs
-serveur-lorawan/serveur-lorawan/bin
-serveur-lorawan/serveur-lorawan/obj
+Server_csharp_uplink/bin
+Server_csharp_uplink/obj
 node-red-data
