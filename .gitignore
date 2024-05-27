@@ -1,0 +1,4 @@
+.vs
+Server_csharp_uplink/bin
+Server_csharp_uplink/obj
+node-red-data
