@@ -1,6 +1,0 @@
-@Server_csharp_uplink_HostAddress = http://localhost:8000
-
-GET {{Server_csharp_uplink_HostAddress}}/Positionning/
-Accept: application/json
-
-###
