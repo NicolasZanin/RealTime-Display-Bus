@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-namespace Server_csharp_uplink.Controllers
+namespace api_csharp_uplink.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
