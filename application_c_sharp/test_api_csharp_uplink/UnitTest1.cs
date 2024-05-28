@@ -12,7 +12,7 @@ namespace test_api_csharp_uplink
         {
             PositionningController positionningController = new PositionningController(null);
             IActionResult actionResult = positionningController.timeBusToNextStation(0);
-            Assert.Equal("5 mn", "5 mn");
+            Assert.Equal("4 mn", "5 mn");
         }
     }
 }
