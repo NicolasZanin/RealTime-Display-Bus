@@ -7,7 +7,7 @@ using api_csharp_uplink.Repository;
 using api_csharp_uplink.Composant;
 using api_csharp_uplink.Entities;
 
-namespace test_api_csharp_uplink.Controllers
+namespace test_api_csharp_uplink.Unitaire.Controllers
 {
     public class BusControllerTest
     {
@@ -35,13 +35,13 @@ namespace test_api_csharp_uplink.Controllers
 
             IActionResult actionResult = busController.AddBusCard(bus);
             actionResult.Should().BeOfType<CreatedResult>();
-            CreatedResult createdResult = (CreatedResult) actionResult;
+            CreatedResult createdResult = (CreatedResult)actionResult;
             createdResult.Should().NotBeNull();
             createdResult.Value.Should().Be(busExpected);
         }
 
         [Fact]
-        [Trait("Category", "Unit")]
+        [Trait("Category", "Integration")]
         public void TestFalseCreateBus()
         {
 
