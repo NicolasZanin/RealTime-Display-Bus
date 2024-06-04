@@ -15,7 +15,6 @@ WORKDIR /app/test_api_csharp_uplink
 
 RUN dotnet add package Moq
 RUN dotnet add package FluentAssertions
-RUN dotnet add package Microsoft.AspNetCore.Mvc.Testing
 RUN dotnet build
 
 # Exécute les tests

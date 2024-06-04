@@ -4,7 +4,7 @@ namespace api_csharp_uplink.DB
 {
     public interface IInfluxDBBus
     {
-        public Task Add(Bus bus);
+        public Task<Bus?> Add(Bus bus);
         public Task<Bus?> GetByBusNumber(int BusNumber);
         public Task<Bus?> GetByDevEUI(int DevEUI);
         public Task<List<Bus>> GetAll();

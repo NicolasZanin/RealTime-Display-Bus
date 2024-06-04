@@ -21,7 +21,7 @@ if (environment != "Test")
 }
 else
 {
-    builder.Services.AddSingleton(new GlobalInfluxDb("i1K_ifwjv_yAMbRFISRo2gi9jyiFXcAopdj32fj0a98Pk1D7ujvqWNt-PTu5rcEjy5ZGVRG_BIRDyb1RMEJh3g=="));
+    builder.Services.AddSingleton(new GlobalInfluxDb("sOTUwWum_14-STWkMQQyO_ekLheUujU9ZO_boc1qQgoRRUVJGUIOpN9PYGVCYdc-l_3oCetWkNq3RFK69yMhiQ=="));
 }
 
 var app = builder.Build();

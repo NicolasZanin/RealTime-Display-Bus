@@ -5,7 +5,7 @@ namespace api_csharp_uplink.Repository
 {
     public interface IBusRepository
     {
-        public Bus AddBus(Bus bus);
+        public Bus? AddBus(Bus bus);
         public Bus? GetByBusNumber(int busNumber);
         public Bus? GetBusByDevEUICard(int busNumber);
         public List<Bus> GetBuses();
@@ -14,10 +14,9 @@ namespace api_csharp_uplink.Repository
     {
         private readonly IInfluxDBBus _influxDBBus = InfluxDBBus;
 
-        public Bus AddBus(Bus bus)
+        public Bus? AddBus(Bus bus)
         {
-            _influxDBBus.Add(bus);
-            return bus;
+            return _influxDBBus.Add(bus).Result;
         }
 
         public Bus? GetByBusNumber(int busNumber)

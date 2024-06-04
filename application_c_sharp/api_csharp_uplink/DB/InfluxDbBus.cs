@@ -10,7 +10,7 @@ namespace api_csharp_uplink.DB
         private static readonly string MeasurementBUS = "bus";
         private readonly GlobalInfluxDb _globalInfluxDb = globalInfluxDb;
 
-        public async Task Add(Bus bus)
+        public async Task<Bus?> Add(Bus bus)
         {
             var point = PointData.Measurement(MeasurementBUS)
                 .Tag("DevEUICard", bus.DevEUICard.ToString())
@@ -19,14 +19,15 @@ namespace api_csharp_uplink.DB
                 .Timestamp(DateTime.Now, WritePrecision.Ns);
             try { 
                 await _globalInfluxDb.GetWriteApiAsync(point);
+                return bus;
             } catch (Exception e)
             {
                 Console.WriteLine("Error writing to InfluxDB cloud: " + e.Message);
-            }
-            return;
+                return null;
+            }            
         }
 
-        private static Bus convertRecordToBus(FluxRecord record)
+        private static Bus ConvertRecordToBus(FluxRecord record)
         {
             string devEUICard = record.Values["DevEUICard"]?.ToString() ?? "0";
             string busNumber = record.Values["BusNumber"]?.ToString() ?? "0";
@@ -48,7 +49,7 @@ namespace api_csharp_uplink.DB
             {
                 foreach (FluxRecord record in table.Records)
                 {
-                    return convertRecordToBus(record);
+                    return ConvertRecordToBus(record);
                 }
             }
 
@@ -96,7 +97,7 @@ namespace api_csharp_uplink.DB
 
         public async Task<List<Bus>> GetAll()
         {
-            List<Bus> list = new List<Bus>();
+            List<Bus> list = [];
             string query = $"from(bucket: \"mybucket\") |> range(start: 0) |> filter(fn: (r) => r._measurement == \"{MeasurementBUS}\")";
             List<FluxTable> tables = await _globalInfluxDb.GetQueryApiAsync(query); ;
             
@@ -104,7 +105,7 @@ namespace api_csharp_uplink.DB
             {
                 foreach (FluxRecord record in table.Records)
                 {
-                    list.Add(convertRecordToBus(record));
+                    list.Add(ConvertRecordToBus(record));
                 }
             }
 

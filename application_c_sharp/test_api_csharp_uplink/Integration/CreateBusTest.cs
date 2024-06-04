@@ -3,24 +3,39 @@ using FluentAssertions;
 using Newtonsoft.Json;
 using System.Net;
 using System.Text;
+using System.Threading;
+using test_api_csharp_uplink.Integration.DBTest;
 
 namespace test_api_csharp_uplink.Integration
 {
 
-    public class CreateBusTest
+    public class CreateBusTest : IAsyncLifetime
     {
         private readonly HttpClient _client;
         private readonly string _request = "http://api_csharp_uplink:8000/api/bus";
+        private readonly InfluxDBTest _influxDBTest = new();
 
         public CreateBusTest()
         {
             _client = new();
         }
 
+        public async Task InitializeAsync()
+        {
+            await _influxDBTest.InitializeBucket();
+        }
+
+        public Task DisposeAsync()
+        {
+            return Task.CompletedTask;
+        }
+
         [Fact]
         [Trait("Category", "Integration")]
         public async Task TestGetBuses()
         {
+            await _influxDBTest.InitializeBucket();
+
             try
             {
                 HttpResponseMessage response = await _client.GetAsync(_request);
@@ -110,20 +125,17 @@ namespace test_api_csharp_uplink.Integration
             };
 
             string json = JsonConvert.SerializeObject(bus);
-            StringContent content = new(JsonConvert.SerializeObject(bus), Encoding.UTF8, "application/json");
-
+            StringContent content = new(json, Encoding.UTF8, "application/json");
             try
             {
                 // Add bus
                 HttpResponseMessage response = await _client.PostAsync(_request, content);
                 response.EnsureSuccessStatusCode();
                 response.StatusCode.Should().Be(HttpStatusCode.Created);
-
                 // Get bus by bus number
                 response = await _client.GetAsync($"{_request}/busNumber/{bus.BusNumber}");
                 response.EnsureSuccessStatusCode();
                 response.StatusCode.Should().Be(HttpStatusCode.OK);
-
                 string responseString = await response.Content.ReadAsStringAsync();
                 responseString.Should().NotBeNullOrEmpty();
                 responseString.Should().BeEquivalentTo(json);
@@ -152,14 +164,20 @@ namespace test_api_csharp_uplink.Integration
             BusDTO bus = new()
             {
                 LineBus = 2,
-                BusNumber = 2,
-                DevEUICard = 2
+                BusNumber = 0,
+                DevEUICard = 0
             };
-
             try
             {
-                HttpResponseMessage response = await _client.GetAsync(_request);
+                await _client.PostAsync(_request, new StringContent(JsonConvert.SerializeObject(bus), Encoding.UTF8, "application/json"));
 
+                bus.BusNumber = 1;
+                await _client.PostAsync(_request, new StringContent(JsonConvert.SerializeObject(bus), Encoding.UTF8, "application/json"));
+
+                bus.BusNumber = 2;
+                await _client.PostAsync(_request, new StringContent(JsonConvert.SerializeObject(bus), Encoding.UTF8, "application/json"));
+
+                HttpResponseMessage response = await _client.GetAsync(_request);
                 response.EnsureSuccessStatusCode();
                 response.StatusCode.Should().Be(HttpStatusCode.OK);
                 string responseString = await response.Content.ReadAsStringAsync();

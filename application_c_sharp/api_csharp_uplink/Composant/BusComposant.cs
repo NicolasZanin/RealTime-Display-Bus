@@ -34,19 +34,21 @@ namespace api_csharp_uplink.Composant
                 BusNumber = busNumber,
                 DevEUICard = devEUICard
             };
-
-            return busRepository.AddBus(bus);
+            return busRepository.AddBus(bus)?? throw new Exception("Problem with database");
         }
 
         public Bus GetBusByBusNumber(int busNumber)
         {
             Bus? bus = busRepository.GetByBusNumber(busNumber);
+            Console.WriteLine(bus != null);
+            Console.WriteLine("Bus : " + bus);
             return bus ?? throw new BusNotFoundException(busNumber);
         }
 
         public Bus GetBusByDevEUICard(int busNumber)
         {
             Bus? bus = busRepository.GetBusByDevEUICard(busNumber);
+            Console.WriteLine("Bus : " + bus);
             return bus ?? throw new BusNotFoundException(busNumber);
         }
 

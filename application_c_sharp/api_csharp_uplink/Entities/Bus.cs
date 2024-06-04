@@ -6,7 +6,12 @@
         public int DevEUICard { get; set; }
         public int LineBus { get; set; }
 
-        // Override Equals method
+        public override string ToString()
+        {
+            return $"LineBus: {LineBus}, BusNumber: {BusNumber}, DevEUICard: {DevEUICard}";
+        }
+
+
         public override bool Equals(object? obj)
         {
             if (obj == null || GetType() != obj.GetType())
@@ -18,7 +23,7 @@
                    DevEUICard == bus.DevEUICard;
         }
 
-        // Override GetHashCode method
+
         public override int GetHashCode()
         {
             int hashLineBus = LineBus.GetHashCode();
