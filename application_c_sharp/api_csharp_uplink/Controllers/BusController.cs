@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using api_csharp_uplink.Composant;
 using api_csharp_uplink.Dto;
+using api_csharp_uplink.DirException;
 
 namespace api_csharp_uplink.Controllers
 {
@@ -13,25 +14,53 @@ namespace api_csharp_uplink.Controllers
         [HttpPost()]
         public IActionResult AddBusCard([FromBody] BusDTO busDTO)
         {
-            return Created($"api/bus/busNumber/{busDTO.BusNumber}", _busService.CreateBus(busDTO.LineBus, busDTO.BusNumber,  busDTO.DevEUICard));
+            try
+            {
+                return Created($"api/bus/busNumber/{busDTO.BusNumber}", _busService.CreateBus(busDTO.LineBus, busDTO.BusNumber, busDTO.DevEUICard));
+            }
+            catch(Exception e)
+            {
+                return ErrorManager.HandleError(e);
+            }
         }
 
         [HttpGet("busNumber/{busNumber}")]
         public IActionResult GetBusByBusNumber(int busNumber)
         {
-            return Ok(_busService.GetBusByBusNumber(busNumber));
+            try
+            {
+                return Ok(_busService.GetBusByBusNumber(busNumber));
+            }
+            catch(Exception e)
+            {
+                return ErrorManager.HandleError(e);
+            }
         }
 
         [HttpGet("DevEUI/{devEUI}")]
         public IActionResult GetBusByDeEUIv(int devEUI)
         {
-            return Ok(_busService.GetBusByDevEUICard(devEUI));
+            try
+            {
+                return Ok(_busService.GetBusByDevEUICard(devEUI));
+            }
+            catch(Exception e)
+            {
+                return ErrorManager.HandleError(e);
+            }
         }
 
         [HttpGet()]
         public IActionResult GetBuses()
         {
-            return Ok(_busService.GetBuses());
+            try
+            {
+                return Ok(_busService.GetBuses());
+            }
+            catch(Exception e)
+            {
+                return ErrorManager.HandleError(e);
+            }
         }
     }
 }

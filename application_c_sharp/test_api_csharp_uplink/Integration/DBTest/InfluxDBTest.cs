@@ -8,27 +8,19 @@ namespace test_api_csharp_uplink.Integration.DBTest
     {
         public readonly InfluxDBClient Client;
         private readonly string _organizationID;
+        private readonly DeleteApi _deleteApi;
 
         public InfluxDBTest()
         {
-            Client = new InfluxDBClient("http://influxdb:8086", "sOTUwWum_14-STWkMQQyO_ekLheUujU9ZO_boc1qQgoRRUVJGUIOpN9PYGVCYdc-l_3oCetWkNq3RFK69yMhiQ==");
-            _organizationID = "052efff775d12db7";
+            Client = new InfluxDBClient("http://influxdb:8086", "mNxnpUdxk7h6z8GOchqIL7AM8au7Zt3y9uXX_jz9OXhEdi0qnOkLc3ZjWqW5rSc-ASVLafSF0xk_-IIWxir78A==");
+            _organizationID = "7676f3c1acc9cda6";
+            _deleteApi = Client.GetDeleteApi();
         }
 
 
         public async Task InitializeBucket()
         {
-            BucketsApi bucketsApi = Client.GetBucketsApi();
-            List<Bucket> buckets = await bucketsApi.FindBucketsAsync();
-
-            foreach(Bucket bucket in buckets)
-            {
-                if (!bucket.Name.StartsWith('_'))
-                {
-                    await bucketsApi.DeleteBucketAsync(bucket);
-                    await bucketsApi.CreateBucketAsync(bucket.Name, _organizationID);
-                }
-            }
+            await _deleteApi.Delete(DateTime.UnixEpoch, DateTime.UtcNow, "", "mybucket", _organizationID);
         }
     }
 }

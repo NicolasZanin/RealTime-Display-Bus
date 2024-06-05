@@ -3,7 +3,6 @@ using FluentAssertions;
 using Newtonsoft.Json;
 using System.Net;
 using System.Text;
-using System.Threading;
 using test_api_csharp_uplink.Integration.DBTest;
 
 namespace test_api_csharp_uplink.Integration
