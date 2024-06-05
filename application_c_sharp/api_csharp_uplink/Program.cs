@@ -1,6 +1,5 @@
 using api_csharp_uplink.Composant;
 using api_csharp_uplink.Repository;
-using api_csharp_uplink.Config;
 using api_csharp_uplink.DB;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -21,12 +20,10 @@ if (environment != "Test")
 }
 else
 {
-    builder.Services.AddSingleton(new GlobalInfluxDb("sOTUwWum_14-STWkMQQyO_ekLheUujU9ZO_boc1qQgoRRUVJGUIOpN9PYGVCYdc-l_3oCetWkNq3RFK69yMhiQ=="));
+    builder.Services.AddSingleton(new GlobalInfluxDb("mNxnpUdxk7h6z8GOchqIL7AM8au7Zt3y9uXX_jz9OXhEdi0qnOkLc3ZjWqW5rSc-ASVLafSF0xk_-IIWxir78A=="));
 }
 
 var app = builder.Build();
-app.UseExceptionHandler("/error");
-app.UseMiddleware<CustomExceptionMiddleware>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
