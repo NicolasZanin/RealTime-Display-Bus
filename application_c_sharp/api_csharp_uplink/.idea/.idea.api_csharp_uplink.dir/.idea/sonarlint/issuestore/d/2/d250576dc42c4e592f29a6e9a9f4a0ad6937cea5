@@ -1,0 +1,3 @@
+
+‰csharpsquid:S101"mRename class 'PositionDevEUINumber' to match pascal case naming rules, consider using 'PositionDevEuiNumber'.(ºç¼¾
+_csharpsquid:S2094"BRemove this empty class, write its code or make it an "interface".(ºç¼¾
