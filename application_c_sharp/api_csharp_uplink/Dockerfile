@@ -2,6 +2,7 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /app
 
 COPY api_csharp_uplink.csproj ./
+RUN dotnet add package InfluxDB.Client
 RUN dotnet restore
 
 COPY . ./
