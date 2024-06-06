@@ -4,7 +4,7 @@ using InfluxDB.Client.Writes;
 
 namespace api_csharp_uplink.DB
 {
-    public class GlobalInfluxDb(string token = "XwdqDu_hrjZx0-Sr-oHKhBxutpDKRVl512L3NDIBJHA1Ttylt2ZiSuCfNr4s0QBju7ZthcvdXKiu5aB3bQCTAA==")
+    public class GlobalInfluxDb(string token = "77m_AFWkRSDcMUmFv7_50IR2BVuZqcUvY_7w51hPHnUP9KmcW4TsY6U9vfww-EmLLwa6RS7rWjZ9sJLI1ZtzVw==")
     {
         public readonly InfluxDBClient _client = new("http://influxdb:8086", token);
         public readonly string _bucket = "mybucket";

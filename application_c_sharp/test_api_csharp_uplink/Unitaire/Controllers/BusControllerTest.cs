@@ -103,13 +103,13 @@ namespace test_api_csharp_uplink.Unitaire.Controllers
             BusComposant busComposant = new(mock.Object);
             BusController busController = new(busComposant);
 
-            IActionResult actionResult = busController.GetBusByDeEUIv(_busDTO.BusNumber);
+            IActionResult actionResult = busController.GetBusByDevEui(_busDTO.BusNumber);
             actionResult.Should().BeOfType<OkObjectResult>();
             OkObjectResult? okObject = actionResult as OkObjectResult;
             okObject.Should().NotBeNull();
             okObject?.Value.Should().Be(_busExpected);
 
-            actionResult = busController.GetBusByDeEUIv(_busDTO.BusNumber);
+            actionResult = busController.GetBusByDevEui(_busDTO.BusNumber);
             actionResult.Should().BeOfType<NotFoundObjectResult>();
         }
 
