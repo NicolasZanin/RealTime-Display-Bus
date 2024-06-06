@@ -12,6 +12,9 @@ RUN dotnet restore
 COPY api_csharp_uplink/. api_csharp_uplink/
 COPY test_api_csharp_uplink/. test_api_csharp_uplink/
 WORKDIR /app/test_api_csharp_uplink
+
+RUN dotnet add package Moq
+RUN dotnet add package FluentAssertions
 RUN dotnet build
 
 # Exécute les tests

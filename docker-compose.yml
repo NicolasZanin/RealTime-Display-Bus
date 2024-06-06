@@ -61,17 +61,6 @@ services:
       - influxdb
     networks:
       - link_data_network
-  test_api_csharp_uplink:
-    container_name: test_api_csharp_uplink
-    build:
-      context: ./application_c_sharp
-      dockerfile: test_api_csharp_uplink/Dockerfile
-    depends_on:
-      - node-red
-      - influxdb
-      - api_csharp_uplink
-    networks:
-      - link_data_network
 
 volumes:
   node-red-data:

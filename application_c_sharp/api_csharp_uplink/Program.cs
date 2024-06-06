@@ -1,9 +1,36 @@
+using System.Reflection;
+using api_csharp_uplink.Composant;
+using api_csharp_uplink.Repository;
+using api_csharp_uplink.DB;
+using Microsoft.OpenApi.Models;
+
 var builder = WebApplication.CreateBuilder(args);
+string? environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
 
 // Add services to the container.
 builder.Services.AddControllers();
+builder.Services.AddScoped<IBusRepository, BusRepository>();
+builder.Services.AddScoped<IBusService, BusComposant>();
+builder.Services.AddScoped<IInfluxDBBus, InfluxDbBus>();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+
+if (environment != "Test")
+{
+    builder.Services.AddSingleton(new GlobalInfluxDb());
+    builder.Services.AddSwaggerGen(c =>
+    {
+        c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
+
+        // Add XML comments if you have them
+        var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+        var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+        c.IncludeXmlComments(xmlPath);
+    });
+}
+else
+{
+    builder.Services.AddSingleton(new GlobalInfluxDb("mNxnpUdxk7h6z8GOchqIL7AM8au7Zt3y9uXX_jz9OXhEdi0qnOkLc3ZjWqW5rSc-ASVLafSF0xk_-IIWxir78A=="));
+}
 
 var app = builder.Build();
 
@@ -11,7 +38,10 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+    });
 }
 
 app.UseAuthorization();
