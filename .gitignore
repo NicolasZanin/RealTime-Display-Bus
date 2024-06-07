@@ -1,4 +1,5 @@
 .vs
+.idea
 application_c_sharp/.idea
 application_c_sharp/**/bin
 application_c_sharp/**/obj
