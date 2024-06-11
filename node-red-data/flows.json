@@ -11,7 +11,7 @@
         "id": "187e3413921597f4",
         "type": "mqtt-broker",
         "name": "",
-        "broker": "45.117.83.198",
+        "broker": "vngalaxy.vn",
         "port": "1883",
         "clientid": "",
         "autoConnect": true,
@@ -70,8 +70,7 @@
         "y": 240,
         "wires": [
             [
-                "a349be0d9b8599dd",
-                "ef588388c9bb02a2"
+                "a349be0d9b8599dd"
             ]
         ]
     },
