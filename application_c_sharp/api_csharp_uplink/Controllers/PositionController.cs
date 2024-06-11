@@ -18,11 +18,11 @@ namespace api_csharp_uplink.Controllers
         {
             try
             {
-                PositionBus positionBus = positionComposant.AddPosition(positionBusDto.Position.Latitude,
+               PositionBus positionBus = positionComposant.AddPosition(positionBusDto.Position.Latitude,
                     positionBusDto.Position.Longitude,
                     positionBusDto.DevEuiNumber);
                 
-                return Ok(convertPositionBusIntoDto(positionBus));
+                return Created($"api/devEuiNumber/{positionBusDto.DevEuiNumber}", ConvertPositionBusIntoDto(positionBus));
             }
             catch (Exception e)
             {
@@ -39,7 +39,7 @@ namespace api_csharp_uplink.Controllers
             try
             {
                 PositionBus positionBus = positionComposant.GetLastPosition(devEuiNumber);
-                return Ok(convertPositionBusIntoDto(positionBus));
+                return Ok(ConvertPositionBusIntoDto(positionBus));
             }
             catch (Exception e)
             {
@@ -49,8 +49,9 @@ namespace api_csharp_uplink.Controllers
         
         
 
-        [HttpGet()]
-        public IActionResult timeBusToNextStation([FromQuery] int idStation)
+        [HttpGet]
+        [ProducesResponseType(typeof(string), 200)]
+        public IActionResult TimeBusToNextStation([FromQuery] int idStation)
         {
             if (idStation < 0)
             {
@@ -60,7 +61,7 @@ namespace api_csharp_uplink.Controllers
             return Ok("5 mn");
         }
 
-        private static PositionBusDto convertPositionBusIntoDto(PositionBus positionBus)
+        private static PositionBusDto ConvertPositionBusIntoDto(PositionBus positionBus)
         {
             return new PositionBusDto
             {

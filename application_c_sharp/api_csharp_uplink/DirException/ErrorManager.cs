@@ -10,6 +10,8 @@ namespace api_csharp_uplink.DirException
             {
                 BusNotFoundException => new NotFoundObjectResult(exception.Message),
                 BusAlreadyCreateException => new ConflictObjectResult(exception.Message),
+                PositionDevEuiNumberException => new NotFoundObjectResult(exception.Message),
+                ValueNotCorrectException => new BadRequestObjectResult(exception.Message),
                 DbException => new ObjectResult(new ProblemDetails
                 {
                     Detail = exception.Message, Status = 500, Title = "Error DB."
