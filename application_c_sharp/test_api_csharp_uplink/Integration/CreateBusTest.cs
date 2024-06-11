@@ -8,6 +8,7 @@ using test_api_csharp_uplink.Integration.DBTest;
 namespace test_api_csharp_uplink.Integration
 {
 
+    [Collection("NonParallel")]
     public class CreateBusTest : IAsyncLifetime
     {
         private readonly HttpClient _client;
