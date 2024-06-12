@@ -13,9 +13,9 @@ public class DbTestPosition : IInfluxDbPosition
         return Task.FromResult(positionBus);
     }
 
-    public Task<PositionBus?> GetLast(int devEuiNumber)
+    public Task<PositionBus?> GetLast(string devEuiCard)
     {
-        List<PositionBus> list = _context.FindAll(position => position.DevEuiNumber == devEuiNumber);
+        List<PositionBus> list = _context.FindAll(position => position.DevEuiCard.Equals(devEuiCard));
         return Task.FromResult(list.Count > 0 ? list[^1] : null);
     }
 }

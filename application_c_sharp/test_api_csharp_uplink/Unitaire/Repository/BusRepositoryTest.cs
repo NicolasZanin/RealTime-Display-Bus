@@ -8,31 +8,20 @@ namespace test_api_csharp_uplink.Unitaire.Repository
 {
     public class BusRepositoryTest
     {
-        private readonly BusDTO _busDTO;
-        private readonly Bus _busExpected;
-
-        public BusRepositoryTest()
+        private readonly BusDto _busDto = new()
         {
-            _busDTO = new()
-            {
-                LineBus = 1,
-                BusNumber = 0,
-                DevEUICard = 0
-            };
-            _busExpected = new()
-            {
-                LineBus = 1,
-                BusNumber = 0,
-                DevEUICard = 0
-            };
-        }
+            LineBus = 1,
+            BusNumber = 0,
+            DevEuiCard = "0"
+        };
+        private readonly Bus _busExpected = new(0, "0", 1);
 
         [Fact]
         [Trait("Category", "Unit")]
         public void TestCreateBus()
         {
-            Mock<IInfluxDBBus> mock = new();
-            mock.SetupSequence(mock => mock.Add(It.IsAny<Bus>()))
+            Mock<IInfluxDbBus> mock = new();
+            mock.SetupSequence(influxDbBus => influxDbBus.Add(It.IsAny<Bus>()))
                 .ReturnsAsync(_busExpected)
                 .ReturnsAsync(null as Bus);
             
@@ -50,37 +39,37 @@ namespace test_api_csharp_uplink.Unitaire.Repository
         [Trait("Category", "Unit")]
         public void TestGetBusByNumber()
         {
-            Mock<IInfluxDBBus> mock = new();
-            mock.SetupSequence(mock => mock.GetByBusNumber(_busExpected.BusNumber))
+            Mock<IInfluxDbBus> mock = new();
+            mock.SetupSequence(influxDbBus => influxDbBus.GetByBusNumber(_busExpected.BusNumber))
                 .ReturnsAsync(_busExpected)
                 .ReturnsAsync(null as Bus);
 
             BusRepository busRepository = new(mock.Object);
 
-            Bus? busActual = busRepository.GetByBusNumber(_busDTO.BusNumber);
+            Bus? busActual = busRepository.GetByBusNumber(_busDto.BusNumber);
             Assert.NotNull(busActual);
             Assert.Equal(_busExpected, busActual);
 
-            busActual = busRepository.GetByBusNumber(_busDTO.BusNumber);
+            busActual = busRepository.GetByBusNumber(_busDto.BusNumber);
             Assert.Null(busActual);
         }
 
         [Fact]
         [Trait("Category", "Unit")]
-        public void TestGetBusByDevEUI()
+        public void TestGetBusByDevEui()
         {
-            Mock<IInfluxDBBus> mock = new();
-            mock.SetupSequence(mock => mock.GetByDevEUI(_busExpected.BusNumber))
+            Mock<IInfluxDbBus> mock = new();
+            mock.SetupSequence(influxDbBus => influxDbBus.GetByDevEui(_busExpected.DevEuiCard))
                 .ReturnsAsync(_busExpected)
                 .ReturnsAsync(null as Bus);
 
             BusRepository busRepository = new(mock.Object);
 
-            Bus? busActual = busRepository.GetBusByDevEUICard(_busDTO.BusNumber);
+            Bus? busActual = busRepository.GetBusByDevEuiCard(_busDto.DevEuiCard);
             Assert.NotNull(busActual);
             Assert.Equal(_busExpected, busActual);
 
-            busActual = busRepository.GetBusByDevEUICard(_busDTO.BusNumber);
+            busActual = busRepository.GetBusByDevEuiCard(_busDto.DevEuiCard);
             Assert.Null(busActual);
         }
 
@@ -88,35 +77,13 @@ namespace test_api_csharp_uplink.Unitaire.Repository
         [Trait("Category", "Unit")]
         public void TestGetBuses()
         {
-            BusDTO bus = new()
-            {
-                LineBus = 1,
-                BusNumber = 1,
-                DevEUICard = 1
-            };
+            Bus busExpected1 = new(1, "1", 1);
 
-            Bus busExpected1 = new()
-            {
-                LineBus = 1,
-                BusNumber = 1,
-                DevEUICard = 1
-            };
+            Bus busExpected2 = new(2, "2", 5);
 
-            Bus busExpected2 = new()
-            {
-                LineBus = 5,
-                BusNumber = 2,
-                DevEUICard = 2
-            };
-
-            Bus busExpected3 = new()
-            {
-                LineBus = 5,
-                BusNumber = 3,
-                DevEUICard = 3
-            };
-            Mock<IInfluxDBBus> mock = new();
-            mock.SetupSequence(mock => mock.GetAll())
+            Bus busExpected3 = new(3, "3", 5);
+            Mock<IInfluxDbBus> mock = new();
+            mock.SetupSequence(influxDbBus => influxDbBus.GetAll())
                 .ReturnsAsync([])
                 .ReturnsAsync([busExpected1])
                 .ReturnsAsync([busExpected1, busExpected2, busExpected3]);

@@ -9,36 +9,23 @@ namespace test_api_csharp_uplink.Unitaire.Composant
 {
     public class BusComposantTest
     {
-        private readonly BusDTO _busDTO;
-        private readonly Bus _busExpected;
-
-        public BusComposantTest()
+        private readonly BusDto _busDto = new()
         {
-            _busDTO = new()
-            {
-                LineBus = 1,
-                BusNumber = 0,
-                DevEUICard = 0
-            };
-            _busExpected = new()
-            {
-                LineBus = 1,
-                BusNumber = 0,
-                DevEUICard = 0
-            };
-        }
+            LineBus = 1,
+            BusNumber = 0,
+            DevEuiCard = "0"
+        };
+        private readonly Bus _busExpected = new(0, "0", 1);
 
         [Fact]
         [Trait("Category", "Unit")]
         public void TestCreateBus()
         {
-
-
             Mock<IBusRepository> mock = new();
-            mock.Setup(mock => mock.AddBus(_busExpected)).Returns(_busExpected);
+            mock.Setup(busRepository => busRepository.AddBus(_busExpected)).Returns(_busExpected);
             BusComposant busComposant = new(mock.Object);
 
-            Bus busActual = busComposant.CreateBus(_busDTO.LineBus, _busDTO.BusNumber, _busDTO.DevEUICard);
+            Bus busActual = busComposant.CreateBus(_busDto.LineBus, _busDto.BusNumber, _busDto.DevEuiCard);
             Assert.NotNull(busActual);
             Assert.Equal(_busExpected, busActual);
         }
@@ -48,17 +35,17 @@ namespace test_api_csharp_uplink.Unitaire.Composant
         public void TestFalseCreate2BusSameTime()
         {
             Mock<IBusRepository> mock = new();
-            mock.SetupSequence(mock => mock.AddBus(_busExpected))
+            mock.SetupSequence(busRepository => busRepository.AddBus(_busExpected))
                 .Returns(_busExpected)
                 .Returns(_busExpected);
-            mock.SetupSequence(mock => mock.GetByBusNumber(_busExpected.BusNumber))
+            mock.SetupSequence(busRepository => busRepository.GetByBusNumber(_busExpected.BusNumber))
                 .Returns(null as Bus)
                 .Returns(_busExpected);
 
             BusComposant busComposant = new(mock.Object);
 
-            busComposant.CreateBus(_busDTO.LineBus, _busDTO.BusNumber, _busDTO.DevEUICard);
-            Assert.Throws<BusAlreadyCreateException>(() => busComposant.CreateBus(_busDTO.LineBus, _busDTO.BusNumber, _busDTO.DevEUICard));
+            busComposant.CreateBus(_busDto.LineBus, _busDto.BusNumber, _busDto.DevEuiCard);
+            Assert.Throws<BusAlreadyCreateException>(() => busComposant.CreateBus(_busDto.LineBus, _busDto.BusNumber, _busDto.DevEuiCard));
         }
 
         [Fact]
@@ -66,7 +53,7 @@ namespace test_api_csharp_uplink.Unitaire.Composant
         public void TestGetBusByNumber()
         {
             Mock<IBusRepository> mock = new();
-            mock.SetupSequence(mock => mock.GetByBusNumber(_busExpected.BusNumber))
+            mock.SetupSequence(busRepository => busRepository.GetByBusNumber(_busExpected.BusNumber))
                 .Returns(_busExpected)
                 .Returns(null as Bus);
 
@@ -81,55 +68,34 @@ namespace test_api_csharp_uplink.Unitaire.Composant
 
         [Fact]
         [Trait("Category", "Unit")]
-        public void TestGetBusByDevEUI()
+        public void TestGetBusByDevEui()
         {
             Mock<IBusRepository> mock = new();
-            mock.SetupSequence(mock => mock.GetBusByDevEUICard(_busExpected.BusNumber))
+            mock.SetupSequence(busRepository => busRepository.GetBusByDevEuiCard(_busExpected.DevEuiCard))
                 .Returns(_busExpected)
                 .Returns(null as Bus);
 
             BusComposant busComposant = new(mock.Object);
 
-            Bus busActual = busComposant.GetBusByDevEUICard(_busExpected.BusNumber);
+            Bus busActual = busComposant.GetBusByDevEuiCard(_busExpected.DevEuiCard);
             Assert.NotNull(busActual);
             Assert.Equal(_busExpected, busActual);
 
-            Assert.Throws<BusNotFoundException>(() => busComposant.GetBusByDevEUICard(_busExpected.BusNumber));
+            Assert.Throws<BusDevEuiCardNotFoundException>(() => busComposant.GetBusByDevEuiCard(_busExpected.DevEuiCard));
         }
 
         [Fact]
         [Trait("Category", "Unit")]
         public void TestGetBuses()
         {
-            BusDTO bus = new()
-            {
-                LineBus = 1,
-                BusNumber = 1,
-                DevEUICard = 1
-            };
+            Bus busExpected1 = new(1, "1", 1);
 
-            Bus busExpected1 = new()
-            {
-                LineBus = 1,
-                BusNumber = 1,
-                DevEUICard = 1
-            };
+            Bus busExpected2 = new(2, "2", 5);
 
-            Bus busExpected2 = new()
-            {
-                LineBus = 5,
-                BusNumber = 2,
-                DevEUICard = 2
-            };
-
-            Bus busExpected3 = new()
-            {
-                LineBus = 5,
-                BusNumber = 3,
-                DevEUICard = 3
-            };
+            Bus busExpected3 = new(3, "3", 5);
+            
             Mock<IBusRepository> mock = new();
-            mock.SetupSequence(mock => mock.GetBuses())
+            mock.SetupSequence(busRepository => busRepository.GetBuses())
                 .Returns([])
                 .Returns([busExpected1])
                 .Returns([busExpected1, busExpected2, busExpected3]);

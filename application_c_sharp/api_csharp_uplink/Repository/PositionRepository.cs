@@ -10,8 +10,8 @@ public class PositionRepository(IInfluxDbPosition influxDbPosition) : IPositionR
         return influxDbPosition.Add(positionBus).Result;
     }
     
-    public PositionBus? GetLastPosition(int devEuiNumber)
+    public PositionBus? GetLastPosition(string devEuiCard)
     {
-        return influxDbPosition.GetLast(devEuiNumber).Result;
+        return influxDbPosition.GetLast(devEuiCard).Result;
     }
 }

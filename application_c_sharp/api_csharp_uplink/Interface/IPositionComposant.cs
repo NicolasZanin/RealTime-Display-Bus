@@ -4,6 +4,6 @@ namespace api_csharp_uplink.Interface;
 
 public interface IPositionComposant
 {
-    public PositionBus AddPosition(double latitude, double longitude, int devEuiNumber);
-    public PositionBus GetLastPosition(int devEuiNumber);
+    public PositionBus AddPosition(double latitude, double longitude, string devEuiCard);
+    public PositionBus GetLastPosition(string devEuiCard);
 }

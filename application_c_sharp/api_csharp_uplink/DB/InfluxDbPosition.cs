@@ -4,7 +4,6 @@ using api_csharp_uplink.Interface;
 using InfluxDB.Client.Api.Domain;
 using InfluxDB.Client.Core.Flux.Domain;
 using InfluxDB.Client.Writes;
-using System.Text.Json;
 
 namespace api_csharp_uplink.DB;
 
@@ -15,7 +14,7 @@ public class InfluxDbPosition(GlobalInfluxDb globalInfluxDb) : IInfluxDbPosition
     public async Task<PositionBus> Add(PositionBus positionBus)
     {
         var point = PointData.Measurement(MeasurementPosition)
-            .Tag("DevEuiCard", positionBus.DevEuiNumber.ToString())
+            .Tag("DevEuiCard", positionBus.DevEuiCard)
             .Field("Longitude", positionBus.Position.Longitude)
             .Field("Latitude", positionBus.Position.Latitude)
             .Timestamp(DateTime.Now, WritePrecision.Ns);
@@ -33,7 +32,7 @@ public class InfluxDbPosition(GlobalInfluxDb globalInfluxDb) : IInfluxDbPosition
         string devEuiCard =(string) record.GetValueByKey("DevEuiCard");
         double latitude = (double) record.GetValueByKey("Latitude");
         double longitude = (double) record.GetValueByKey("Longitude");
-        PositionBus positionBus = new(new Position(latitude, longitude), int.Parse(devEuiCard));
+        PositionBus positionBus = new(new Position(latitude, longitude), devEuiCard);
 
         return positionBus;
     }
@@ -48,11 +47,11 @@ public class InfluxDbPosition(GlobalInfluxDb globalInfluxDb) : IInfluxDbPosition
         return null;
     }
 
-    public async Task<PositionBus?> GetLast(int devEuiNumber)
+    public async Task<PositionBus?> GetLast(string devEuiCard)
     {
         string query = $"from(bucket: \"mybucket\")\n  " +
                         $"|> range(start: -15m)\n  " +
-                        $"|> filter(fn: (r) => r._measurement == \"{MeasurementPosition}\" and r.DevEuiCard == \"{devEuiNumber}\")\n  " +
+                        $"|> filter(fn: (r) => r._measurement == \"{MeasurementPosition}\" and r.DevEuiCard == \"{devEuiCard}\")\n  " +
                         $"|> last()\n  " +
                         $"|> filter(fn: (r) => r._field == \"Latitude\" or r._field == \"Longitude\" or r._field == \"DevEuiCard\")\n  " +
                         $"|> pivot(rowKey:[\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n  " +

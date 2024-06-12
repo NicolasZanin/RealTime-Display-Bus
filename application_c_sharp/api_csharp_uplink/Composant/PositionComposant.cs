@@ -6,23 +6,18 @@ namespace api_csharp_uplink.Composant;
 
 public class PositionComposant(IPositionRepository positionRepository) : IPositionComposant
 {
-    public PositionBus AddPosition(double latitude, double longitude, int devEuiNumber)
+    public PositionBus AddPosition(double latitude, double longitude, string devEuiCard)
     {
         if (latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180)
             throw new ValueNotCorrectException("Latitude or longitude is not correct");
-        if(devEuiNumber < 0)
-            throw new ValueNotCorrectException("DevEuiNumber is not correct");
         
-        PositionBus positionBus = new(new Position(latitude, longitude), devEuiNumber);
+        PositionBus positionBus = new(new Position(latitude, longitude), devEuiCard);
         return positionRepository.AddPosition(positionBus);
     }
 
-    public PositionBus GetLastPosition(int devEuiNumber)
+    public PositionBus GetLastPosition(string devEuiCard)
     {
-        if(devEuiNumber < 0)
-            throw new ValueNotCorrectException("DevEuiNumber is not correct");
-        
-        PositionBus? positionBus = positionRepository.GetLastPosition(devEuiNumber);
-        return positionBus ?? throw new PositionDevEuiNumberException(devEuiNumber);
+        PositionBus? positionBus = positionRepository.GetLastPosition(devEuiCard);
+        return positionBus ?? throw new PositionDevEuiNumberException(devEuiCard);
     }
 }

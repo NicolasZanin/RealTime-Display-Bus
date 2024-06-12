@@ -1,11 +1,11 @@
 namespace api_csharp_uplink.Entities;
 
-public class PositionBus(Position position, int devEuiNumber)
+public class PositionBus(Position position, string devEuiCard)
 {
     public Position Position { get; } = position;
-    public int DevEuiNumber { get; } = devEuiNumber;
+    public string DevEuiCard { get; } = devEuiCard;
 
-    public PositionBus() : this(new Position(), 0)
+    public PositionBus() : this(new Position(), "0")
     {
     }
     public override bool Equals(object? obj)
@@ -15,16 +15,16 @@ public class PositionBus(Position position, int devEuiNumber)
         if (obj == null || obj.GetType() != GetType())
             return false;
         PositionBus positionBus = (PositionBus)obj;
-        return positionBus.Position.Equals(Position)  && positionBus.DevEuiNumber == DevEuiNumber;
+        return positionBus.Position.Equals(Position)  && positionBus.DevEuiCard.Equals(DevEuiCard);
     }
     
     public override int GetHashCode()
     {
-        return HashCode.Combine(Position, DevEuiNumber);
+        return HashCode.Combine(Position, DevEuiCard);
     }
 
     public override string ToString()
     {
-        return $"Position: {Position}, DevEuiNumber: {DevEuiNumber}";
+        return $"Position: {Position}, DevEuiCard: {DevEuiCard}";
     }
 }

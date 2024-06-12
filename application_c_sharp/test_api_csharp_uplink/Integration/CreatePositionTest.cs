@@ -13,7 +13,7 @@ public class CreatePositionTest(ITestOutputHelper testOutputHelper) : IAsyncLife
 {
     private readonly HttpClient _client = new();
 
-    readonly PositionBusDto _positionBusDto15140 = new(){ DevEuiNumber = 0, 
+    readonly PositionBusDto _positionBusDto15140 = new(){ DevEuiNumber = "0", 
         Position = new PositionDto { Latitude = 15.01, Longitude = 14.01 } };
     private readonly string _request = "http://api_csharp_uplink:8000/api/Position";
     private readonly InfluxDBTest _influxDbTest = new();
@@ -74,30 +74,21 @@ public class CreatePositionTest(ITestOutputHelper testOutputHelper) : IAsyncLife
     {
         try
         {
-            PositionBusDto positionBusDtoErrorDevEuiNumber = new() { DevEuiNumber = -1, 
-                Position = new PositionDto { Latitude = _positionBusDto15140.Position.Latitude, Longitude = _positionBusDto15140.Position.Longitude } };
-
-            StringContent content = new(JsonConvert.SerializeObject(positionBusDtoErrorDevEuiNumber), Encoding.UTF8,
-                "application/json");
-
-            HttpResponseMessage response = await _client.PostAsync(_request, content);
-            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-
             PositionBusDto positionBusDtoErrorLatitude = new()
             {
                 DevEuiNumber = _positionBusDto15140.DevEuiNumber,
                 Position = new PositionDto { Latitude = 91.0, Longitude = _positionBusDto15140.Position.Longitude }
             };
             
-            content = new(JsonConvert.SerializeObject(positionBusDtoErrorDevEuiNumber), Encoding.UTF8,
+            StringContent content = new(JsonConvert.SerializeObject(positionBusDtoErrorLatitude), Encoding.UTF8,
                 "application/json");
 
-            response = await _client.PostAsync(_request, content);
+            HttpResponseMessage response = await _client.PostAsync(_request, content);
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
 
             positionBusDtoErrorLatitude.Position.Latitude = -91.0;
             
-            content = new(JsonConvert.SerializeObject(positionBusDtoErrorDevEuiNumber), Encoding.UTF8,
+            content = new(JsonConvert.SerializeObject(positionBusDtoErrorLatitude), Encoding.UTF8,
                 "application/json");
 
             response = await _client.PostAsync(_request, content);
@@ -110,7 +101,7 @@ public class CreatePositionTest(ITestOutputHelper testOutputHelper) : IAsyncLife
                 Position = new PositionDto { Latitude = _positionBusDto15140.Position.Latitude, Longitude = 180.01 }
             };
             
-            content = new(JsonConvert.SerializeObject(positionBusDtoErrorDevEuiNumber), Encoding.UTF8,
+            content = new(JsonConvert.SerializeObject(positionBusDtoErrorLongitude), Encoding.UTF8,
                 "application/json");
 
             response = await _client.PostAsync(_request, content);
@@ -118,7 +109,7 @@ public class CreatePositionTest(ITestOutputHelper testOutputHelper) : IAsyncLife
 
             positionBusDtoErrorLongitude.Position.Longitude = -180.01;
             
-            content = new(JsonConvert.SerializeObject(positionBusDtoErrorDevEuiNumber), Encoding.UTF8,
+            content = new(JsonConvert.SerializeObject(positionBusDtoErrorLongitude), Encoding.UTF8,
                 "application/json");
 
             response = await _client.PostAsync(_request, content);
@@ -135,9 +126,9 @@ public class CreatePositionTest(ITestOutputHelper testOutputHelper) : IAsyncLife
     [Trait("Category", "Integration")]
     public async Task TestGetPositions()
     {
-        PositionBusDto positionBusDto15141 = new(){ DevEuiNumber = 1, 
+        PositionBusDto positionBusDto15141 = new(){ DevEuiNumber = "1", 
             Position = new PositionDto { Latitude = 15.01, Longitude = 14.01 } };
-        PositionBusDto positionBusDto14140 = new(){ DevEuiNumber = 0, 
+        PositionBusDto positionBusDto14140 = new(){ DevEuiNumber = "0", 
             Position = new PositionDto { Latitude = 14.5, Longitude = 14.01 } };
 
         string json15140 = JsonConvert.SerializeObject(_positionBusDto15140);
@@ -153,14 +144,14 @@ public class CreatePositionTest(ITestOutputHelper testOutputHelper) : IAsyncLife
         {
             await _client.PostAsync(_request, content15140);
             await _client.PostAsync(_request, content15141);
-            HttpResponseMessage response = await _client.GetAsync($"{_request}/devEuiNumber/{_positionBusDto15140.DevEuiNumber}");
+            HttpResponseMessage response = await _client.GetAsync($"{_request}/devEuiCard/{_positionBusDto15140.DevEuiNumber}");
             response.EnsureSuccessStatusCode();
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             string responseString = await response.Content.ReadAsStringAsync();
             responseString.Should().NotBeNullOrEmpty();
             responseString.Should().BeEquivalentTo(json15140);
             
-            response = await _client.GetAsync($"{_request}/devEuiNumber/{positionBusDto15141.DevEuiNumber}");
+            response = await _client.GetAsync($"{_request}/devEuiCard/{positionBusDto15141.DevEuiNumber}");
             response.EnsureSuccessStatusCode();
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             responseString = await response.Content.ReadAsStringAsync();
@@ -169,14 +160,14 @@ public class CreatePositionTest(ITestOutputHelper testOutputHelper) : IAsyncLife
             
             await _client.PostAsync(_request, content14140);
             
-            response = await _client.GetAsync($"{_request}/devEuiNumber/{_positionBusDto15140.DevEuiNumber}");
+            response = await _client.GetAsync($"{_request}/devEuiCard/{_positionBusDto15140.DevEuiNumber}");
             response.EnsureSuccessStatusCode();
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             responseString = await response.Content.ReadAsStringAsync();
             responseString.Should().NotBeNullOrEmpty();
             responseString.Should().BeEquivalentTo(json14140);
             
-            response = await _client.GetAsync($"{_request}/devEuiNumber/2");
+            response = await _client.GetAsync($"{_request}/devEuiCard/2");
             response.StatusCode.Should().Be(HttpStatusCode.NotFound);
 
         }
@@ -193,8 +184,8 @@ public class CreatePositionTest(ITestOutputHelper testOutputHelper) : IAsyncLife
     {
         try
         {
-            HttpResponseMessage response = await _client.GetAsync($"{_request}/devEuiNumber/-1");
-            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+            HttpResponseMessage response = await _client.GetAsync($"{_request}/devEuiCard/-1");
+            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
         }
         catch (HttpRequestException e)
         {

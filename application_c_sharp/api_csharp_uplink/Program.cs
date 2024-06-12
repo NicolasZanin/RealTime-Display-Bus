@@ -12,7 +12,7 @@ string? environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT
 builder.Services.AddControllers();
 builder.Services.AddScoped<IBusRepository, BusRepository>();
 builder.Services.AddScoped<IBusService, BusComposant>();
-builder.Services.AddScoped<IInfluxDBBus, InfluxDbBus>();
+builder.Services.AddScoped<IInfluxDbBus, InfluxDbBus>();
 builder.Services.AddScoped<IPositionRepository, PositionRepository>();
 builder.Services.AddScoped<IPositionComposant, PositionComposant>();
 builder.Services.AddScoped<IInfluxDbPosition, InfluxDbPosition>();

@@ -11,7 +11,7 @@ namespace test_api_csharp_uplink.Unitaire.Controllers;
 public class PositionControllerTest
 {
     private readonly PositionController _positionController;
-    private readonly PositionBusDto _positionBusDto15140 = new(){ DevEuiNumber = 0, 
+    private readonly PositionBusDto _positionBusDto15140 = new(){ DevEuiNumber = "0", 
         Position = new PositionDto { Latitude = 15.0, Longitude = 14.0 } };
     
     public PositionControllerTest()
@@ -36,16 +36,10 @@ public class PositionControllerTest
     [Trait("Category", "Unit")]
     public void AddPositionErrorTest()
     {
-        PositionBusDto positionBusDtoErrorDevEuiNumber = new() { DevEuiNumber = -1, 
-            Position = new PositionDto { Latitude = _positionBusDto15140.Position.Latitude, Longitude = _positionBusDto15140.Position.Longitude } };
-        
-        IActionResult actionResult = _positionController.AddNewPosition(positionBusDtoErrorDevEuiNumber);
-        actionResult.Should().BeOfType<BadRequestObjectResult>();
-        
         PositionBusDto positionBusDtoErrorLatitude = new() { DevEuiNumber = _positionBusDto15140.DevEuiNumber, 
             Position = new PositionDto { Latitude = 91.0, Longitude = _positionBusDto15140.Position.Longitude  } };
         
-        actionResult = _positionController.AddNewPosition(positionBusDtoErrorLatitude);
+        IActionResult actionResult = _positionController.AddNewPosition(positionBusDtoErrorLatitude);
         actionResult.Should().BeOfType<BadRequestObjectResult>();
         
         positionBusDtoErrorLatitude.Position.Latitude = -91.0;
@@ -67,9 +61,9 @@ public class PositionControllerTest
     [Trait("Category", "Unit")]
     public void GetPositionTest()
     {
-        PositionBusDto positionBusDto15141 = new(){ DevEuiNumber = 1, 
+        PositionBusDto positionBusDto15141 = new(){ DevEuiNumber = "1", 
             Position = new PositionDto { Latitude = 15.0, Longitude = 14.0 } };
-        PositionBusDto positionBusDto14140 = new(){ DevEuiNumber = 0, 
+        PositionBusDto positionBusDto14140 = new(){ DevEuiNumber = "0", 
             Position = new PositionDto { Latitude = 14.5, Longitude = 14.0 } };
         
         _positionController.AddNewPosition(_positionBusDto15140);
@@ -98,15 +92,7 @@ public class PositionControllerTest
         okObjectResult.Should().NotBeNull();
         okObjectResult.Value.Should().BeEquivalentTo(positionBusDto14140);
         
-        actionResult = _positionController.GetLastPositionByDevEuiNumber(2);
+        actionResult = _positionController.GetLastPositionByDevEuiNumber("2");
         actionResult.Should().BeOfType<NotFoundObjectResult>();
-    }
-    
-    [Fact]
-    [Trait("Category", "Unit")]
-    public void GetPositionErrorTest()
-    {
-        IActionResult actionResult = _positionController.GetLastPositionByDevEuiNumber(-1);
-        actionResult.Should().BeOfType<BadRequestObjectResult>();
     }
 }

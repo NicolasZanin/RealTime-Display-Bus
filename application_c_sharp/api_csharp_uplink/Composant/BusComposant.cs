@@ -6,36 +6,29 @@ namespace api_csharp_uplink.Composant
 {
     public interface IBusService
     {
-        Bus CreateBus(int lineNumber, int busNumber, int devEUICard);
+        Bus CreateBus(int lineNumber, int busNumber, string devEuiCard);
         List<Bus> GetBuses();
         Bus GetBusByBusNumber(int busNumber);
-        Bus GetBusByDevEUICard(int busNumber);
+        Bus GetBusByDevEuiCard(string devEuiCard);
     }
 
     public class BusComposant(IBusRepository busRepository) : IBusService
     {
-        private readonly IBusRepository busRepository = busRepository;
-
-        public Bus CreateBus(int lineNumber, int busNumber, int devEUICard)
+        public Bus CreateBus(int lineNumber, int busNumber, string devEuiCard)
         {
             if (busRepository.GetByBusNumber(busNumber) != null)
             {
                 throw new BusAlreadyCreateException(busNumber);
             }
 
-            if (lineNumber <= 0 || busNumber < 0 || devEUICard < 0)
+            if (lineNumber <= 0 || busNumber < 0)
             {
-                throw new ValueNotCorrectException("The line number, bus number and devEUI card must be greater than 0");
+                throw new ValueNotCorrectException("The line number, bus number must be greater than 0");
             }
 
-            Bus bus = new()
-            {
-                LineBus = lineNumber,
-                BusNumber = busNumber,
-                DevEUICard = devEUICard
-            };
+            Bus bus = new(busNumber, devEuiCard, lineNumber);
 
-            return busRepository.AddBus(bus)?? throw new Exception("Problem with database");
+            return busRepository.AddBus(bus)?? throw new DbException("Problem with database");
         }
 
         public Bus GetBusByBusNumber(int busNumber)
@@ -44,10 +37,10 @@ namespace api_csharp_uplink.Composant
             return bus ?? throw new BusNotFoundException(busNumber);
         }
 
-        public Bus GetBusByDevEUICard(int busNumber)
+        public Bus GetBusByDevEuiCard(string devEuiCard)
         {
-            Bus? bus = busRepository.GetBusByDevEUICard(busNumber);
-            return bus ?? throw new BusNotFoundException(busNumber);
+            Bus? bus = busRepository.GetBusByDevEuiCard(devEuiCard);
+            return bus ?? throw new BusDevEuiCardNotFoundException(devEuiCard);
         }
 
         public List<Bus> GetBuses()

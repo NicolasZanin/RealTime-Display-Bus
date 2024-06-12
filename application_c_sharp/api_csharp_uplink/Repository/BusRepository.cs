@@ -7,33 +7,31 @@ namespace api_csharp_uplink.Repository
     {
         public Bus? AddBus(Bus bus);
         public Bus? GetByBusNumber(int busNumber);
-        public Bus? GetBusByDevEUICard(int busNumber);
+        public Bus? GetBusByDevEuiCard(string devEuiCard);
         public List<Bus> GetBuses();
     }
-    public class BusRepository(IInfluxDBBus InfluxDBBus) : IBusRepository
+    public class BusRepository(IInfluxDbBus influxDbBus) : IBusRepository
     {
-        private readonly IInfluxDBBus _influxDBBus = InfluxDBBus;
-
         public Bus? AddBus(Bus bus)
         {
-            return _influxDBBus.Add(bus).Result;
+            return influxDbBus.Add(bus).Result;
         }
 
         public Bus? GetByBusNumber(int busNumber)
         {
-            Bus? bus = _influxDBBus.GetByBusNumber(busNumber).Result;
+            Bus? bus = influxDbBus.GetByBusNumber(busNumber).Result;
             return bus;
         }
 
-        public Bus? GetBusByDevEUICard(int devEUI)
+        public Bus? GetBusByDevEuiCard(string devEuiCard)
         {
-            Bus? bus = _influxDBBus.GetByDevEUI(devEUI).Result;
+            Bus? bus = influxDbBus.GetByDevEui(devEuiCard).Result;
             return bus;
         }
 
         public List<Bus> GetBuses()
         {
-            List<Bus> list = _influxDBBus.GetAll().Result;
+            List<Bus> list = influxDbBus.GetAll().Result;
             return list;
         }
     }
