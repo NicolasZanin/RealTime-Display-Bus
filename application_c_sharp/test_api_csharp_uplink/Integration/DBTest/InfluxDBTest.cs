@@ -1,6 +1,5 @@
 ﻿
 using InfluxDB.Client;
-using InfluxDB.Client.Api.Domain;
 
 namespace test_api_csharp_uplink.Integration.DBTest
 {

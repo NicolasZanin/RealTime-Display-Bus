@@ -1,14 +1,14 @@
 ﻿namespace api_csharp_uplink.Entities
 {
-    public class Bus
+    public class Bus(int busNumber, string devEuiCard, int lineBus)
     {
-        public int BusNumber { get; set; }
-        public int DevEUICard { get; set; }
-        public int LineBus { get; set; }
+        public int BusNumber { get; } = busNumber;
+        public string DevEuiCard { get; } = devEuiCard;
+        public int LineBus { get; } = lineBus;
 
         public override string ToString()
         {
-            return $"LineBus: {LineBus}, BusNumber: {BusNumber}, DevEUICard: {DevEUICard}";
+            return $"LineBus: {LineBus}, BusNumber: {BusNumber}, DevEuiCard: {DevEuiCard}";
         }
 
 
@@ -20,7 +20,7 @@
             var bus = (Bus)obj;
             return LineBus == bus.LineBus &&
                    BusNumber == bus.BusNumber &&
-                   DevEUICard == bus.DevEUICard;
+                   DevEuiCard == bus.DevEuiCard;
         }
 
 
@@ -28,9 +28,9 @@
         {
             int hashLineBus = LineBus.GetHashCode();
             int hashBusNumber = BusNumber.GetHashCode();
-            int hashDevEUICard = DevEUICard.GetHashCode();
+            int hashDevEuiCard = DevEuiCard.GetHashCode();
 
-            return hashLineBus ^ hashBusNumber ^ hashDevEUICard;
+            return hashLineBus ^ hashBusNumber ^ hashDevEuiCard;
         }
 
     }

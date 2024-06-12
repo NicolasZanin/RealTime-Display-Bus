@@ -1,9 +1,9 @@
 ﻿namespace api_csharp_uplink.Dto
 {
-    public class BusDTO
+    public class BusDto
     {
         public int BusNumber { get; set; }
-        public int DevEUICard { get; set; }
-        public int LineBus { get; set; }
+        public string DevEuiCard { get; set; } = "";
+        public int LineBus { get; init; }
     }
 }

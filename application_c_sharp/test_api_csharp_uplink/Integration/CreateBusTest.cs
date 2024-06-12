@@ -4,24 +4,21 @@ using Newtonsoft.Json;
 using System.Net;
 using System.Text;
 using test_api_csharp_uplink.Integration.DBTest;
+using Xunit.Abstractions;
 
 namespace test_api_csharp_uplink.Integration
 {
 
-    public class CreateBusTest : IAsyncLifetime
+    [Collection("NonParallel")]
+    public class CreateBusTest(ITestOutputHelper testOutputHelper) : IAsyncLifetime
     {
-        private readonly HttpClient _client;
+        private readonly HttpClient _client = new();
         private readonly string _request = "http://api_csharp_uplink:8000/api/bus";
-        private readonly InfluxDBTest _influxDBTest = new();
-
-        public CreateBusTest()
-        {
-            _client = new();
-        }
+        private readonly InfluxDBTest _influxDbTest = new();
 
         public async Task InitializeAsync()
         {
-            await _influxDBTest.InitializeBucket();
+            await _influxDbTest.InitializeBucket();
         }
 
         public Task DisposeAsync()
@@ -33,7 +30,7 @@ namespace test_api_csharp_uplink.Integration
         [Trait("Category", "Integration")]
         public async Task TestGetBuses()
         {
-            await _influxDBTest.InitializeBucket();
+            await _influxDbTest.InitializeBucket();
 
             try
             {
@@ -47,7 +44,7 @@ namespace test_api_csharp_uplink.Integration
             }
             catch (HttpRequestException e)
             {
-                Console.WriteLine($"Request error: {e.Message}");
+                testOutputHelper.WriteLine($"Request error: {e.Message}");
                 Assert.True(false);
             }
         }
@@ -56,11 +53,11 @@ namespace test_api_csharp_uplink.Integration
         [Trait("Category", "Integration")]
         public async Task TestAddBusNormal()
         {
-            BusDTO bus = new()
+            BusDto bus = new()
             {
                 LineBus = 1,
                 BusNumber = 0,
-                DevEUICard = 0
+                DevEuiCard = "0"
             };
 
             string json = JsonConvert.SerializeObject(bus);
@@ -78,7 +75,7 @@ namespace test_api_csharp_uplink.Integration
             }
             catch (HttpRequestException e)
             {
-                Console.WriteLine($"Request error: {e.Message}");
+                testOutputHelper.WriteLine($"Request error: {e.Message}");
                 Assert.True(false);
             }
         }
@@ -87,11 +84,11 @@ namespace test_api_csharp_uplink.Integration
         [Trait("Category", "Integration")]
         public async Task TestAddBusError()
         {
-            BusDTO bus = new()
+            BusDto bus = new()
             {
                 LineBus = 1,
                 BusNumber = 1,
-                DevEUICard = 1
+                DevEuiCard = "1"
             };
 
             StringContent content = new(JsonConvert.SerializeObject(bus), Encoding.UTF8, "application/json");
@@ -107,7 +104,7 @@ namespace test_api_csharp_uplink.Integration
             }
             catch (HttpRequestException e)
             {
-                Console.WriteLine($"Request error: {e.Message}");
+                testOutputHelper.WriteLine($"Request error: {e.Message}");
                 Assert.True(false);
             }
         }
@@ -116,11 +113,11 @@ namespace test_api_csharp_uplink.Integration
         [Trait("Category", "Integration")]
         public async Task TestGetBus()
         {
-            BusDTO bus = new()
+            BusDto bus = new()
             {
                 LineBus = 2,
                 BusNumber = 2,
-                DevEUICard = 2
+                DevEuiCard = "2"
             };
 
             string json = JsonConvert.SerializeObject(bus);
@@ -140,7 +137,7 @@ namespace test_api_csharp_uplink.Integration
                 responseString.Should().BeEquivalentTo(json);
 
                 // Get bus by DevEUI
-                response = await _client.GetAsync($"{_request}/DevEUI/{bus.DevEUICard}");
+                response = await _client.GetAsync($"{_request}/devEuiCard/{bus.DevEuiCard}");
                 response.EnsureSuccessStatusCode();
                 response.StatusCode.Should().Be(HttpStatusCode.OK);
 
@@ -151,7 +148,7 @@ namespace test_api_csharp_uplink.Integration
             }
             catch (HttpRequestException e)
             {
-                Console.WriteLine($"Request error: {e.Message}");
+                testOutputHelper.WriteLine($"Request error: {e.Message}");
                 Assert.True(false);
             }
         }
@@ -160,11 +157,11 @@ namespace test_api_csharp_uplink.Integration
         [Trait("Category", "Integration")]
         public async Task TestGetAllBus()
         {
-            BusDTO bus = new()
+            BusDto bus = new()
             {
                 LineBus = 2,
                 BusNumber = 0,
-                DevEUICard = 0
+                DevEuiCard = "0"
             };
             try
             {
@@ -182,13 +179,13 @@ namespace test_api_csharp_uplink.Integration
                 string responseString = await response.Content.ReadAsStringAsync();
                 responseString.Should().NotBeNullOrEmpty();
 
-                List<BusDTO>? buses = JsonConvert.DeserializeObject<List<BusDTO>>(responseString);
+                List<BusDto>? buses = JsonConvert.DeserializeObject<List<BusDto>>(responseString);
                 buses.Should().NotBeNull();
                 buses.Should().HaveCount(3);
             }
             catch (HttpRequestException e)
             {
-                Console.WriteLine($"Request error: {e.Message}");
+                testOutputHelper.WriteLine($"Request error: {e.Message}");
                 Assert.True(false);
             }
         }

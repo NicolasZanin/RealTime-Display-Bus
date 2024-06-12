@@ -12,24 +12,13 @@ namespace test_api_csharp_uplink.Unitaire.Controllers
     public class BusControllerTest
     {
 
-        private readonly BusDTO _busDTO;
-        private readonly Bus _busExpected;
-
-        public BusControllerTest()
+        private readonly BusDto _busDto = new()
         {
-            _busDTO = new()
-            {
-                LineBus = 1,
-                BusNumber = 0,
-                DevEUICard = 0
-            };
-            _busExpected = new()
-            {
-                LineBus = 1,
-                BusNumber = 0,
-                DevEUICard = 0
-            };
-        }
+            LineBus = 1,
+            BusNumber = 0,
+            DevEuiCard = "0"
+        };
+        private readonly Bus _busExpected = new(0, "0", 1);
 
         [Fact]
         [Trait("Category", "Unit")]
@@ -38,11 +27,11 @@ namespace test_api_csharp_uplink.Unitaire.Controllers
 
 
             Mock<IBusRepository> mock = new();
-            mock.Setup(mock => mock.AddBus(_busExpected)).Returns(_busExpected);
+            mock.Setup(busRepository => busRepository.AddBus(_busExpected)).Returns(_busExpected);
             BusComposant busComposant = new(mock.Object);
             BusController busController = new(busComposant);
 
-            IActionResult actionResult = busController.AddBusCard(_busDTO);
+            IActionResult actionResult = busController.AddBusCard(_busDto);
             actionResult.Should().BeOfType<CreatedResult>();
             CreatedResult createdResult = (CreatedResult) actionResult;
             createdResult.Should().NotBeNull();
@@ -54,18 +43,18 @@ namespace test_api_csharp_uplink.Unitaire.Controllers
         public void TestFalseCreate2BusSameTime()
         {
             Mock<IBusRepository> mock = new();
-            mock.SetupSequence(mock => mock.AddBus(_busExpected))
+            mock.SetupSequence(busRepository => busRepository.AddBus(_busExpected))
                 .Returns(_busExpected)
                 .Returns(_busExpected);
-            mock.SetupSequence(mock => mock.GetByBusNumber(_busExpected.BusNumber))
+            mock.SetupSequence(busRepository => busRepository.GetByBusNumber(_busExpected.BusNumber))
                 .Returns(null as Bus)
                 .Returns(_busExpected);
 
             BusComposant busComposant = new(mock.Object);
             BusController busController = new(busComposant);
 
-            busController.AddBusCard(_busDTO);
-            IActionResult actionResult = busController.AddBusCard(_busDTO);
+            busController.AddBusCard(_busDto);
+            IActionResult actionResult = busController.AddBusCard(_busDto);
             actionResult.Should().BeOfType<ConflictObjectResult>();
         }
 
@@ -74,42 +63,42 @@ namespace test_api_csharp_uplink.Unitaire.Controllers
         public void TestGetBusByNumber()
         {
             Mock<IBusRepository> mock = new();
-            mock.SetupSequence(mock => mock.GetByBusNumber(_busExpected.BusNumber))
+            mock.SetupSequence(busRepository => busRepository.GetByBusNumber(_busExpected.BusNumber))
                 .Returns(_busExpected)
                 .Returns(null as Bus);
 
             BusComposant busComposant = new(mock.Object);
             BusController busController = new(busComposant);
 
-            IActionResult actionResult = busController.GetBusByBusNumber(_busDTO.BusNumber);
+            IActionResult actionResult = busController.GetBusByBusNumber(_busDto.BusNumber);
             actionResult.Should().BeOfType<OkObjectResult>();
             OkObjectResult? okObject = actionResult as OkObjectResult;
             okObject.Should().NotBeNull();
             okObject?.Value.Should().Be(_busExpected);
 
-            actionResult = busController.GetBusByBusNumber(_busDTO.BusNumber);
+            actionResult = busController.GetBusByBusNumber(_busDto.BusNumber);
             actionResult.Should().BeOfType<NotFoundObjectResult>();
         }
 
         [Fact]
         [Trait("Category", "Unit")]
-        public void TestGetBusByDevEUI()
+        public void TestGetBusByDevEui()
         {
             Mock<IBusRepository> mock = new();
-            mock.SetupSequence(mock => mock.GetBusByDevEUICard(_busExpected.BusNumber))
+            mock.SetupSequence(busRepository => busRepository.GetBusByDevEuiCard(_busExpected.DevEuiCard))
                 .Returns(_busExpected)
                 .Returns(null as Bus);
 
             BusComposant busComposant = new(mock.Object);
             BusController busController = new(busComposant);
 
-            IActionResult actionResult = busController.GetBusByDevEui(_busDTO.BusNumber);
+            IActionResult actionResult = busController.GetBusByDevEui(_busDto.DevEuiCard);
             actionResult.Should().BeOfType<OkObjectResult>();
             OkObjectResult? okObject = actionResult as OkObjectResult;
             okObject.Should().NotBeNull();
             okObject?.Value.Should().Be(_busExpected);
 
-            actionResult = busController.GetBusByDevEui(_busDTO.BusNumber);
+            actionResult = busController.GetBusByDevEui(_busDto.DevEuiCard);
             actionResult.Should().BeOfType<NotFoundObjectResult>();
         }
 
@@ -117,21 +106,11 @@ namespace test_api_csharp_uplink.Unitaire.Controllers
         [Trait("Category", "Unit")]
         public void TestGetBuses()
         {
-            Bus busExpected2 = new()
-            {
-                LineBus = 5,
-                BusNumber = 2,
-                DevEUICard = 2
-            };
+            Bus busExpected2 = new(2, "2", 5);
 
-            Bus busExpected3 = new()
-            {
-                LineBus = 5,
-                BusNumber = 3,
-                DevEUICard = 3
-            };
+            Bus busExpected3 = new(3, "3", 5);
             Mock<IBusRepository> mock = new();
-            mock.SetupSequence(mock => mock.GetBuses())
+            mock.SetupSequence(busRepository => busRepository.GetBuses())
                 .Returns([])
                 .Returns([_busExpected])
                 .Returns([_busExpected, busExpected2, busExpected3]);
