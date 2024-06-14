@@ -16,6 +16,9 @@ builder.Services.AddScoped<IInfluxDbBus, InfluxDbBus>();
 builder.Services.AddScoped<IPositionRepository, PositionRepository>();
 builder.Services.AddScoped<IPositionComposant, PositionComposant>();
 builder.Services.AddScoped<IInfluxDbPosition, InfluxDbPosition>();
+builder.Services.AddScoped<IStationRepository, StationRepository>();
+builder.Services.AddScoped<IStationComposant, StationComposant>();
+builder.Services.AddScoped<IInfluxDbStation, InfluxDbStation>();
 builder.Services.AddEndpointsApiExplorer();
 
 if (environment != "Test")
