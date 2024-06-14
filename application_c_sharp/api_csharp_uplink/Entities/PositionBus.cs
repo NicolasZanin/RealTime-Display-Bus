@@ -4,10 +4,7 @@ public class PositionBus(Position position, string devEuiCard)
 {
     public Position Position { get; } = position;
     public string DevEuiCard { get; } = devEuiCard;
-
-    public PositionBus() : this(new Position(), "0")
-    {
-    }
+    
     public override bool Equals(object? obj)
     {
         if (obj == this)
