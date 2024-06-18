@@ -24,25 +24,20 @@ def lire_horaires_et_ajouter_dans_influxdb(nom_du_fichier):
                 
                 # Créer un point de données
                 point = (
-                    Point("bus_stations_position")
+                    Point("bus_stations_infos")
                     .tag("station_name", nom_station.strip())
                     .field("latitude", float(latitude))
                     .field("longitude", float(longitude)))
 
-                point2 = (
-                    Point("bus_stations_horaireAller")
-                    .tag("station_name",nom_station.strip())
-                )
                 # Ajouter chaque horaire comme un champ
                 for i, horaire in enumerate(horaires_bus):
                     if i < 9 : 
-                        point2.field(f"horaire_0{i + 1}", horaire)
+                        point.field(f"horaire_0{i + 1}", horaire)
                     else :
-                        point2.field(f"horaire_{i + 1}", horaire)
+                        point.field(f"horaire_{i + 1}", horaire)
                 
                 # Écrire le point dans la base de données
                 write_api.write(bucket=bucket, org=org, record=point)
-                write_api.write(bucket=bucket, org=org, record=point2)
                 time.sleep(1)
             except Exception as e:
                 print(f"Erreur lors du traitement de la ligne : {ligne.strip()}")

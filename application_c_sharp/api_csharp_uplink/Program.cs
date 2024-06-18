@@ -11,7 +11,8 @@ string? environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT
 builder.Services.AddControllers();
 builder.Services.AddScoped<IBusRepository, BusRepository>();
 builder.Services.AddScoped<IBusService, BusComposant>();
-builder.Services.AddScoped<IInfluxDBBus, InfluxDbBus>();
+builder.Services.AddScoped<IScheduleService, ScheduleComposant>();
+builder.Services.AddScoped<IInfluxDBSchedule, InfluxDbBus>();
 builder.Services.AddEndpointsApiExplorer();
 
 if (environment != "Test")

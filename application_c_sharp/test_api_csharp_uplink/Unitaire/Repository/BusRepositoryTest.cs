@@ -31,7 +31,7 @@ namespace test_api_csharp_uplink.Unitaire.Repository
         [Trait("Category", "Unit")]
         public void TestCreateBus()
         {
-            Mock<IInfluxDBBus> mock = new();
+            Mock<IInfluxDBSchedule> mock = new();
             mock.SetupSequence(mock => mock.Add(It.IsAny<Bus>()))
                 .ReturnsAsync(_busExpected)
                 .ReturnsAsync(null as Bus);
@@ -50,7 +50,7 @@ namespace test_api_csharp_uplink.Unitaire.Repository
         [Trait("Category", "Unit")]
         public void TestGetBusByNumber()
         {
-            Mock<IInfluxDBBus> mock = new();
+            Mock<IInfluxDBSchedule> mock = new();
             mock.SetupSequence(mock => mock.GetByBusNumber(_busExpected.BusNumber))
                 .ReturnsAsync(_busExpected)
                 .ReturnsAsync(null as Bus);
@@ -69,7 +69,7 @@ namespace test_api_csharp_uplink.Unitaire.Repository
         [Trait("Category", "Unit")]
         public void TestGetBusByDevEUI()
         {
-            Mock<IInfluxDBBus> mock = new();
+            Mock<IInfluxDBSchedule> mock = new();
             mock.SetupSequence(mock => mock.GetByDevEUI(_busExpected.BusNumber))
                 .ReturnsAsync(_busExpected)
                 .ReturnsAsync(null as Bus);
@@ -115,7 +115,7 @@ namespace test_api_csharp_uplink.Unitaire.Repository
                 BusNumber = 3,
                 DevEUICard = 3
             };
-            Mock<IInfluxDBBus> mock = new();
+            Mock<IInfluxDBSchedule> mock = new();
             mock.SetupSequence(mock => mock.GetAll())
                 .ReturnsAsync([])
                 .ReturnsAsync([busExpected1])

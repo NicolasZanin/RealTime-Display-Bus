@@ -10,9 +10,9 @@ namespace api_csharp_uplink.Repository
         public Bus? GetBusByDevEUICard(int busNumber);
         public List<Bus> GetBuses();
     }
-    public class BusRepository(IInfluxDBBus InfluxDBBus) : IBusRepository
+    public class BusRepository(IInfluxDBSchedule InfluxDBBus) : IBusRepository
     {
-        private readonly IInfluxDBBus _influxDBBus = InfluxDBBus;
+        private readonly IInfluxDBSchedule _influxDBBus = InfluxDBBus;
 
         public Bus? AddBus(Bus bus)
         {
