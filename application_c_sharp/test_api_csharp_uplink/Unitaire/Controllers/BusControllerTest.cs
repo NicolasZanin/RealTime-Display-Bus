@@ -3,9 +3,9 @@ using api_csharp_uplink.Dto;
 using Microsoft.AspNetCore.Mvc;
 using FluentAssertions;
 using Moq;
-using api_csharp_uplink.Repository;
 using api_csharp_uplink.Composant;
 using api_csharp_uplink.Entities;
+using api_csharp_uplink.Interface;
 
 namespace test_api_csharp_uplink.Unitaire.Controllers
 {
@@ -26,10 +26,10 @@ namespace test_api_csharp_uplink.Unitaire.Controllers
         {
 
 
-            Mock<IBusRepository> mock = new();
-            mock.Setup(busRepository => busRepository.AddBus(_busExpected)).Returns(_busExpected);
+            Mock<ICardRepository> mock = new();
+            mock.Setup(cardRepository => cardRepository.Add(_busExpected)).ReturnsAsync(_busExpected);
             BusComposant busComposant = new(mock.Object);
-            BusController busController = new(busComposant);
+            BusController busController = new(busComposant, busComposant);
 
             IActionResult actionResult = busController.AddBusCard(_busDto);
             actionResult.Should().BeOfType<CreatedResult>();
@@ -42,55 +42,34 @@ namespace test_api_csharp_uplink.Unitaire.Controllers
         [Trait("Category", "Unit")]
         public void TestFalseCreate2BusSameTime()
         {
-            Mock<IBusRepository> mock = new();
-            mock.SetupSequence(busRepository => busRepository.AddBus(_busExpected))
-                .Returns(_busExpected)
-                .Returns(_busExpected);
-            mock.SetupSequence(busRepository => busRepository.GetByBusNumber(_busExpected.BusNumber))
-                .Returns(null as Bus)
-                .Returns(_busExpected);
+            Mock<ICardRepository> mock = new();
+            mock.SetupSequence(cardRepository => cardRepository.Add(_busExpected))
+                .ReturnsAsync(_busExpected)
+                .ReturnsAsync(_busExpected);
+            mock.SetupSequence(cardRepository => cardRepository.GetByDevEui(_busExpected.DevEuiCard))
+                .ReturnsAsync(null as Bus)
+                .ReturnsAsync(_busExpected);
 
             BusComposant busComposant = new(mock.Object);
-            BusController busController = new(busComposant);
+            BusController busController = new(busComposant, busComposant);
 
             busController.AddBusCard(_busDto);
             IActionResult actionResult = busController.AddBusCard(_busDto);
             actionResult.Should().BeOfType<ConflictObjectResult>();
         }
-
-        [Fact]
-        [Trait("Category", "Unit")]
-        public void TestGetBusByNumber()
-        {
-            Mock<IBusRepository> mock = new();
-            mock.SetupSequence(busRepository => busRepository.GetByBusNumber(_busExpected.BusNumber))
-                .Returns(_busExpected)
-                .Returns(null as Bus);
-
-            BusComposant busComposant = new(mock.Object);
-            BusController busController = new(busComposant);
-
-            IActionResult actionResult = busController.GetBusByBusNumber(_busDto.BusNumber);
-            actionResult.Should().BeOfType<OkObjectResult>();
-            OkObjectResult? okObject = actionResult as OkObjectResult;
-            okObject.Should().NotBeNull();
-            okObject?.Value.Should().Be(_busExpected);
-
-            actionResult = busController.GetBusByBusNumber(_busDto.BusNumber);
-            actionResult.Should().BeOfType<NotFoundObjectResult>();
-        }
+        
 
         [Fact]
         [Trait("Category", "Unit")]
         public void TestGetBusByDevEui()
         {
-            Mock<IBusRepository> mock = new();
-            mock.SetupSequence(busRepository => busRepository.GetBusByDevEuiCard(_busExpected.DevEuiCard))
-                .Returns(_busExpected)
-                .Returns(null as Bus);
+            Mock<ICardRepository> mock = new();
+            mock.SetupSequence(cardRepository => cardRepository.GetByDevEui(_busExpected.DevEuiCard))
+                .ReturnsAsync(_busExpected)
+                .ReturnsAsync(null as Bus);
 
             BusComposant busComposant = new(mock.Object);
-            BusController busController = new(busComposant);
+            BusController busController = new(busComposant, busComposant);
 
             IActionResult actionResult = busController.GetBusByDevEui(_busDto.DevEuiCard);
             actionResult.Should().BeOfType<OkObjectResult>();
@@ -109,14 +88,14 @@ namespace test_api_csharp_uplink.Unitaire.Controllers
             Bus busExpected2 = new(2, "2", 5);
 
             Bus busExpected3 = new(3, "3", 5);
-            Mock<IBusRepository> mock = new();
-            mock.SetupSequence(busRepository => busRepository.GetBuses())
-                .Returns([])
-                .Returns([_busExpected])
-                .Returns([_busExpected, busExpected2, busExpected3]);
+            Mock<ICardRepository> mock = new();
+            mock.SetupSequence(cardRepository => cardRepository.GetAll())
+                .ReturnsAsync([])
+                .ReturnsAsync([_busExpected])
+                .ReturnsAsync([_busExpected, busExpected2, busExpected3]);
 
             BusComposant busComposant = new(mock.Object);
-            BusController busController = new(busComposant);
+            BusController busController = new(busComposant, busComposant);
 
             IActionResult actionResult = busController.GetBuses();
             actionResult.Should().BeOfType<OkObjectResult>();

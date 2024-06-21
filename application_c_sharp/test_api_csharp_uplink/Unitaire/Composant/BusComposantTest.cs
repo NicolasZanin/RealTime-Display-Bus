@@ -1,9 +1,9 @@
 ﻿using api_csharp_uplink.Dto;
 using Moq;
-using api_csharp_uplink.Repository;
 using api_csharp_uplink.Composant;
 using api_csharp_uplink.Entities;
 using api_csharp_uplink.DirException;
+using api_csharp_uplink.Interface;
 
 namespace test_api_csharp_uplink.Unitaire.Composant
 {
@@ -21,8 +21,8 @@ namespace test_api_csharp_uplink.Unitaire.Composant
         [Trait("Category", "Unit")]
         public void TestCreateBus()
         {
-            Mock<IBusRepository> mock = new();
-            mock.Setup(busRepository => busRepository.AddBus(_busExpected)).Returns(_busExpected);
+            Mock<ICardRepository> mock = new();
+            mock.Setup(cardRepository => cardRepository.Add(_busExpected)).ReturnsAsync(_busExpected);
             BusComposant busComposant = new(mock.Object);
 
             Bus busActual = busComposant.CreateBus(_busDto.LineBus, _busDto.BusNumber, _busDto.DevEuiCard);
@@ -34,46 +34,29 @@ namespace test_api_csharp_uplink.Unitaire.Composant
         [Trait("Category", "Unit")]
         public void TestFalseCreate2BusSameTime()
         {
-            Mock<IBusRepository> mock = new();
-            mock.SetupSequence(busRepository => busRepository.AddBus(_busExpected))
-                .Returns(_busExpected)
-                .Returns(_busExpected);
-            mock.SetupSequence(busRepository => busRepository.GetByBusNumber(_busExpected.BusNumber))
-                .Returns(null as Bus)
-                .Returns(_busExpected);
+            Mock<ICardRepository> mock = new();
+            mock.SetupSequence(cardRepository => cardRepository.Add(_busExpected))
+                .ReturnsAsync(_busExpected)
+                .ReturnsAsync(_busExpected);
+            mock.SetupSequence(cardRepository => cardRepository.GetByDevEui(_busExpected.DevEuiCard))
+                .ReturnsAsync(null as Bus)
+                .ReturnsAsync(_busExpected);
 
             BusComposant busComposant = new(mock.Object);
 
             busComposant.CreateBus(_busDto.LineBus, _busDto.BusNumber, _busDto.DevEuiCard);
             Assert.Throws<BusAlreadyCreateException>(() => busComposant.CreateBus(_busDto.LineBus, _busDto.BusNumber, _busDto.DevEuiCard));
         }
-
-        [Fact]
-        [Trait("Category", "Unit")]
-        public void TestGetBusByNumber()
-        {
-            Mock<IBusRepository> mock = new();
-            mock.SetupSequence(busRepository => busRepository.GetByBusNumber(_busExpected.BusNumber))
-                .Returns(_busExpected)
-                .Returns(null as Bus);
-
-            BusComposant busComposant = new(mock.Object);
-
-            Bus busActual = busComposant.GetBusByBusNumber(_busExpected.BusNumber);
-            Assert.NotNull(busActual);
-            Assert.Equal(_busExpected, busActual);
-
-            Assert.Throws<BusNotFoundException>(() => busComposant.GetBusByBusNumber(_busExpected.BusNumber));
-        }
+        
 
         [Fact]
         [Trait("Category", "Unit")]
         public void TestGetBusByDevEui()
         {
-            Mock<IBusRepository> mock = new();
-            mock.SetupSequence(busRepository => busRepository.GetBusByDevEuiCard(_busExpected.DevEuiCard))
-                .Returns(_busExpected)
-                .Returns(null as Bus);
+            Mock<ICardRepository> mock = new();
+            mock.SetupSequence(cardRepository => cardRepository.GetByDevEui(_busExpected.DevEuiCard))
+                .ReturnsAsync(_busExpected)
+                .ReturnsAsync(null as Bus);
 
             BusComposant busComposant = new(mock.Object);
 
@@ -94,11 +77,11 @@ namespace test_api_csharp_uplink.Unitaire.Composant
 
             Bus busExpected3 = new(3, "3", 5);
             
-            Mock<IBusRepository> mock = new();
-            mock.SetupSequence(busRepository => busRepository.GetBuses())
-                .Returns([])
-                .Returns([busExpected1])
-                .Returns([busExpected1, busExpected2, busExpected3]);
+            Mock<ICardRepository> mock = new();
+            mock.SetupSequence(cardRepository => cardRepository.GetAll())
+                .ReturnsAsync([])
+                .ReturnsAsync([busExpected1])
+                .ReturnsAsync([busExpected1, busExpected2, busExpected3]);
 
             BusComposant busComposant = new(mock.Object);
             List<Bus> buses = busComposant.GetBuses();
