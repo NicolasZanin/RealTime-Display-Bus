@@ -3,6 +3,7 @@ using api_csharp_uplink.Composant;
 using api_csharp_uplink.Dto;
 using api_csharp_uplink.DirException;
 using api_csharp_uplink.Entities;
+using api_csharp_uplink.Interface;
 
 namespace api_csharp_uplink.Controllers
 {
@@ -11,9 +12,8 @@ namespace api_csharp_uplink.Controllers
     /// </summary>
     [ApiController]
     [Route("api/[controller]")]
-    public class BusController(IBusService busService) : ControllerBase
+    public class BusController(ICardFinder cardFinder, ICardRegistration cardRegistration) : ControllerBase
     {
-        private readonly IBusService _busService = busService;
 
         /// <summary>
         /// Register a new card depending on busNumber and his DevEUI code
@@ -27,7 +27,7 @@ namespace api_csharp_uplink.Controllers
         {
             try
             {
-                return Created($"api/bus/busNumber/{busDto.BusNumber}", _busService.CreateBus(busDto.LineBus, busDto.BusNumber, busDto.DevEuiCard));
+                return Created($"api/bus/busNumber/{busDto.BusNumber}", cardRegistration.CreateBus(busDto.LineBus, busDto.BusNumber, busDto.DevEuiCard));
             }
             catch(Exception e)
             {
@@ -47,7 +47,7 @@ namespace api_csharp_uplink.Controllers
         {
             try
             {
-                return Ok(_busService.GetBusByBusNumber(busNumber));
+                return Ok(null); // To remove in next Refactor
             }
             catch(Exception e)
             {
@@ -67,7 +67,7 @@ namespace api_csharp_uplink.Controllers
         {
             try
             {
-                return Ok(_busService.GetBusByDevEuiCard(devEuiCard));
+                return Ok(cardFinder.GetBusByDevEuiCard(devEuiCard));
             }
             catch(Exception e)
             {
@@ -85,7 +85,7 @@ namespace api_csharp_uplink.Controllers
         {
             try
             {
-                return Ok(_busService.GetBuses());
+                return Ok(cardFinder.GetBuses());
             }
             catch(Exception e)
             {

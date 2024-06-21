@@ -10,9 +10,9 @@ string? environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT
 
 // Add services to the container.
 builder.Services.AddControllers();
-builder.Services.AddScoped<IBusRepository, BusRepository>();
-builder.Services.AddScoped<IBusService, BusComposant>();
-builder.Services.AddScoped<IInfluxDbBus, InfluxDbBus>();
+builder.Services.AddScoped<ICardFinder, BusComposant>();
+builder.Services.AddScoped<ICardRegistration, BusComposant>();
+builder.Services.AddScoped<ICardRepository, CardRepository>();
 builder.Services.AddScoped<IPositionRepository, PositionRepository>();
 builder.Services.AddScoped<IPositionComposant, PositionComposant>();
 builder.Services.AddScoped<IInfluxDbPosition, InfluxDbPosition>();
