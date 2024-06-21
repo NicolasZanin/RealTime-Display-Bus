@@ -3,7 +3,7 @@ namespace test_api_csharp_uplink.Unitaire.DBTest;
 using api_csharp_uplink.Entities;
 using api_csharp_uplink.Interface;
 
-public class DbTestPosition : IInfluxDbPosition
+public class DbTestPosition : IPositionRepository
 {
     private readonly List<PositionBus> _context = [];
 

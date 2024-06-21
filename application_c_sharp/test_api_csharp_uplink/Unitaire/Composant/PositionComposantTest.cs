@@ -1,7 +1,7 @@
 using api_csharp_uplink.Composant;
 using api_csharp_uplink.DirException;
 using api_csharp_uplink.Entities;
-using api_csharp_uplink.Repository;
+using api_csharp_uplink.Interface;
 using test_api_csharp_uplink.Unitaire.DBTest;
 
 namespace test_api_csharp_uplink.Unitaire.Composant;
@@ -13,8 +13,8 @@ public class PositionComposantTest
     
     public PositionComposantTest()
     {
-        PositionRepository positionRepository = new(new DbTestPosition());
-        _positionComposant = new(positionRepository);
+        IPositionRepository positionRepository = new DbTestPosition();
+        _positionComposant = new PositionComposant(positionRepository);
     }
 
     [Fact]

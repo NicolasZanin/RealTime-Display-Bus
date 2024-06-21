@@ -3,7 +3,7 @@ using api_csharp_uplink.Interface;
 
 namespace test_api_csharp_uplink.Unitaire.DBTest;
 
-public class DbTestStation : IInfluxDbStation
+public class DbTestStation : IStationRepository
 {
     
     private readonly List<Station> _context = [];

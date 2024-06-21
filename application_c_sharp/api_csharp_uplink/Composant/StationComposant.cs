@@ -8,11 +8,11 @@ public class StationComposant(IStationRepository stationRepository) : IStationCo
 {
     public Station AddStation(double latitude, double longitude, string nameStation)
     { 
-        if (stationRepository.GetStation(nameStation) != null)
+        if (stationRepository.GetStation(nameStation).Result != null)
             throw new AlreadyCreateException($"Station {nameStation} already created.");
 
         Station station = new Station(new Position(latitude, longitude), nameStation);
-        return stationRepository.AddStation(station);
+        return stationRepository.Add(station).Result;
     }
 
     public Station GetStation(string nameStation)
@@ -20,7 +20,7 @@ public class StationComposant(IStationRepository stationRepository) : IStationCo
         if (string.IsNullOrEmpty(nameStation))
             throw new ArgumentNullException(nameof(nameStation), "Name of station must not be null or empty.");
         
-        return stationRepository.GetStation(nameStation) ?? 
+        return stationRepository.GetStation(nameStation).Result ?? 
                throw new NotFoundException($"The station with the name {nameStation} does not exist.");
     }
 
@@ -28,7 +28,7 @@ public class StationComposant(IStationRepository stationRepository) : IStationCo
     {
         Position position = new Position(latitude, longitude);
         
-        return stationRepository.GetStation(position) ??
+        return stationRepository.GetStation(position).Result ??
                throw new NotFoundException($"The station with the Position {position} does not exist.");
     }
 }

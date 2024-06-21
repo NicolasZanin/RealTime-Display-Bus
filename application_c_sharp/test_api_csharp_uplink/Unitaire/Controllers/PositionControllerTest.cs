@@ -1,7 +1,7 @@
 using api_csharp_uplink.Composant;
 using api_csharp_uplink.Controllers;
 using api_csharp_uplink.Dto;
-using api_csharp_uplink.Repository;
+using api_csharp_uplink.Interface;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using test_api_csharp_uplink.Unitaire.DBTest;
@@ -16,7 +16,7 @@ public class PositionControllerTest
     
     public PositionControllerTest()
     {
-        PositionRepository positionRepository = new(new DbTestPosition());
+        IPositionRepository positionRepository = new DbTestPosition();
         PositionComposant positionComposant = new(positionRepository);
         _positionController = new PositionController(positionComposant);
     }
