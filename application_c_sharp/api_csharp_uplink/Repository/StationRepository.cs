@@ -1,44 +1,27 @@
-using System.Globalization;
 using api_csharp_uplink.DB;
 using api_csharp_uplink.Entities;
 using api_csharp_uplink.Interface;
 using api_csharp_uplink.DirException;
-using InfluxDB.Client.Api.Domain;
-using InfluxDB.Client.Core.Flux.Domain;
-using InfluxDB.Client.Writes;
 
 namespace api_csharp_uplink.Repository;
 
 public class StationRepository(GlobalInfluxDb globalInfluxDb) : IStationRepository
 {
     private const string MeasurementStation = "station";
-    public async Task<Station> Add(Station station)
+    
+    public Station Add(Station station)
     {
-        var point = PointData.Measurement(MeasurementStation)
-            .Tag("NameStation", station.NameStation)
-            .Tag("Longitude", station.Position.Longitude.ToString(CultureInfo.CurrentCulture))
-            .Tag("Latitude", station.Position.Latitude.ToString(CultureInfo.CurrentCulture))
-            .Field("Blank", "Blank")
-            .Timestamp(DateTime.Now, WritePrecision.Ns);
-        
-        try { 
-            await globalInfluxDb.GetWriteApiAsync(point);
-            return station;
-        } catch (Exception e)
-        {
-            throw new DbException($"Error adding position to InfluxDB: {e.Message}");
-        }
+        StationDb stationDb = globalInfluxDb.save(ConvertStationToDb(station)).Result;
+        return ConvertDbToStation(stationDb);
     }
 
-    public async Task<Station?> GetStation(string nameStation)
+    public Station? GetStation(string nameStation)
     {
-        string query = $"from(bucket: \"mybucket\")\n  " +
-                       $"|> range(start: 0)\n  " +
-                       $"|> filter(fn: (r) => r._measurement == \"{MeasurementStation}\" and r.NameStation == \"{nameStation}\")";
+        string query = $"|> filter(fn: (r) => r.nameStation == \"{nameStation}\")";
         try
         {
-            List<FluxTable> list = await globalInfluxDb.GetQueryApiAsync(query);
-            return GetStation(list);
+            List<StationDb> list = globalInfluxDb.get<StationDb>(MeasurementStation, query).Result;
+            return list.Count > 0 ? ConvertDbToStation(list[0]) : null;
         }
         catch (Exception e)
         {
@@ -46,15 +29,13 @@ public class StationRepository(GlobalInfluxDb globalInfluxDb) : IStationReposito
         }
     }
 
-    public async Task<Station?> GetStation(Position position)
+    public Station? GetStation(Position position)
     {
-        string query = $"from(bucket: \"mybucket\")\n  " +
-                       $"|> range(start: 0)\n  " +
-                       $"|> filter(fn: (r) => r._measurement == \"{MeasurementStation}\" and r.Longitude == \"{position.Longitude}\" and r.Latitude == \"{position.Latitude}\")";
+        string query = $"  |> filter(fn: (r) => r.longitude == \"{position.Longitude}\" and r.latitude == \"{position.Latitude}\")";
         try
         {
-            List<FluxTable> list = await globalInfluxDb.GetQueryApiAsync(query);
-            return GetStation(list);
+            List<StationDb> list = globalInfluxDb.get<StationDb>(MeasurementStation, query).Result;
+            return list.Count > 0 ? ConvertDbToStation(list[0]) : null;
         }
         catch (Exception e)
         {
@@ -62,23 +43,19 @@ public class StationRepository(GlobalInfluxDb globalInfluxDb) : IStationReposito
         }
     }        
     
-    private static Station ConvertRecordToStation(FluxRecord record)
+    private static StationDb ConvertStationToDb(Station station)
     {
-        string nameStation =(string) record.Values["NameStation"];
-        double latitude = double.Parse(record.Values["Latitude"].ToString() ?? "0");
-        double longitude = double.Parse(record.Values["Longitude"].ToString() ?? "0");
-        
-        Station station = new(new Position(latitude, longitude), nameStation);
-        return station;
+        return new StationDb
+        {
+            NameStation = station.NameStation,
+            Longitude = station.Position.Longitude,
+            Latitude = station.Position.Latitude,
+            Timestamp = DateTime.Now
+        };
     }
     
-    private static Station? GetStation(List<FluxTable> list)
+    private static Station ConvertDbToStation(StationDb stationDb)
     {
-        if (list.Count > 0 && list[0].Records.Count > 0) 
-        {
-            return ConvertRecordToStation(list[0].Records[0]);
-        }
-
-        return null;
+        return new Station(new Position(stationDb.Latitude, stationDb.Longitude), stationDb.NameStation);
     }
 }

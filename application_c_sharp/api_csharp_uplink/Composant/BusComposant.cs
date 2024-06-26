@@ -8,7 +8,7 @@ namespace api_csharp_uplink.Composant
     {
         public Bus CreateBus(int lineNumber, int busNumber, string devEuiCard)
         {
-            if (cardRepository.GetByDevEui(devEuiCard).Result != null)
+            if (cardRepository.GetByDevEui(devEuiCard) != null)
             {
                 throw new BusAlreadyCreateException(busNumber);
             }
@@ -20,18 +20,18 @@ namespace api_csharp_uplink.Composant
 
             Bus bus = new(busNumber, devEuiCard, lineNumber);
 
-            return cardRepository.Add(bus).Result ?? throw new DbException("Problem with database");
+            return cardRepository.Add(bus) ?? throw new DbException("Problem with database");
         }
 
         public Bus GetBusByDevEuiCard(string devEuiCard)
         {
-            Bus? bus = cardRepository.GetByDevEui(devEuiCard).Result;
+            Bus? bus = cardRepository.GetByDevEui(devEuiCard);
             return bus ?? throw new BusDevEuiCardNotFoundException(devEuiCard);
         }
 
         public List<Bus> GetBuses()
         {
-            return cardRepository.GetAll().Result;
+            return cardRepository.GetAll();
         }
     }
 }

@@ -12,11 +12,11 @@ public class PositionComposant(IPositionRepository positionRepository) : IPositi
             throw new ValueNotCorrectException("Latitude or longitude is not correct");
         
         PositionBus positionBus = new(new Position(latitude, longitude), devEuiCard);
-        return positionRepository.Add(positionBus).Result;
+        return positionRepository.Add(positionBus);
     }
 
     public PositionBus GetLastPosition(string devEuiCard)
     {
-        return positionRepository.GetLast(devEuiCard).Result ?? throw new PositionDevEuiNumberException(devEuiCard);
+        return positionRepository.GetLast(devEuiCard) ?? throw new PositionDevEuiNumberException(devEuiCard);
     }
 }
