@@ -8,39 +8,38 @@ public class CardRepository(GlobalInfluxDb globalInfluxDb) : ICardRepository
 {
     private const string MeasurementCard = "card";
 
-    public Bus Add(Bus bus) {
-        Task<CardDb> taskCardDb = globalInfluxDb.save(ConvertCardToDb(bus));
-        return ConvertDbToBus(taskCardDb.Result);          
+    public Card Add(Card card) {
+        Task<CardDb> taskCardDb = globalInfluxDb.Save(ConvertCardToDb(card));
+        return ConvertDbToCard(taskCardDb.Result);          
     }
     
 
-    public Bus? GetByDevEui(string devEuiCard)
+    public Card? GetByDevEui(string devEuiCard)
     {
         string query = $"   |> filter(fn: (r) => r.devEuiCard == \"{devEuiCard}\")";
-        List<CardDb> list = globalInfluxDb.get<CardDb>(MeasurementCard, query).Result;
+        List<CardDb> list = globalInfluxDb.Get<CardDb>(MeasurementCard, query).Result;
         Console.WriteLine(list.Count);
-        return list.Count > 0 ? ConvertDbToBus(list[0]) : null;
+        return list.Count > 0 ? ConvertDbToCard(list[0]) : null;
     }
 
-    public List<Bus> GetAll()
+    public List<Card> GetAll()
     {
-        List<CardDb> cardDbs = globalInfluxDb.getAll<CardDb>(MeasurementCard).Result;
-        return cardDbs.Select(ConvertDbToBus).ToList();           
+        List<CardDb> cardDbs = globalInfluxDb.GetAll<CardDb>(MeasurementCard).Result;
+        return cardDbs.Select(ConvertDbToCard).ToList();           
     }
     
-    private static CardDb ConvertCardToDb(Bus bus)
+    private static CardDb ConvertCardToDb(Card card)
     {
         return new CardDb
         {
-            DevEuiCard = bus.DevEuiCard,
-            BusNumber = bus.BusNumber,
-            LineBus = bus.LineBus,
+            DevEuiCard = card.DevEuiCard,
+            LineBus = card.LineBus,
             Timestamp = DateTime.Now
         };
     }
     
-    private static Bus ConvertDbToBus(CardDb cardDb)
+    private static Card ConvertDbToCard(CardDb cardDb)
     {
-        return new Bus(cardDb.BusNumber, cardDb.DevEuiCard, cardDb.LineBus);
+        return new Card(cardDb.DevEuiCard, cardDb.LineBus);
     }
 }

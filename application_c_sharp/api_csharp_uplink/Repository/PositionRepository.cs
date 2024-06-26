@@ -10,7 +10,7 @@ public class PositionRepository(GlobalInfluxDb globalInfluxDb) : IPositionReposi
 
     public PositionBus Add(PositionBus positionBus)
     {
-        PositionCardDb positionCardDb = globalInfluxDb.save(ConvertPositionCardToDb(positionBus)).Result;
+        PositionCardDb positionCardDb = globalInfluxDb.Save(ConvertPositionCardToDb(positionBus)).Result;
         return ConvertDbToBus(positionCardDb);
     }
     
@@ -21,7 +21,7 @@ public class PositionRepository(GlobalInfluxDb globalInfluxDb) : IPositionReposi
         + $"|> filter(fn: (r) => r._measurement == \"{MeasurementPosition}\" and r.devEuiCard == \"{devEuiCard}\")\n  " +
         "|> last()";
         
-        List <PositionCardDb> positionCardDbs = globalInfluxDb.get<PositionCardDb>(query).Result;
+        List <PositionCardDb> positionCardDbs = globalInfluxDb.Get<PositionCardDb>(query).Result;
         return positionCardDbs.Count > 0 ? ConvertDbToBus(positionCardDbs[0]) : null;
     }
     

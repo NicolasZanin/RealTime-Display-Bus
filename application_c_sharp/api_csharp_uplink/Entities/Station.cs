@@ -1,5 +1,3 @@
-using api_csharp_uplink.DB;
-
 namespace api_csharp_uplink.Entities;
 
 public class Station {

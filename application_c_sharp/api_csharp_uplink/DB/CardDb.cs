@@ -5,11 +5,8 @@ namespace api_csharp_uplink.DB;
 [Measurement("card")]
 public class CardDb
 {
-    [Column("busNumber", IsTag = true)]
-    public int BusNumber { get; set; }
-    
     [Column("devEuiCard", IsTag = true)]
-    public string DevEuiCard { get; set; } = "";
+    public string DevEuiCard { get; init; } = "";
     
     [Column("lineBus", IsTag = true)]
     public int LineBus { get; init; }

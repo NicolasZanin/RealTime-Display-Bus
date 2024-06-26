@@ -11,7 +11,7 @@ public class StationRepository(GlobalInfluxDb globalInfluxDb) : IStationReposito
     
     public Station Add(Station station)
     {
-        StationDb stationDb = globalInfluxDb.save(ConvertStationToDb(station)).Result;
+        StationDb stationDb = globalInfluxDb.Save(ConvertStationToDb(station)).Result;
         return ConvertDbToStation(stationDb);
     }
 
@@ -20,7 +20,7 @@ public class StationRepository(GlobalInfluxDb globalInfluxDb) : IStationReposito
         string query = $"|> filter(fn: (r) => r.nameStation == \"{nameStation}\")";
         try
         {
-            List<StationDb> list = globalInfluxDb.get<StationDb>(MeasurementStation, query).Result;
+            List<StationDb> list = globalInfluxDb.Get<StationDb>(MeasurementStation, query).Result;
             return list.Count > 0 ? ConvertDbToStation(list[0]) : null;
         }
         catch (Exception e)
@@ -34,7 +34,7 @@ public class StationRepository(GlobalInfluxDb globalInfluxDb) : IStationReposito
         string query = $"  |> filter(fn: (r) => r.longitude == \"{position.Longitude}\" and r.latitude == \"{position.Latitude}\")";
         try
         {
-            List<StationDb> list = globalInfluxDb.get<StationDb>(MeasurementStation, query).Result;
+            List<StationDb> list = globalInfluxDb.Get<StationDb>(MeasurementStation, query).Result;
             return list.Count > 0 ? ConvertDbToStation(list[0]) : null;
         }
         catch (Exception e)
