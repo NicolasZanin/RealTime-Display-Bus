@@ -128,20 +128,13 @@ namespace test_api_csharp_uplink.Integration
                 HttpResponseMessage response = await _client.PostAsync(_request, content);
                 response.EnsureSuccessStatusCode();
                 response.StatusCode.Should().Be(HttpStatusCode.Created);
-                // Get bus by bus number
-                response = await _client.GetAsync($"{_request}/busNumber/{bus.BusNumber}");
-                response.EnsureSuccessStatusCode();
-                response.StatusCode.Should().Be(HttpStatusCode.OK);
-                string responseString = await response.Content.ReadAsStringAsync();
-                responseString.Should().NotBeNullOrEmpty();
-                responseString.Should().BeEquivalentTo(json);
 
                 // Get bus by DevEUI
                 response = await _client.GetAsync($"{_request}/devEuiCard/{bus.DevEuiCard}");
                 response.EnsureSuccessStatusCode();
                 response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-                responseString = await response.Content.ReadAsStringAsync();
+                string responseString = await response.Content.ReadAsStringAsync();
                 responseString.Should().NotBeNullOrEmpty();
                 responseString.Should().BeEquivalentTo(json);
 
@@ -167,10 +160,10 @@ namespace test_api_csharp_uplink.Integration
             {
                 await _client.PostAsync(_request, new StringContent(JsonConvert.SerializeObject(bus), Encoding.UTF8, "application/json"));
 
-                bus.BusNumber = 1;
+                bus.DevEuiCard = "1";
                 await _client.PostAsync(_request, new StringContent(JsonConvert.SerializeObject(bus), Encoding.UTF8, "application/json"));
 
-                bus.BusNumber = 2;
+                bus.DevEuiCard = "2";
                 await _client.PostAsync(_request, new StringContent(JsonConvert.SerializeObject(bus), Encoding.UTF8, "application/json"));
 
                 HttpResponseMessage response = await _client.GetAsync(_request);

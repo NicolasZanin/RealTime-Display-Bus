@@ -4,7 +4,7 @@ namespace api_csharp_uplink.Interface;
 
 public interface ICardRepository
 {
-    public Task<Bus?> Add(Bus bus);
-    public Task<Bus?> GetByDevEui(string devEuiCard);
-    public Task<List<Bus>> GetAll();
+    public Bus Add(Bus bus);
+    public Bus? GetByDevEui(string devEuiCard);
+    public List<Bus> GetAll();
 }

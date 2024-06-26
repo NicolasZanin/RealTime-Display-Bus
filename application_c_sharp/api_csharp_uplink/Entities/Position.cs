@@ -1,8 +1,11 @@
+using api_csharp_uplink.DB;
+
 namespace api_csharp_uplink.Entities;
 
 public class Position
 {
     public double Latitude { get; }
+    
     public double Longitude { get; }
 
     public Position(double latitude, double longitude)

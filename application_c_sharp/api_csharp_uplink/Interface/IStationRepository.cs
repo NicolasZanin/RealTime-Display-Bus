@@ -4,7 +4,7 @@ namespace api_csharp_uplink.Interface;
 
 public interface IStationRepository
 {
-    public Task<Station> Add(Station station);
-    public Task<Station?> GetStation(string nameStation);
-    public Task<Station?> GetStation(Position position);
+    public Station Add(Station station);
+    public Station? GetStation(string nameStation);
+    public Station? GetStation(Position position);
 }

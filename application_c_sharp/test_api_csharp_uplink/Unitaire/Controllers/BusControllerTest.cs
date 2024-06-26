@@ -27,7 +27,7 @@ namespace test_api_csharp_uplink.Unitaire.Controllers
 
 
             Mock<ICardRepository> mock = new();
-            mock.Setup(cardRepository => cardRepository.Add(_busExpected)).ReturnsAsync(_busExpected);
+            mock.Setup(cardRepository => cardRepository.Add(_busExpected)).Returns(_busExpected);
             BusComposant busComposant = new(mock.Object);
             BusController busController = new(busComposant, busComposant);
 
@@ -44,11 +44,11 @@ namespace test_api_csharp_uplink.Unitaire.Controllers
         {
             Mock<ICardRepository> mock = new();
             mock.SetupSequence(cardRepository => cardRepository.Add(_busExpected))
-                .ReturnsAsync(_busExpected)
-                .ReturnsAsync(_busExpected);
+                .Returns(_busExpected)
+                .Returns(_busExpected);
             mock.SetupSequence(cardRepository => cardRepository.GetByDevEui(_busExpected.DevEuiCard))
-                .ReturnsAsync(null as Bus)
-                .ReturnsAsync(_busExpected);
+                .Returns(null as Bus)
+                .Returns(_busExpected);
 
             BusComposant busComposant = new(mock.Object);
             BusController busController = new(busComposant, busComposant);
@@ -65,8 +65,8 @@ namespace test_api_csharp_uplink.Unitaire.Controllers
         {
             Mock<ICardRepository> mock = new();
             mock.SetupSequence(cardRepository => cardRepository.GetByDevEui(_busExpected.DevEuiCard))
-                .ReturnsAsync(_busExpected)
-                .ReturnsAsync(null as Bus);
+                .Returns(_busExpected)
+                .Returns(null as Bus);
 
             BusComposant busComposant = new(mock.Object);
             BusController busController = new(busComposant, busComposant);
@@ -90,9 +90,9 @@ namespace test_api_csharp_uplink.Unitaire.Controllers
             Bus busExpected3 = new(3, "3", 5);
             Mock<ICardRepository> mock = new();
             mock.SetupSequence(cardRepository => cardRepository.GetAll())
-                .ReturnsAsync([])
-                .ReturnsAsync([_busExpected])
-                .ReturnsAsync([_busExpected, busExpected2, busExpected3]);
+                .Returns([])
+                .Returns([_busExpected])
+                .Returns([_busExpected, busExpected2, busExpected3]);
 
             BusComposant busComposant = new(mock.Object);
             BusController busController = new(busComposant, busComposant);
