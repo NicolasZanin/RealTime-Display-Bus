@@ -4,7 +4,7 @@ using api_csharp_uplink.Interface;
 
 namespace api_csharp_uplink.Composant;
 
-public class StationComposant(IStationRepository stationRepository) : IStationComposant
+public class StationComposant(IStationRepository stationRepository) : IStationRegister, IStationFinder
 {
     public Station AddStation(double latitude, double longitude, string nameStation)
     { 

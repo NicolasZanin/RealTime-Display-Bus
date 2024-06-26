@@ -16,7 +16,8 @@ builder.Services.AddScoped<ICardRepository, CardRepository>();
 builder.Services.AddScoped<IPositionRepository, PositionRepository>();
 builder.Services.AddScoped<IPositionComposant, PositionComposant>();
 builder.Services.AddScoped<IStationRepository, StationRepository>();
-builder.Services.AddScoped<IStationComposant, StationComposant>();
+builder.Services.AddScoped<IStationRegister, StationComposant>();
+builder.Services.AddScoped<IStationFinder, StationComposant>();
 builder.Services.AddEndpointsApiExplorer();
 
 if (environment != "Test")

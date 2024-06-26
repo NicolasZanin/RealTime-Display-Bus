@@ -18,7 +18,7 @@ public class StationControllerTest
     {
         IStationRepository stationRepository = new DbTestStation();
         StationComposant stationComposant = new(stationRepository);
-        _stationController = new StationController(stationComposant);
+        _stationController = new StationController(stationComposant, stationComposant);
     }
 
     [Fact]

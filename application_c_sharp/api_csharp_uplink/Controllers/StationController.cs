@@ -11,7 +11,7 @@ namespace api_csharp_uplink.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
-public class StationController(IStationComposant stationComposant) : ControllerBase
+public class StationController(IStationRegister register, IStationFinder finder) : ControllerBase
 {
     
     /// <summary>
@@ -30,7 +30,7 @@ public class StationController(IStationComposant stationComposant) : ControllerB
     {
         try
         {
-           Station station = stationComposant.AddStation(stationDto.Position.Latitude,
+           Station station = register.AddStation(stationDto.Position.Latitude,
                 stationDto.Position.Longitude,
                 stationDto.NameStation);
             
@@ -60,7 +60,7 @@ public class StationController(IStationComposant stationComposant) : ControllerB
     {
         try
         {
-            Station station = stationComposant.GetStation(nameStation);
+            Station station = finder.GetStation(nameStation);
             return Ok(ConvertStationIntoDto(station));
         }
         catch (Exception e)
@@ -88,7 +88,7 @@ public class StationController(IStationComposant stationComposant) : ControllerB
     {
         try
         {
-            Station station = stationComposant.GetStation(latitude, longitude);
+            Station station = finder.GetStation(latitude, longitude);
             return Ok(ConvertStationIntoDto(station));
         }
         catch (Exception e)
