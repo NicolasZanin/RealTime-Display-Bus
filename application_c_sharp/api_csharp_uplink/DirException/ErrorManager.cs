@@ -9,7 +9,6 @@ public class ErrorManager : ControllerBase
         return exception switch
         {
             AlreadyCreateException => new ConflictObjectResult(exception.Message),
-            PositionDevEuiNumberException => new NotFoundObjectResult(exception.Message),
             NotFoundException => new NotFoundObjectResult(exception.Message),
             ValueNotCorrectException => new BadRequestObjectResult(exception.Message),
             ArgumentOutOfRangeException => new BadRequestObjectResult(exception.Message),

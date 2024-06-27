@@ -84,6 +84,6 @@ public class PositionComposantTest
     [Trait("Category", "Unit")]
     public void GetErrorPositionTest()
     {
-        Assert.Throws<PositionDevEuiNumberException>(() => _positionComposant.GetLastPosition("-1"));
+        Assert.Throws<NotFoundException>(() => _positionComposant.GetLastPosition("-1"));
     }
 }

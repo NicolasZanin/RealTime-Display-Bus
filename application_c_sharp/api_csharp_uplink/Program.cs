@@ -20,23 +20,26 @@ builder.Services.AddScoped<IStationRegister, StationComposant>();
 builder.Services.AddScoped<IStationFinder, StationComposant>();
 builder.Services.AddEndpointsApiExplorer();
 
+string jsonToRead;
+
 if (environment != "Test")
 {
-    builder.Services.AddSingleton(new GlobalInfluxDb());
+    jsonToRead = "appsettings.json";
     builder.Services.AddSwaggerGen(c =>
     {
         c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
 
-        // Add XML comments if you have them
         var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
         var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
         c.IncludeXmlComments(xmlPath);
     });
 }
 else
-{
-    builder.Services.AddSingleton(new GlobalInfluxDb("mNxnpUdxk7h6z8GOchqIL7AM8au7Zt3y9uXX_jz9OXhEdi0qnOkLc3ZjWqW5rSc-ASVLafSF0xk_-IIWxir78A=="));
-}
+    jsonToRead = "appsettings.Test.json";
+
+builder.Configuration.AddJsonFile(jsonToRead, optional: false, reloadOnChange: true);
+builder.Services.Configure<InfluxDbSettings>(builder.Configuration.GetSection("InfluxDB"));
+builder.Services.AddSingleton<GlobalInfluxDb>();
 
 var app = builder.Build();
 
