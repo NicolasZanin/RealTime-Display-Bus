@@ -20,7 +20,7 @@ namespace api_csharp_uplink.Repository
 
         public Schedule? GetByStationName(string station)
         {
-            throw new NotImplementedException();
+            return _influxDBSchedule.GetScheduleByStationName(station).Result;
         }
 
         public List<Schedule> GetSchedules()

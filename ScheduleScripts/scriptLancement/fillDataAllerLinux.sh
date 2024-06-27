@@ -10,8 +10,8 @@ if [ $? -ne 0 ]; then
 fi
 
 # Exécuter le deuxième script Python
-python3 addBDD.py
-
+python3 addBDDAller.py
+python3 addBDDRetour.py
 # Vérifier si le deuxième script a été exécuté avec succès
 if [ $? -ne 0 ]; then
     echo "Erreur lors de l'exécution de addBDD.py"

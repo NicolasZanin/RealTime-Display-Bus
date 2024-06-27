@@ -24,7 +24,7 @@ def lire_horaires_et_ajouter_dans_influxdb(nom_du_fichier):
                 
                 # Créer un point de données
                 point = (
-                    Point("bus_stations_infos")
+                    Point("bus_stations_infosAller")
                     .tag("station_name", nom_station.strip())
                     .field("latitude", float(latitude))
                     .field("longitude", float(longitude)))
@@ -44,7 +44,7 @@ def lire_horaires_et_ajouter_dans_influxdb(nom_du_fichier):
                 print(f"Exception: {e}")
 
 # Nom du fichier contenant les horaires et les coordonnées des stations de bus
-nom_du_fichier = '../fichiersTxt/output.txt'
+nom_du_fichier = '../fichiersTxt/outputAller.txt'
 
 # Lire le fichier et ajouter les données dans InfluxDB
 lire_horaires_et_ajouter_dans_influxdb(nom_du_fichier)

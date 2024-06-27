@@ -3,13 +3,13 @@ import re
 # il permet de créer un seul fichier avec les informations utiles pour les ajouter a la BDD plus tard. 
 
 def extraireMinute():
-    with open('../fichiersTxt/itineraire.txt','r', encoding='utf-8') as fichier :
+    with open('../fichiersTxt/itineraireAller.txt','r', encoding='utf-8') as fichier :
         contenu = fichier.read()
         tableau = re.findall(r'Temps: (\d+) min', contenu)
         return tableau
 
 def infosStation(indice) :
-     with open('../fichiersTxt/arret.txt','r',encoding='utf-8') as arrets :
+     with open('../fichiersTxt/arretAller.txt','r',encoding='utf-8') as arrets :
         contenuArret = arrets.readlines()
         station = contenuArret[indice]
         separation = station.split(":",1)
@@ -51,7 +51,7 @@ with open('../fichiersTxt/departAller.txt', 'r') as fichier:
 fichierAEcrire[0] = fichierAEcrire[0].replace('\n','')
 print(fichierAEcrire)
 
-with open('../fichiersTxt/output.txt', 'w', encoding='utf-8') as fichier:
+with open('../fichiersTxt/outputAller.txt', 'w', encoding='utf-8') as fichier:
     for element in fichierAEcrire:
          fichier.write(str(fichierAEcrire[element]) + '\n')
 

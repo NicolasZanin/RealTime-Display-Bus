@@ -48,19 +48,20 @@ namespace api_csharp_uplink.DB
             }
         }
 
-        public async Task Delete(string query)
+        public  Task Delete(string query)
         {
-        /*    try
-            {
-                string start = "1970-01-01T00:00:00Z";
-                string stop = DateTime.UtcNow.ToString("o");
-                var predicate = $"_measurement=\"bus_stations_infos\" AND station_name=\"{query}\"";
-                await _globalInfluxDb.GetDeleteApiAsync().DeleteAsync(start, stop, predicate, "bucketStation");
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("Error deleting data from InfluxDB cloud: " + e.Message);
-            }*/
+            /*    try
+                {
+                    string start = "1970-01-01T00:00:00Z";
+                    string stop = DateTime.UtcNow.ToString("o");
+                    var predicate = $"_measurement=\"bus_stations_infos\" AND station_name=\"{query}\"";
+                    await _globalInfluxDb.GetDeleteApiAsync().DeleteAsync(start, stop, predicate, "bucketStation");
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Error deleting data from InfluxDB cloud: " + e.Message);
+                }*/
+            return null;
         }
 
         public async Task<List<Tuple<string, double, double>>> GetAllPosition()
@@ -86,24 +87,44 @@ namespace api_csharp_uplink.DB
             double longitude = (double)record.Values["longitude"];
             return new Tuple<string, double, double> (stationName, lat, longitude);
         }
-        public static Schedule ConvertRecordToSchedule(FluxRecord record)
+        public static Schedule ConvertRecordToSchedule(List<FluxTable> tables)
         {
             string pattern = "^\\d{1,2}h\\d{2}$";
             Regex regex = new Regex(pattern);
-            string stationName = record.Values["station_name"].ToString();
-            double lat = (double)record.Values["latitude"];
-            double longi = (double)record.Values["longitude"];
+            string stationName = "";
+            double lat = 0;
+            double longi = 0;
             List<string> horaires = new List<string>();
-
-            foreach (var kvp in record.Values)
+            foreach (FluxTable table in tables)
             {
-                string key = kvp.Key;
-                if (regex.IsMatch(key))
+                foreach (FluxRecord record in table.Records)
                 {
-                    horaires.Add(kvp.Value.ToString());
+                    stationName = record.Values["station_name"].ToString();
+
+                    if (record.Values.ContainsKey("latitude"))
+                    {
+                        lat = Convert.ToDouble(record.Values["latitude"]);
+                    }
+
+                    if (record.Values.ContainsKey("longitude"))
+                    {
+                        longi = Convert.ToDouble(record.Values["longitude"]);
+                    }
+                    else
+                    {
+                        foreach (var kvp in record.Values)
+                        {
+                            string key = kvp.Value.ToString();
+                            if (regex.IsMatch(key))
+                            {
+                                horaires.Add(kvp.Value.ToString());
+                            }
+                        }
+                    }
                 }
             }
 
+            //horaires.Add(record.Values.ToArray().ToString());
             return new Schedule
             {
                 name = stationName,
@@ -121,7 +142,7 @@ namespace api_csharp_uplink.DB
             {
                 foreach (FluxRecord record in table.Records)
                 {
-                    schedules.Add(ConvertRecordToSchedule(record));
+                   // schedules.Add(ConvertRecordToSchedule(record));
                 }
             }
             return schedules;
@@ -130,16 +151,19 @@ namespace api_csharp_uplink.DB
         public async Task<Schedule?> GetScheduleByStationName(string station)
         {
 
-            string query = $"from(bucket: \"bucketStation\") |> range(start: -inf) |> filter(fn: (r) => r._measurement == \"bus_stations_infos\") |> filter(fn: (r) => r.station_name == \"{station}\")";
-            List<FluxTable> tables = await _globalInfluxDb.GetQueryApiAsync(query); ;
-            foreach (FluxTable table in tables)
+            string query = $"from(bucket: \"bucketStation\") |> range(start: -inf) |> filter(fn: (r) => r._measurement == \"bus_stations_infosAller\") |> filter(fn: (r) => r.station_name == \"{station}\")";
+            List<FluxTable>  tables= await _globalInfluxDb.GetQueryApiAsync(query);
+          
+                return ConvertRecordToSchedule(tables);
+             
+            
+            return new Schedule
             {
-                foreach (FluxRecord record in table.Records)
-                {
-                    return ConvertRecordToSchedule(record);
-                }
-            }
-            return null;
+                schedules = new List<string>(), // Liste vide
+                name = string.Empty,            // Chaîne vide
+                latitude = 0,                 // Valeur par défaut
+                longitude = 0                // Valeur par défaut
+            };
         }
 
         public async Task<Tuple<string, double, double>?> GetPositionByStationName(string station)

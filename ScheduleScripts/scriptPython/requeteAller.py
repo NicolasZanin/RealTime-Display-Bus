@@ -9,36 +9,33 @@ api_key = '84b99f7b-02b8-405f-a3e6-999b6bfd0315'
 points = {
     "Chung Cư Hòa Hiệp Nam": (16.108574, 108.132814),
     "Đối Diện Bảng Cấm Tắm Biển Nguyễn Tất Thành": (16.101324, 108.139797),
-    "Đối Diện Nhà Hàng Japan Nguyễn Tất Thành": (16.094982, 108.146029),
+    "Khu Du Lịch Xuân Triều": (16.094982, 108.146029),
     "Đối diện 136": (16.090842, 108.148456),
-    "Số 421 Nguyễn Lương Bằng": (16.086465, 108.144305),
-    "Số 339 Nguyễn Lương Bằng": (16.083088, 108.145777),
-    "Số 191 Nguyễn Lương Bằng": (16.079631, 108.147143),
-    "Số 143 Nguyễn Lương Bằng": (16.076229, 108.148538),
-    "Số 27 Nguyễn Lương Bằng": (16.072527, 108.150054),
-    "Số 755 - 757": (16.071521, 108.150466),
-    "Đối diện 49": (16.070386, 108.153868),
-    "Đối diện 316": (16.072397, 108.156687),
-    "Kế trụ 504": (16.074691, 108.158227),
-    "BV Ung Bướu 1 Hoàng Thị Loan": (16.071348, 108.164298),
-    "Đối Diện 92 Phùng Hưng": (16.073173, 108.166542),
-    "Chung cư khu CT": (16.074939, 108.169152),
-    "35-37": (16.072445, 108.172967),
-    "59-61 Lý Thái Tông": (16.074500, 108.175363),
-    "BV Da Liễu Dũng Sĩ Thanh Khê": (16.074162, 108.176764),
-    "44 Dũng Sĩ Thanh Khê - Dũng Sĩ Thanh Khê": (16.071937, 108.178799),
-    "Đối Diện ĐH TDTT Dũng Sĩ Thanh Khê": (16.070699, 108.179903),
+    "Số 421": (16.086465, 108.144305),
+    "Khu công nghiệp hòa khánh- số 339": (16.083088, 108.145777),
+    "Bệnh viện tâm thần": (16.079631, 108.147143),
+    "Cao đảng kể hoạch": (16.076229, 108.148538),
+    "THCS nguyễn lương bằng": (16.072527, 108.150054),
+    "Số 755 tôn đức thắng": (16.071521, 108.150466),
+    "Đối diện số 92 Phùng Hưng": (16.073173, 108.166542),
+    "Đối diện 200 Kinh Dương Vương": (16.074939, 108.169152),
+    "Số 35 Kinh Dương Vương": (16.072445, 108.172967),
+    "Số 59-61 Lý Thái Tông": (16.074500, 108.175363),
+    "Số 91 BV Da Liễu": (16.074162, 108.176764),
+    "Đối Diện 68 - cao đẳng thương mại": (16.071937, 108.178799),
+    "Số 43 - TT huấn luyện thể thao tw3": (16.070699, 108.179903),
+    "Số 735 - trường thpt thái phiên": (16.068407, 108.183283),
     "Số 583 Trần Cao Vân": (16.071368, 108.187993),
-    "Ubnd Phường Xuân Hà Trần Cao Vân": (16.071216, 108.192406),
+    "Số 495 - ubnd xuân hà": (16.071216, 108.192406),
     "Số 301 Trần Cao Vân": (16.071074, 108.198425),
     "Số 189 Trần Cao Vân": (16.071128, 108.201997),
-    "Đối Diện 160 Trần Cao Vân": (16.072368, 108.208211),
-    "Đối Diện 206 Quang Trung": (16.073388, 108.213178),
-    "Đối Diện 120 - BV Đa Khoa Quang Trung": (16.074144, 108.216893),
+    "Đối Diện 156 Trần Cao Vân": (16.072368, 108.208211),
+    "Đối Diện 206-208 - công viên quang": (16.073388, 108.213178),
+    "Số 95 - bv chỉnh hình": (16.074144, 108.216893),
     "Số 126 Lê Lợi": (16.074382, 108.219954),
     "Số 154 Lê Lợi": (16.072234, 108.220245),
-    "Kế Kho Bạc Nhà Nước": (16.071627, 108.223265),
-    "Đối Diện Bùng Binh Cầu Sông Hàn Phạm Văn Đồng": (16.072410, 108.232120),
+    "Số 07 Đ. Lê Duẩn": (16.071461, 108.221448),
+    "Đối Diện Bùng Binh Cầu Sông Hàn": (16.072410, 108.232120),
     "Số 124 - Vian Hotel Phạm Văn Đồng": (16.070896, 108.235592),
     "Đối Diện Sân Bóng Đá Harmony Phạm Văn Đồng": (16.069992, 108.240501),
     "Công Viên Biển Đông Võ Nguyên Giáp": (16.073393, 108.245352)
@@ -67,7 +64,7 @@ def get_route(start, end, api_key):
 point_names = list(points.keys())
 
 # Boucle sur chaque paire de points successifs
-with open("../fichiersTxt/itineraire.txt", "w", encoding="utf-8") as f:
+with open("../fichiersTxt/itineraireAller.txt", "w", encoding="utf-8") as f:
     # Boucle sur chaque paire de points successifs
     for i in range(len(point_names) - 1):
         start_name = point_names[i]
@@ -78,6 +75,7 @@ with open("../fichiersTxt/itineraire.txt", "w", encoding="utf-8") as f:
         route = get_route(start_point, end_point, api_key)
         if route:
             for path in route['paths']:
-                time = round(((path['time']/1000)/60) +1.5)
+                time = round(((path['time']/1000)/60) +0.5)
                 f.write(f"Temps: {time} min\n")
             f.write("\n")
+       

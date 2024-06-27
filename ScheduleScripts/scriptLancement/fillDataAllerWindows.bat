@@ -10,8 +10,8 @@ IF %ERRORLEVEL% NEQ 0 (
 )
 
 REM Exécuter le deuxième script Python
-python addBDD.py
-
+python addBDDAller.py
+python addBDDRetour.py
 REM Vérifier si le deuxième script a été exécuté avec succès
 IF %ERRORLEVEL% NEQ 0 (
     echo "Erreur lors de l'exécution de addBDD.py"

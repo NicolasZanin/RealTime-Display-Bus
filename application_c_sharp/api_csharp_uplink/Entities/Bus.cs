@@ -1,4 +1,6 @@
-﻿namespace api_csharp_uplink.Entities
+﻿using System.Diagnostics.Eventing.Reader;
+
+namespace api_csharp_uplink.Entities
 {
     public class Bus
     {
@@ -7,7 +9,7 @@
         public int LineBus { get; set; }
 
         public override string ToString()
-        {
+        { 
             return $"LineBus: {LineBus}, BusNumber: {BusNumber}, DevEUICard: {DevEUICard}";
         }
 
