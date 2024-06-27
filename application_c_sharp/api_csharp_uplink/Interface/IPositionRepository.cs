@@ -4,6 +4,6 @@ namespace api_csharp_uplink.Interface;
 
 public interface IPositionRepository
 {
-    public PositionBus AddPosition(PositionBus positionBus);
-    public PositionBus? GetLastPosition(string devEuiCard);
+    public PositionCard Add(PositionCard positionCard);
+    public PositionCard? GetLast(string devEuiCard);
 }

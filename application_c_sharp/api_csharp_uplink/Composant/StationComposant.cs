@@ -4,7 +4,7 @@ using api_csharp_uplink.Interface;
 
 namespace api_csharp_uplink.Composant;
 
-public class StationComposant(IStationRepository stationRepository) : IStationComposant
+public class StationComposant(IStationRepository stationRepository) : IStationRegister, IStationFinder
 {
     public Station AddStation(double latitude, double longitude, string nameStation)
     { 
@@ -12,7 +12,7 @@ public class StationComposant(IStationRepository stationRepository) : IStationCo
             throw new AlreadyCreateException($"Station {nameStation} already created.");
 
         Station station = new Station(new Position(latitude, longitude), nameStation);
-        return stationRepository.AddStation(station);
+        return stationRepository.Add(station);
     }
 
     public Station GetStation(string nameStation)

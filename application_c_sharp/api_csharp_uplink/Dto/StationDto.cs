@@ -5,9 +5,9 @@ namespace api_csharp_uplink.Dto;
 public class StationDto
 {
     [Required(ErrorMessage = "Position is required")] 
-    public PositionDto Position { get; set; } = new();
+    public PositionDto Position { get; init; } = new();
     
     [Required]
     [RegularExpression(@"\S+", ErrorMessage = "NameStation cannot be empty or whitespace.")]
-    public string NameStation { get; set; } = "";
+    public string NameStation { get; init; } = "";
 }

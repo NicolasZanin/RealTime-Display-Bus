@@ -1,7 +1,7 @@
 using api_csharp_uplink.Composant;
 using api_csharp_uplink.Controllers;
 using api_csharp_uplink.Dto;
-using api_csharp_uplink.Repository;
+using api_csharp_uplink.Interface;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using test_api_csharp_uplink.Unitaire.DBTest;
@@ -16,9 +16,9 @@ public class StationControllerTest
     
     public StationControllerTest()
     {
-        StationRepository stationRepository = new(new DbTestStation());
+        IStationRepository stationRepository = new DbTestStation();
         StationComposant stationComposant = new(stationRepository);
-        _stationController = new StationController(stationComposant);
+        _stationController = new StationController(stationComposant, stationComposant);
     }
 
     [Fact]

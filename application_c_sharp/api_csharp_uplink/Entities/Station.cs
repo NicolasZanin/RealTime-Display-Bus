@@ -2,6 +2,7 @@ namespace api_csharp_uplink.Entities;
 
 public class Station {
     public Position Position { get; }
+    
     public string NameStation { get; }
     
     public Station(double latitude, double longitude, string nameStation): 
@@ -15,8 +16,6 @@ public class Station {
         Position = position;
         NameStation = nameStation;
     }
-    
-
     
     public override bool Equals(object? obj)
     {

@@ -1,59 +1,47 @@
+using api_csharp_uplink.DB;
 using api_csharp_uplink.Entities;
 using api_csharp_uplink.Repository;
-using test_api_csharp_uplink.Unitaire.DBTest;
+using Moq;
 
 namespace test_api_csharp_uplink.Unitaire.Repository;
 
 public class PositionRepositoryTest
 {
-    private readonly DbTestPosition _dbTestPosition = new();
-    private readonly PositionBus _positionBus15140 = new(new Position(15.0, 14.0), "0");
+    private const string MeasurementPosition = "positionCard";
+    private readonly PositionCard _positionCard0 = new(new Position(1.0, 2.0), "0");
+    private readonly PositionCardDb _positionCardDb0 = new()
+    {
+        DevEuiCard = "0",
+        Latitude = 1.0,
+        Longitude = 2.0
+    };
     
     [Fact]
     [Trait("Category", "Unit")]
-    public void AddPositionTest()
+    public void TestAdd()
     {
-        PositionRepository positionRepository = new(_dbTestPosition);
+        Mock<IGlobalInfluxDb> mock = new();
+        mock.Setup(globalInfluxDb => globalInfluxDb.Save(It.IsAny<PositionCardDb>()))
+            .ReturnsAsync(_positionCardDb0);
+        PositionRepository positionRepository = new(mock.Object);
         
-        PositionBus positionBusActual = positionRepository.AddPosition(_positionBus15140);
-        Assert.NotNull(positionBusActual);
-        Assert.Equal(_positionBus15140, positionBusActual);
-        
-        PositionBus? positionBusActual2 = positionRepository.GetLastPosition("0");
-        Assert.NotNull(positionBusActual2);
-        Assert.Equal(_positionBus15140, positionBusActual2);
+        PositionCard result = positionRepository.Add(_positionCard0);
+        Assert.Equal(_positionCard0, result);
     }
     
     [Fact]
     [Trait("Category", "Unit")]
-    public void GetPositionTest()
+    public void TestGetLast()
     {
-        PositionBus positionBus15141 = new PositionBus(new Position(15.0, 14.0), "1");
-        PositionBus positionBus14140 = new PositionBus(new Position(14.5, 14.0), "0");
-        PositionRepository positionRepository = new(_dbTestPosition);
+        string query = "from(bucket: \"mybucket\")\n  |> range(start: -15m)\n  "
+                       + $"|> filter(fn: (r) => r._measurement == \"{MeasurementPosition}\" and r.devEuiCard == \"{_positionCard0.DevEuiCard}\")\n  " +
+                       "|> last()";
+        Mock<IGlobalInfluxDb> mock = new();
+        mock.Setup(globalInfluxDb => globalInfluxDb.Get<PositionCardDb>(query))
+            .ReturnsAsync([_positionCardDb0]);
+        PositionRepository positionRepository = new(mock.Object);
         
-        positionRepository.AddPosition(_positionBus15140);
-        positionRepository.AddPosition(positionBus15141);
-        
-        PositionBus? positionActual = positionRepository.GetLastPosition("0");
-        Assert.NotNull(positionActual);
-        Assert.Equal(_positionBus15140, positionActual);
-        
-        positionActual = positionRepository.GetLastPosition("1");
-        Assert.NotNull(positionActual);
-        Assert.Equal(positionBus15141, positionActual);
-        
-        positionRepository.AddPosition(positionBus14140);
-        
-        positionActual = positionRepository.GetLastPosition("0");
-        Assert.NotNull(positionActual);
-        Assert.Equal(positionBus14140, positionActual);
-        
-        positionActual = positionRepository.GetLastPosition("1");
-        Assert.NotNull(positionActual);
-        Assert.Equal(positionBus15141, positionActual);
-        
-        positionActual = positionRepository.GetLastPosition("2");
-        Assert.Null(positionActual);
+        PositionCard? result = positionRepository.GetLast(_positionCard0.DevEuiCard);
+        Assert.Equal(_positionCard0, result);
     }
 }

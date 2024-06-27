@@ -3,27 +3,27 @@ using api_csharp_uplink.Interface;
 
 namespace test_api_csharp_uplink.Unitaire.DBTest;
 
-public class DbTestStation : IInfluxDbStation
+public class DbTestStation : IStationRepository
 {
     
-    private readonly List<Station> _context = [];
+    private readonly List<Station> _stations = [];
     
-    public Task<Station> Add(Station station)
+    public Station Add(Station station)
     {
-        _context.Add(station);
-        return Task.FromResult(station);
+        _stations.Add(station);
+        return station;
     }
 
-    public Task<Station?> GetStation(string nameStation)
+    public Station? GetStation(string nameStation)
     {
-        Station? station = _context.Find(station => station.NameStation.Equals(nameStation));
-        return Task.FromResult(station);
+        Station? station = _stations.Find(station => station.NameStation.Equals(nameStation));
+        return station;
     }
 
-    public Task<Station?> GetStation(Position position)
+    public Station? GetStation(Position position)
     {
-        Station? station = _context.Find(station => station.Position.Equals(position));
-        return Task.FromResult(station);
+        Station? station = _stations.Find(station => station.Position.Equals(position));
+        return station;
     }
     
 }

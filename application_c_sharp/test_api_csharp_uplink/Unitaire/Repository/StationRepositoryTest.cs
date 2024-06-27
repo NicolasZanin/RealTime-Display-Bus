@@ -1,84 +1,67 @@
+using api_csharp_uplink.DB;
 using api_csharp_uplink.Entities;
 using api_csharp_uplink.Repository;
-using test_api_csharp_uplink.Unitaire.DBTest;
+using Moq;
 
 namespace test_api_csharp_uplink.Unitaire.Repository;
 
 public class StationRepositoryTest
 {
-    private readonly DbTestStation _dbStation = new();
-    private readonly Station _stationStation1 = new( new Position(15.0, 14.0), "Station1");
+    private const string MeasurementStation = "station";
+    private readonly Station _station1 = new(new Position(1, 1), "station1");
+    private readonly StationDb _stationDb1 = new()
+    {
+        NameStation = "station1",
+        Longitude = 1,
+        Latitude = 1
+    };
     
     [Fact]
     [Trait("Category", "Unit")]
-    public void AddStationTest()
+    public void TestAdd()
     {
-        StationRepository stationRepository = new(_dbStation);
+        Mock<IGlobalInfluxDb> mock = new();
+        mock.Setup(globalInfluxDb => globalInfluxDb.Save(It.IsAny<StationDb>()))
+            .ReturnsAsync(_stationDb1);
+        StationRepository stationRepository = new(mock.Object);
         
-        Station stationActual = stationRepository.AddStation(_stationStation1);
-        Assert.NotNull(stationActual);
-        Assert.Equal(_stationStation1, stationActual);
-        
-        Station? stationActual2 = stationRepository.GetStation("Station1");
-        Assert.NotNull(stationActual2);
-        Assert.Equal(_stationStation1, stationActual2);
-    }
-
-    [Fact]
-    [Trait("Category", "Unit")]
-    public void GetStationByNameTest()
-    {
-        StationRepository stationRepository = new(_dbStation);
-        
-        stationRepository.AddStation(_stationStation1);
-        Station? stationActual = stationRepository.GetStation("Station1");
-        Assert.NotNull(stationActual);
-        Assert.Equal(_stationStation1, stationActual);
-        
-        stationActual = stationRepository.GetStation("Station2");
-        Assert.Null(stationActual);
-        
-        Station stationStation2 = new Station(new Position(15.0, 14.0), "Station2");
-        stationRepository.AddStation(stationStation2);
-        
-        stationActual = stationRepository.GetStation("Station2");
-        Assert.NotNull(stationActual);
-        Assert.Equal(stationStation2, stationActual);
-        
-        stationActual = stationRepository.GetStation("Station1");
-        Assert.NotNull(stationActual);
-        Assert.Equal(_stationStation1, stationActual);
+        Station result = stationRepository.Add(_station1);
+        Assert.Equal(_station1, result);
     }
     
     [Fact]
     [Trait("Category", "Unit")]
-    public void GetStationByPositionTest()
+    public void TestGetStation()
     {
-        StationRepository stationRepository = new(_dbStation);
-        Position positionGood = new Position(15.0, 14.0);
+        Mock<IGlobalInfluxDb> mock = new();
+        mock.SetupSequence(globalInfluxDb => globalInfluxDb.Get<StationDb>(MeasurementStation,
+                $"|> filter(fn: (r) => r.nameStation == \"{_station1.NameStation}\")"))
+            .ReturnsAsync([])
+            .ReturnsAsync([_stationDb1]);
         
-        stationRepository.AddStation(_stationStation1);
-        Station? stationActual = stationRepository.GetStation(positionGood);
-        Assert.NotNull(stationActual);
-        Assert.Equal(_stationStation1, stationActual);
+        StationRepository stationRepository = new(mock.Object);
+        Station? result = stationRepository.GetStation(_station1.NameStation);
+        Assert.Null(result);
         
-        Position positionBad = new Position(15.0, 14.1);
-        stationActual = stationRepository.GetStation(positionBad);
-        Assert.Null(stationActual);
+        result = stationRepository.GetStation(_station1.NameStation);
+        Assert.Equal(_station1, result);
+    }
+    
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void TestGetStationByPosition()
+    {
+        Mock<IGlobalInfluxDb> mock = new();
+        mock.SetupSequence(globalInfluxDb => globalInfluxDb.Get<StationDb>(MeasurementStation,
+                $"  |> filter(fn: (r) => r.longitude == \"{_station1.Position.Longitude}\" and r.latitude == \"{_station1.Position.Latitude}\")"))
+            .ReturnsAsync([])
+            .ReturnsAsync([_stationDb1]);
         
-        positionBad = new Position(15.1, 14.0);
-        stationActual = stationRepository.GetStation(positionBad);
-        Assert.Null(stationActual);
+        StationRepository stationRepository = new(mock.Object);
+        Station? result = stationRepository.GetStation(_station1.Position);
+        Assert.Null(result);
         
-        Station stationStation2 = new Station(positionBad, "Station2");
-        stationRepository.AddStation(stationStation2);
-        
-        stationActual = stationRepository.GetStation(positionBad);
-        Assert.NotNull(stationActual);
-        Assert.Equal(stationStation2, stationActual);
-        
-        stationActual = stationRepository.GetStation(positionGood);
-        Assert.NotNull(stationActual);
-        Assert.Equal(_stationStation1, stationActual);
+        result = stationRepository.GetStation(_station1.Position);
+        Assert.Equal(_station1, result);
     }
 }
