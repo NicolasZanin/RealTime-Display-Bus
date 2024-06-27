@@ -5,4 +5,6 @@ namespace api_csharp_uplink.Interface;
 public interface ICardRegistration
 {
     Card CreateCard(int lineNumber, string devEuiCard);
+    
+    Card ModifyCard(int lineNumber, string devEuiCard);
 }

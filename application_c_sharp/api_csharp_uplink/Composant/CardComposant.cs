@@ -23,6 +23,17 @@ public class CardComposant(ICardRepository cardRepository) : ICardFinder, ICardR
         return cardRepository.Add(card) ?? throw new DbException("Problem with database");
     }
 
+    public Card ModifyCard(int lineNumber, string devEuiCard)
+    {
+        if (cardRepository.GetByDevEui(devEuiCard) == null)
+        {
+            throw new NotFoundException($"The card with devEuiCard {devEuiCard} not found");
+        }
+        
+        Card card = new(devEuiCard, lineNumber);
+        return cardRepository.Modify(card);
+    }
+
     public Card GetCardByDevEuiCard(string devEuiCard)
     {
         Card? bus = cardRepository.GetByDevEui(devEuiCard);

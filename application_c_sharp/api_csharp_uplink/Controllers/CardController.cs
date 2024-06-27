@@ -13,7 +13,6 @@ namespace api_csharp_uplink.Controllers;
 [Route("api/[controller]")]
 public class CardController(ICardFinder cardFinder, ICardRegistration cardRegistration) : ControllerBase
 {
-
     /// <summary>
     /// Register a new card depending on busNumber and his DevEUI code
     /// </summary>
@@ -22,11 +21,31 @@ public class CardController(ICardFinder cardFinder, ICardRegistration cardRegist
     [HttpPost]
     [ProducesResponseType(typeof(Card), 201)]
     [ProducesResponseType(409)]
-    public IActionResult AddBusCard([FromBody] CardDto cardDto)
+    public IActionResult AddCard([FromBody] CardDto cardDto)
     {
         try
         {
             return Created($"api/Card/devEuiCard/{cardDto.DevEuiCard}", cardRegistration.CreateCard(cardDto.LineBus, cardDto.DevEuiCard));
+        }
+        catch(Exception e)
+        {
+            return ErrorManager.HandleError(e);
+        }
+    }
+    
+    /// <summary>
+    /// Modify a card depending on busNumber and his DevEUI code
+    /// </summary>
+    /// <param name="cardDto">The schema card DTO with LineNumber and DevEuiCard</param>
+    /// <returns>A Card created if success is the card is already created</returns>
+    [HttpPut]
+    [ProducesResponseType(typeof(Card), 200)]
+    [ProducesResponseType(404)]
+    public IActionResult ModifyCard([FromBody] CardDto cardDto)
+    {
+        try
+        {
+            return Ok(cardRegistration.ModifyCard(cardDto.LineBus, cardDto.DevEuiCard));
         }
         catch(Exception e)
         {
@@ -42,7 +61,7 @@ public class CardController(ICardFinder cardFinder, ICardRegistration cardRegist
     [HttpGet("devEuiCard/{devEuiCard}")]
     [ProducesResponseType(typeof(Card), 200)]
     [ProducesResponseType(404)]
-    public IActionResult GetBusByDevEui(string devEuiCard)
+    public IActionResult GetCardByDevEui(string devEuiCard)
     {
         try
         {
@@ -60,7 +79,7 @@ public class CardController(ICardFinder cardFinder, ICardRegistration cardRegist
     /// <returns>A list of card</returns>
     [HttpGet]
     [ProducesResponseType(typeof(List<Card>), 200)]
-    public IActionResult GetBuses()
+    public IActionResult GetCards()
     {
         try
         {

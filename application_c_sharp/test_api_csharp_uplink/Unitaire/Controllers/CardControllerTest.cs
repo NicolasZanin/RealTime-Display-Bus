@@ -21,16 +21,14 @@ namespace test_api_csharp_uplink.Unitaire.Controllers
 
         [Fact]
         [Trait("Category", "Unit")]
-        public void TestCreateBus()
+        public void TestCreateCard()
         {
-
-
             Mock<ICardRepository> mock = new();
             mock.Setup(cardRepository => cardRepository.Add(_cardExpected)).Returns(_cardExpected);
             CardComposant cardComposant = new(mock.Object);
             CardController cardController = new(cardComposant, cardComposant);
 
-            IActionResult actionResult = cardController.AddBusCard(_cardDto);
+            IActionResult actionResult = cardController.AddCard(_cardDto);
             actionResult.Should().BeOfType<CreatedResult>();
             CreatedResult createdResult = (CreatedResult) actionResult;
             createdResult.Should().NotBeNull();
@@ -39,7 +37,7 @@ namespace test_api_csharp_uplink.Unitaire.Controllers
 
         [Fact]
         [Trait("Category", "Unit")]
-        public void TestFalseCreate2BusSameTime()
+        public void TestFalseCreate2CardSameTime()
         {
             Mock<ICardRepository> mock = new();
             mock.SetupSequence(cardRepository => cardRepository.Add(_cardExpected))
@@ -52,15 +50,46 @@ namespace test_api_csharp_uplink.Unitaire.Controllers
             CardComposant cardComposant = new(mock.Object);
             CardController cardController = new(cardComposant, cardComposant);
 
-            cardController.AddBusCard(_cardDto);
-            IActionResult actionResult = cardController.AddBusCard(_cardDto);
+            cardController.AddCard(_cardDto);
+            IActionResult actionResult = cardController.AddCard(_cardDto);
             actionResult.Should().BeOfType<ConflictObjectResult>();
+        }
+        
+        [Fact]
+        [Trait("Category", "Unit")]
+        public void TestModifyCard()
+        {
+            Mock<ICardRepository> mock = new();
+            mock.Setup(cardRepository => cardRepository.GetByDevEui(_cardExpected.DevEuiCard)).Returns(_cardExpected);
+            mock.Setup(cardRepository => cardRepository.Modify(_cardExpected)).Returns(_cardExpected);
+            CardComposant cardComposant = new(mock.Object);
+            CardController cardController = new(cardComposant, cardComposant);
+
+            IActionResult actionResult = cardController.ModifyCard(_cardDto);
+            actionResult.Should().BeOfType<OkObjectResult>();
+            OkObjectResult okResult = (OkObjectResult) actionResult;
+            okResult.Should().NotBeNull();
+            okResult.Value?.Should().Be(_cardExpected);
+        }
+        
+        [Fact]
+        [Trait("Category", "Unit")]
+        public void TestModifyCardError()
+        {
+            Mock<ICardRepository> mock = new();
+            mock.Setup(cardRepository => cardRepository.GetByDevEui(_cardExpected.DevEuiCard)).Returns(null as Card);
+            mock.Setup(cardRepository => cardRepository.Modify(_cardExpected)).Returns(_cardExpected);
+            CardComposant cardComposant = new(mock.Object);
+            CardController cardController = new(cardComposant, cardComposant);
+
+            IActionResult actionResult = cardController.ModifyCard(_cardDto);
+            actionResult.Should().BeOfType<NotFoundObjectResult>();
         }
         
 
         [Fact]
         [Trait("Category", "Unit")]
-        public void TestGetBusByDevEui()
+        public void TestGetCardByDevEui()
         {
             Mock<ICardRepository> mock = new();
             mock.SetupSequence(cardRepository => cardRepository.GetByDevEui(_cardExpected.DevEuiCard))
@@ -70,19 +99,19 @@ namespace test_api_csharp_uplink.Unitaire.Controllers
             CardComposant cardComposant = new(mock.Object);
             CardController cardController = new(cardComposant, cardComposant);
 
-            IActionResult actionResult = cardController.GetBusByDevEui(_cardDto.DevEuiCard);
+            IActionResult actionResult = cardController.GetCardByDevEui(_cardDto.DevEuiCard);
             actionResult.Should().BeOfType<OkObjectResult>();
             OkObjectResult? okObject = actionResult as OkObjectResult;
             okObject.Should().NotBeNull();
             okObject?.Value.Should().Be(_cardExpected);
 
-            actionResult = cardController.GetBusByDevEui(_cardDto.DevEuiCard);
+            actionResult = cardController.GetCardByDevEui(_cardDto.DevEuiCard);
             actionResult.Should().BeOfType<NotFoundObjectResult>();
         }
 
         [Fact]
         [Trait("Category", "Unit")]
-        public void TestGetBuses()
+        public void TestGetCards()
         {
             Card cardExpected2 = new("2", 5);
 
@@ -96,21 +125,21 @@ namespace test_api_csharp_uplink.Unitaire.Controllers
             CardComposant cardComposant = new(mock.Object);
             CardController cardController = new(cardComposant, cardComposant);
 
-            IActionResult actionResult = cardController.GetBuses();
+            IActionResult actionResult = cardController.GetCards();
             actionResult.Should().BeOfType<OkObjectResult>();
             OkObjectResult? okObject = actionResult as OkObjectResult;
             okObject.Should().NotBeNull();
             List<Card>? buses = okObject?.Value as List<Card>;
             buses.Should().BeEmpty();
 
-            actionResult = cardController.GetBuses();
+            actionResult = cardController.GetCards();
             actionResult.Should().BeOfType<OkObjectResult>();
             okObject = actionResult as OkObjectResult;
             okObject.Should().NotBeNull();
             buses = okObject?.Value as List<Card>;
             buses.Should().BeEquivalentTo([_cardExpected]);
 
-            actionResult = cardController.GetBuses();
+            actionResult = cardController.GetCards();
             actionResult.Should().BeOfType<OkObjectResult>();
             okObject = actionResult as OkObjectResult;
             okObject.Should().NotBeNull();

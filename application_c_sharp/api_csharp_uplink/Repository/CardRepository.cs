@@ -21,6 +21,15 @@ public class CardRepository(GlobalInfluxDb globalInfluxDb) : ICardRepository
         Console.WriteLine(list.Count);
         return list.Count > 0 ? ConvertDbToCard(list[0]) : null;
     }
+    
+    public Card Modify(Card card)
+    {
+        string predicate = $"|> filter(fn: (r) => r.devEuiCard == \"{card.DevEuiCard}\")";
+        globalInfluxDb.Delete(predicate);
+        
+        Task<CardDb> taskCardDb = globalInfluxDb.Save(ConvertCardToDb(card));
+        return ConvertDbToCard(taskCardDb.Result);          
+    }
 
     public List<Card> GetAll()
     {
