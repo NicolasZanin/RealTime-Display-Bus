@@ -5,17 +5,17 @@ using api_csharp_uplink.Interface;
 
 public class DbTestPosition : IPositionRepository
 {
-    private readonly List<PositionBus> _context = [];
+    private readonly List<PositionCard> _positionCards = [];
 
-    public PositionBus Add(PositionBus positionBus)
+    public PositionCard Add(PositionCard positionCard)
     {
-        _context.Add(positionBus);
-        return positionBus;
+        _positionCards.Add(positionCard);
+        return positionCard;
     }
 
-    public PositionBus? GetLast(string devEuiCard)
+    public PositionCard? GetLast(string devEuiCard)
     {
-        List<PositionBus> list = _context.FindAll(position => position.DevEuiCard.Equals(devEuiCard));
+        List<PositionCard> list = _positionCards.FindAll(position => position.DevEuiCard.Equals(devEuiCard));
         return list.Count > 0 ? list[^1] : null;
     }
 }

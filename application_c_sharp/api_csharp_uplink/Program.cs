@@ -14,7 +14,7 @@ builder.Services.AddScoped<ICardFinder, CardComposant>();
 builder.Services.AddScoped<ICardRegistration, CardComposant>();
 builder.Services.AddScoped<ICardRepository, CardRepository>();
 builder.Services.AddScoped<IPositionRepository, PositionRepository>();
-builder.Services.AddScoped<IPositionComposant, PositionComposant>();
+builder.Services.AddScoped<IPositionRegister, PositionComposant>();
 builder.Services.AddScoped<IStationRepository, StationRepository>();
 builder.Services.AddScoped<IStationRegister, StationComposant>();
 builder.Services.AddScoped<IStationFinder, StationComposant>();

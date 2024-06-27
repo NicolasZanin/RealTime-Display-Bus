@@ -8,14 +8,14 @@ public class PositionRepository(GlobalInfluxDb globalInfluxDb) : IPositionReposi
 {
     private const string MeasurementPosition = "positionCard";
 
-    public PositionBus Add(PositionBus positionBus)
+    public PositionCard Add(PositionCard positionCard)
     {
-        PositionCardDb positionCardDb = globalInfluxDb.Save(ConvertPositionCardToDb(positionBus)).Result;
+        PositionCardDb positionCardDb = globalInfluxDb.Save(ConvertPositionCardToDb(positionCard)).Result;
         return ConvertDbToBus(positionCardDb);
     }
     
 
-    public PositionBus? GetLast(string devEuiCard)
+    public PositionCard? GetLast(string devEuiCard)
     {
         string query = "from(bucket: \"mybucket\")\n  |> range(start: -15m)\n  "
         + $"|> filter(fn: (r) => r._measurement == \"{MeasurementPosition}\" and r.devEuiCard == \"{devEuiCard}\")\n  " +
@@ -25,19 +25,19 @@ public class PositionRepository(GlobalInfluxDb globalInfluxDb) : IPositionReposi
         return positionCardDbs.Count > 0 ? ConvertDbToBus(positionCardDbs[0]) : null;
     }
     
-    private static PositionCardDb ConvertPositionCardToDb(PositionBus positionBus)
+    private static PositionCardDb ConvertPositionCardToDb(PositionCard positionCard)
     {
         return new PositionCardDb
         {
-            DevEuiCard = positionBus.DevEuiCard,
-            Longitude = positionBus.Position.Longitude,
-            Latitude = positionBus.Position.Latitude,
+            DevEuiCard = positionCard.DevEuiCard,
+            Longitude = positionCard.Position.Longitude,
+            Latitude = positionCard.Position.Latitude,
             Timestamp = DateTime.Now
         };
     }
     
-    private static PositionBus ConvertDbToBus(PositionCardDb positionCardDb)
+    private static PositionCard ConvertDbToBus(PositionCardDb positionCardDb)
     {
-        return new PositionBus(new Position(positionCardDb.Latitude, positionCardDb.Longitude), positionCardDb.DevEuiCard);
+        return new PositionCard(new Position(positionCardDb.Latitude, positionCardDb.Longitude), positionCardDb.DevEuiCard);
     }
 }

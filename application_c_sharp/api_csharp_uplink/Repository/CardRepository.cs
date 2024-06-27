@@ -18,7 +18,6 @@ public class CardRepository(GlobalInfluxDb globalInfluxDb) : ICardRepository
     {
         string query = $"   |> filter(fn: (r) => r.devEuiCard == \"{devEuiCard}\")";
         List<CardDb> list = globalInfluxDb.Get<CardDb>(MeasurementCard, query).Result;
-        Console.WriteLine(list.Count);
         return list.Count > 0 ? ConvertDbToCard(list[0]) : null;
     }
     

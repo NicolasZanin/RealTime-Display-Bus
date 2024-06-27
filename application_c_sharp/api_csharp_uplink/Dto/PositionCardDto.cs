@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace api_csharp_uplink.Dto;
 
-public class PositionBusDto
+public class PositionCardDto
 {
     [Required(ErrorMessage = "Position is required")] 
     public PositionDto Position { get; init; } = new();

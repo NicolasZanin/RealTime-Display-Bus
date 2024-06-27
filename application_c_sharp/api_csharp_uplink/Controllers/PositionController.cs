@@ -11,30 +11,30 @@ namespace api_csharp_uplink.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
-public class PositionController(IPositionComposant positionComposant) : ControllerBase
+public class PositionController(IPositionRegister positionRegister) : ControllerBase
 {
     
     /// <summary>
-    /// Register a new card depending on busNumber and his DevEUI code
+    /// Register a new position of card depending on DevEUI number and position
     /// </summary>
-    /// <param name="positionBusDto">The schema position of the Card with Longitude, Latitude and DevEuiCard</param>
-    /// <returns>A position of the bus created</returns>
-    /// <response code="200">Returns the position of the bus.</response>
-    /// <response code="400">if the position of bus has not good value</response>
+    /// <param name="positionCardDto">The schema position of the Card with Longitude, Latitude and DevEuiCard</param>
+    /// <returns>A position of the card created</returns>
+    /// <response code="200">Returns the position of the card.</response>
+    /// <response code="400">if the position of card has not good value</response>
     /// <response code="500">If there is a server error.</response>
     [HttpPost]
-    [ProducesResponseType(typeof(PositionBusDto), 201)]
+    [ProducesResponseType(typeof(PositionCardDto), 201)]
     [ProducesResponseType(400)]
     [ProducesResponseType(500)]
-    public IActionResult AddNewPosition([FromBody] PositionBusDto positionBusDto)
+    public IActionResult AddNewPosition([FromBody] PositionCardDto positionCardDto)
     {
         try
         {
-           PositionBus positionBus = positionComposant.AddPosition(positionBusDto.Position.Latitude,
-                positionBusDto.Position.Longitude,
-                positionBusDto.DevEuiNumber);
+           PositionCard positionCard = positionRegister.AddPosition(positionCardDto.Position.Latitude,
+                positionCardDto.Position.Longitude,
+                positionCardDto.DevEuiNumber);
             
-            return Created($"api/devEuiNumber/{positionBusDto.DevEuiNumber}", ConvertPositionBusIntoDto(positionBus));
+            return Created($"api/devEuiNumber/{positionCardDto.DevEuiNumber}", ConvertPositionCardIntoDto(positionCard));
         }
         catch (Exception e)
         {
@@ -43,23 +43,23 @@ public class PositionController(IPositionComposant positionComposant) : Controll
     }
     
     /// <summary>
-    /// Get a position of bus depending on DevEUI number
+    /// Get a position of card depending on DevEUI number
     /// </summary>
     /// <param name="devEuiCard">The devEui number of card</param>
-    /// <returns>A response with position of bus</returns>
-    /// <response code="200">Returns the position of the bus.</response>
+    /// <returns>A response with position of card</returns>
+    /// <response code="200">Returns the position of the card.</response>
     /// <response code="404">If a bus with the specified DevEUI number is not found.</response>
     /// <response code="500">If there is a server error.</response>
     [HttpGet("devEuiCard/{devEuiCard}")]
-    [ProducesResponseType(typeof(PositionBusDto), 200)]
+    [ProducesResponseType(typeof(PositionCardDto), 200)]
     [ProducesResponseType(404)]
     [ProducesResponseType(500)]
     public IActionResult GetLastPositionByDevEuiNumber(string devEuiCard)
     {
         try
         {
-            PositionBus positionBus = positionComposant.GetLastPosition(devEuiCard);
-            return Ok(ConvertPositionBusIntoDto(positionBus));
+            PositionCard positionCard = positionRegister.GetLastPosition(devEuiCard);
+            return Ok(ConvertPositionCardIntoDto(positionCard));
         }
         catch (Exception e)
         {
@@ -82,18 +82,18 @@ public class PositionController(IPositionComposant positionComposant) : Controll
     }
 
     /**
-     * Convert a PositionBus into a PositionBusDto
-     * @param positionBus The positionBus to convert
+     * Convert a PositionCard into a PositionCardDto
+     * @param positionCard The positionCard to convert
      */
-    private static PositionBusDto ConvertPositionBusIntoDto(PositionBus positionBus)
+    private static PositionCardDto ConvertPositionCardIntoDto(PositionCard positionCard)
     {
-        return new PositionBusDto
+        return new PositionCardDto
         {
-            DevEuiNumber = positionBus.DevEuiCard,
+            DevEuiNumber = positionCard.DevEuiCard,
             Position = new PositionDto
             {
-                Latitude = positionBus.Position.Latitude,
-                Longitude = positionBus.Position.Longitude
+                Latitude = positionCard.Position.Latitude,
+                Longitude = positionCard.Position.Longitude
             }
         };
     }

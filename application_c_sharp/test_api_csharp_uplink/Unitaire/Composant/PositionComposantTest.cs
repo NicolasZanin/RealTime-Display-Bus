@@ -9,7 +9,7 @@ namespace test_api_csharp_uplink.Unitaire.Composant;
 public class PositionComposantTest
 {
     private readonly PositionComposant _positionComposant;
-    private readonly PositionBus _positionBus15140 = new(new Position(15.0, 14.0), "0");
+    private readonly PositionCard _positionBus15140 = new(new Position(15.0, 14.0), "0");
     
     public PositionComposantTest()
     {
@@ -21,14 +21,14 @@ public class PositionComposantTest
     [Trait("Category", "Unit")]
     public void AddPositionTest()
     {
-        PositionBus positionBusActual = _positionComposant.AddPosition(_positionBus15140.Position.Latitude, 
+        PositionCard positionCardActual = _positionComposant.AddPosition(_positionBus15140.Position.Latitude, 
             _positionBus15140.Position.Longitude, _positionBus15140.DevEuiCard);
-        Assert.NotNull(positionBusActual);
-        Assert.Equal(_positionBus15140, positionBusActual);
+        Assert.NotNull(positionCardActual);
+        Assert.Equal(_positionBus15140, positionCardActual);
         
-        PositionBus positionBusActual2 = _positionComposant.GetLastPosition("0");
-        Assert.NotNull(positionBusActual2);
-        Assert.Equal(_positionBus15140, positionBusActual2);
+        PositionCard positionCardActual2 = _positionComposant.GetLastPosition("0");
+        Assert.NotNull(positionCardActual2);
+        Assert.Equal(_positionBus15140, positionCardActual2);
     }
     
     [Fact]
@@ -52,15 +52,15 @@ public class PositionComposantTest
     [Trait("Category", "Unit")]
     public void GetPositionTest()
     {
-        PositionBus positionBus15141 = new PositionBus(new Position(15.0, 14.0), "1");
-        PositionBus positionBus14140 = new PositionBus(new Position(14.5, 14.0), "0");
+        PositionCard positionBus15141 = new PositionCard(new Position(15.0, 14.0), "1");
+        PositionCard positionBus14140 = new PositionCard(new Position(14.5, 14.0), "0");
         
         _positionComposant.AddPosition(_positionBus15140.Position.Latitude, 
             _positionBus15140.Position.Longitude, _positionBus15140.DevEuiCard);
         _positionComposant.AddPosition(positionBus15141.Position.Latitude, 
             positionBus15141.Position.Longitude, positionBus15141.DevEuiCard);
         
-        PositionBus positionActual = _positionComposant.GetLastPosition("0");
+        PositionCard positionActual = _positionComposant.GetLastPosition("0");
         Assert.NotNull(positionActual);
         Assert.Equal(_positionBus15140, positionActual);
         

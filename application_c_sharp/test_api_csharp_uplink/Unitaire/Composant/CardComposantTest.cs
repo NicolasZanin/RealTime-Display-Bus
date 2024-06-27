@@ -113,16 +113,16 @@ namespace test_api_csharp_uplink.Unitaire.Composant
                 .Returns([cardExpected1, cardExpected2, cardExpected3]);
 
             CardComposant cardComposant = new(mock.Object);
-            List<Card> buses = cardComposant.GetCards();
+            List<Card> cards = cardComposant.GetCards();
 
-            Assert.Empty(buses);
+            Assert.Empty(cards);
 
-            buses = cardComposant.GetCards();
-            Assert.Equal(Assert.Single(buses), cardExpected1);
+            cards = cardComposant.GetCards();
+            Assert.Equal(Assert.Single(cards), cardExpected1);
 
-            buses = cardComposant.GetCards();
-            Assert.Equal(3, buses.Count);
-            Assert.Equal([cardExpected1, cardExpected2, cardExpected3], buses);
+            cards = cardComposant.GetCards();
+            Assert.Equal(3, cards.Count);
+            Assert.Equal([cardExpected1, cardExpected2, cardExpected3], cards);
         }
     }
 }

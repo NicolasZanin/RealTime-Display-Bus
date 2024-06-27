@@ -7,15 +7,15 @@ namespace api_csharp_uplink.DB;
 public class GlobalInfluxDb(string token = "77m_AFWkRSDcMUmFv7_50IR2BVuZqcUvY_7w51hPHnUP9KmcW4TsY6U9vfww-EmLLwa6RS7rWjZ9sJLI1ZtzVw==")
 {
     private readonly InfluxDBClient _client = new("http://influxdb:8086", token);
-    private const string Bucket = "mybucket";
-    private const string Org = "myorg";
+    private const string BucketName = "mybucket";
+    private const string OrgName = "myorg";
     private const string BaseQuery = "from(bucket: \"mybucket\")\n  |> range(start: 0)\n";
     
     public async Task<T> Save<T>(T data)
     {
         try
         {
-            await _client.GetWriteApiAsync().WriteMeasurementAsync(data, WritePrecision.Ms, Bucket, Org);
+            await _client.GetWriteApiAsync().WriteMeasurementAsync(data, WritePrecision.Ms, BucketName, OrgName);
             return data;
         }
         catch (Exception e)
@@ -29,10 +29,7 @@ public class GlobalInfluxDb(string token = "77m_AFWkRSDcMUmFv7_50IR2BVuZqcUvY_7w
         try
         {
             string query = BaseQuery + $"|> filter(fn: (r) => r._measurement == \"{measurementName}\")";
-            
-            Console.WriteLine(typeof(T).Attributes.ToString());
-            List<T> list = await _client.GetQueryApi().QueryAsync<T>(query, Org);
-            return list;
+            return await _client.GetQueryApi().QueryAsync<T>(query, OrgName);
         }
         catch (Exception e)
         {
@@ -44,8 +41,7 @@ public class GlobalInfluxDb(string token = "77m_AFWkRSDcMUmFv7_50IR2BVuZqcUvY_7w
     {
         try
         {
-            List<T> list = await _client.GetQueryApi().QueryAsync<T>(query, Org);
-            return list;
+            return await _client.GetQueryApi().QueryAsync<T>(query, OrgName);
         }
         catch (Exception e)
         {
@@ -67,7 +63,7 @@ public class GlobalInfluxDb(string token = "77m_AFWkRSDcMUmFv7_50IR2BVuZqcUvY_7w
     {
         try
         {
-            await _client.GetDeleteApi().Delete(start, end, predicate, Bucket, Org);
+            await _client.GetDeleteApi().Delete(start, end, predicate, BucketName, OrgName);
         }
         catch (Exception e)
         {

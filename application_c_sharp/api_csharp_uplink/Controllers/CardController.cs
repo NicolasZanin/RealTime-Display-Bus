@@ -14,9 +14,9 @@ namespace api_csharp_uplink.Controllers;
 public class CardController(ICardFinder cardFinder, ICardRegistration cardRegistration) : ControllerBase
 {
     /// <summary>
-    /// Register a new card depending on busNumber and his DevEUI code
+    /// Register a new card depending on lineNumber and his DevEUI code
     /// </summary>
-    /// <param name="cardDto">The schema card DTO with LineNumber and DevEuiCard</param>
+    /// <param name="cardDto">The schema card DTO with lineNumber and devEuiCard</param>
     /// <returns>A Card created if success or a conflict status if the card is already created</returns>
     [HttpPost]
     [ProducesResponseType(typeof(Card), 201)]
@@ -34,9 +34,9 @@ public class CardController(ICardFinder cardFinder, ICardRegistration cardRegist
     }
     
     /// <summary>
-    /// Modify a card depending on busNumber and his DevEUI code
+    /// Modify a card depending on lineNumber and his devEUI code
     /// </summary>
-    /// <param name="cardDto">The schema card DTO with LineNumber and DevEuiCard</param>
+    /// <param name="cardDto">The schema card DTO with lineNumber and devEuiCard</param>
     /// <returns>A Card created if success is the card is already created</returns>
     [HttpPut]
     [ProducesResponseType(typeof(Card), 200)]
@@ -54,7 +54,7 @@ public class CardController(ICardFinder cardFinder, ICardRegistration cardRegist
     }
 
     /// <summary>
-    /// Get a card depending on DevEUI number
+    /// Get a card depending on devEUI number
     /// </summary>
     /// <param name="devEuiCard">The devEUI of the card</param>
     /// <returns>A response with card or a NotFound response</returns>
