@@ -1,128 +1,96 @@
 ﻿using api_csharp_uplink.Dto;
-using Moq;
 using api_csharp_uplink.Composant;
 using api_csharp_uplink.Entities;
 using api_csharp_uplink.DirException;
 using api_csharp_uplink.Interface;
+using test_api_csharp_uplink.Unitaire.DBTest;
 
-namespace test_api_csharp_uplink.Unitaire.Composant
+namespace test_api_csharp_uplink.Unitaire.Composant;
+
+public class CardComposantTest
 {
-    public class CardComposantTest
+    private readonly CardDto _cardDto = new()
     {
-        private readonly CardDto _cardDto = new()
-        {
-            LineBus = 1,
-            DevEuiCard = "0"
-        };
-        private readonly Card _cardExpected = new("0", 1);
+        LineBus = 1,
+        DevEuiCard = "0"
+    };
+    private readonly Card _cardExpected = new("0", 1);
+    private readonly CardComposant _cardComposant;
+    
+    public CardComposantTest()
+    {
+        ICardRepository cardRepository = new DbTestCard();
+        _cardComposant= new CardComposant(cardRepository);
+    }
 
-        [Fact]
-        [Trait("Category", "Unit")]
-        public void TestCreateCard()
-        {
-            Mock<ICardRepository> mock = new();
-            mock.Setup(cardRepository => cardRepository.Add(_cardExpected)).Returns(_cardExpected);
-            CardComposant cardComposant = new(mock.Object);
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void TestCreateCard()
+    {
+        Card cardActual = _cardComposant.CreateCard(_cardDto.LineBus, _cardDto.DevEuiCard);
+        Assert.NotNull(cardActual);
+        Assert.Equal(_cardExpected, cardActual);
+    }
 
-            Card cardActual = cardComposant.CreateCard(_cardDto.LineBus, _cardDto.DevEuiCard);
-            Assert.NotNull(cardActual);
-            Assert.Equal(_cardExpected, cardActual);
-        }
-
-        [Fact]
-        [Trait("Category", "Unit")]
-        public void TestFalseCreate2CardSameTime()
-        {
-            Mock<ICardRepository> mock = new();
-            mock.SetupSequence(cardRepository => cardRepository.Add(_cardExpected))
-                .Returns(_cardExpected)
-                .Returns(_cardExpected);
-            mock.SetupSequence(cardRepository => cardRepository.GetByDevEui(_cardExpected.DevEuiCard))
-                .Returns(null as Card)
-                .Returns(_cardExpected);
-
-            CardComposant cardComposant = new(mock.Object);
-
-            cardComposant.CreateCard(_cardDto.LineBus, _cardDto.DevEuiCard);
-            Assert.Throws<AlreadyCreateException>(() => cardComposant.CreateCard(_cardDto.LineBus, _cardDto.DevEuiCard));
-        }
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void TestFalseCreate2CardSameTime()
+    {
+        _cardComposant.CreateCard(_cardDto.LineBus, _cardDto.DevEuiCard);
+        Assert.Throws<AlreadyCreateException>(() => _cardComposant.CreateCard(_cardDto.LineBus, _cardDto.DevEuiCard));
+    }
+    
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void TestGetCardByDevEui()
+    {
+        Assert.Throws<NotFoundException>(() => _cardComposant.GetCardByDevEuiCard(_cardExpected.DevEuiCard));
         
-        [Fact]
-        [Trait("Category", "Unit")]
-        public void TestGetCardByDevEui()
-        {
-            Mock<ICardRepository> mock = new();
-            mock.SetupSequence(cardRepository => cardRepository.GetByDevEui(_cardExpected.DevEuiCard))
-                .Returns(_cardExpected)
-                .Returns(null as Card);
+        _cardComposant.CreateCard(_cardDto.LineBus, _cardDto.DevEuiCard);
+        Card cardActual = _cardComposant.GetCardByDevEuiCard(_cardExpected.DevEuiCard);
+        Assert.NotNull(cardActual);
+        Assert.Equal(_cardExpected, cardActual);
+    }
+    
 
-            CardComposant cardComposant = new(mock.Object);
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void TestModifyCard()
+    {
+        _cardComposant.CreateCard(_cardDto.LineBus, _cardDto.DevEuiCard);
+        Card cardActual = _cardComposant.ModifyCard(_cardExpected.LineBus, _cardExpected.DevEuiCard);
+        Assert.NotNull(cardActual);
+        Assert.Equal(_cardExpected, cardActual);
+    }
+    
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void TestModifyCardError()
+    {
+        Assert.Throws<NotFoundException>(() => _cardComposant.ModifyCard(_cardExpected.LineBus, _cardExpected.DevEuiCard));
+    }
 
-            Card cardActual = cardComposant.GetCardByDevEuiCard(_cardExpected.DevEuiCard);
-            Assert.NotNull(cardActual);
-            Assert.Equal(_cardExpected, cardActual);
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void TestGetCards()
+    {
+        Card cardExpected1 = new("1", 1);
 
-            Assert.Throws<NotFoundException>(() => cardComposant.GetCardByDevEuiCard(_cardExpected.DevEuiCard));
-        }
+        Card cardExpected2 = new("2", 5);
+
+        Card cardExpected3 = new("3", 5);
         
-
-        [Fact]
-        [Trait("Category", "Unit")]
-        public void TestModifyCard()
-        {
-            Mock<ICardRepository> mock = new();
-            mock.SetupSequence(cardRepository => cardRepository.GetByDevEui(_cardExpected.DevEuiCard))
-                .Returns(_cardExpected);
-            mock.SetupSequence(cardRepository => cardRepository.Modify(_cardExpected))
-                .Returns(_cardExpected);
-            CardComposant cardComposant = new(mock.Object);
-
-            Card cardActual = cardComposant.ModifyCard(_cardExpected.LineBus, _cardExpected.DevEuiCard);
-            Assert.NotNull(cardActual);
-            Assert.Equal(_cardExpected, cardActual);
-        }
+        List<Card> cards = _cardComposant.GetCards();
+        Assert.Empty(cards);
         
-        [Fact]
-        [Trait("Category", "Unit")]
-        public void TestModifyCardError()
-        {
-            Mock<ICardRepository> mock = new();
-            mock.SetupSequence(cardRepository => cardRepository.GetByDevEui(_cardExpected.DevEuiCard))
-                .Returns(null as Card);
-            mock.SetupSequence(cardRepository => cardRepository.Modify(_cardExpected))
-                .Returns(_cardExpected);
-
-            CardComposant cardComposant = new(mock.Object);
-            Assert.Throws<NotFoundException>(() => cardComposant.ModifyCard(_cardExpected.LineBus, _cardExpected.DevEuiCard));
-        }
-
-        [Fact]
-        [Trait("Category", "Unit")]
-        public void TestGetCards()
-        {
-            Card cardExpected1 = new("1", 1);
-
-            Card cardExpected2 = new("2", 5);
-
-            Card cardExpected3 = new("3", 5);
-            
-            Mock<ICardRepository> mock = new();
-            mock.SetupSequence(cardRepository => cardRepository.GetAll())
-                .Returns([])
-                .Returns([cardExpected1])
-                .Returns([cardExpected1, cardExpected2, cardExpected3]);
-
-            CardComposant cardComposant = new(mock.Object);
-            List<Card> cards = cardComposant.GetCards();
-
-            Assert.Empty(cards);
-
-            cards = cardComposant.GetCards();
-            Assert.Equal(Assert.Single(cards), cardExpected1);
-
-            cards = cardComposant.GetCards();
-            Assert.Equal(3, cards.Count);
-            Assert.Equal([cardExpected1, cardExpected2, cardExpected3], cards);
-        }
+        _cardComposant.CreateCard(cardExpected1.LineBus, cardExpected1.DevEuiCard);
+        cards = _cardComposant.GetCards();
+        Assert.Equal(Assert.Single(cards), cardExpected1);
+        
+        _cardComposant.CreateCard(cardExpected2.LineBus, cardExpected2.DevEuiCard);
+        _cardComposant.CreateCard(cardExpected3.LineBus, cardExpected3.DevEuiCard);
+        cards = _cardComposant.GetCards();
+        Assert.Equal(3, cards.Count);
+        Assert.Equal([cardExpected1, cardExpected2, cardExpected3], cards);
     }
 }
