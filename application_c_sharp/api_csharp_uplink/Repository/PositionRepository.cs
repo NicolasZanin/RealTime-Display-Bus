@@ -4,7 +4,7 @@ using api_csharp_uplink.Interface;
 
 namespace api_csharp_uplink.Repository;
 
-public class PositionRepository(GlobalInfluxDb globalInfluxDb) : IPositionRepository
+public class PositionRepository(IGlobalInfluxDb globalInfluxDb) : IPositionRepository
 {
     private const string MeasurementPosition = "positionCard";
 

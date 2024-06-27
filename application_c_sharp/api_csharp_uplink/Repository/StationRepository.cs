@@ -5,7 +5,7 @@ using api_csharp_uplink.DirException;
 
 namespace api_csharp_uplink.Repository;
 
-public class StationRepository(GlobalInfluxDb globalInfluxDb) : IStationRepository
+public class StationRepository(IGlobalInfluxDb globalInfluxDb) : IStationRepository
 {
     private const string MeasurementStation = "station";
     

@@ -5,7 +5,7 @@ using Microsoft.Extensions.Options;
 
 namespace api_csharp_uplink.DB;
 
-public class GlobalInfluxDb(IOptions<InfluxDbSettings> influxDbSettings)
+public class GlobalInfluxDb(IOptions<InfluxDbSettings> influxDbSettings) : IGlobalInfluxDb
 {
     private readonly InfluxDBClient _client = new(influxDbSettings.Value.Url, influxDbSettings.Value.Token);
     private readonly string _bucketName = influxDbSettings.Value.BucketName;
@@ -17,8 +17,6 @@ public class GlobalInfluxDb(IOptions<InfluxDbSettings> influxDbSettings)
     {
         try
         {
-            Console.WriteLine($"{influxDbSettings.Value.Url}, {influxDbSettings.Value.Token}, {influxDbSettings.Value.BucketName}, {influxDbSettings.Value.OrgName}");
-            Console.WriteLine($"{influxDbSettings.Value.Url != null}, {influxDbSettings.Value.Token != null}, {influxDbSettings.Value.BucketName != null}, {influxDbSettings.Value.OrgName != null}");
             await _client.GetWriteApiAsync().WriteMeasurementAsync(data, WritePrecision.Ms, _bucketName, _orgName);
             return data;
         }

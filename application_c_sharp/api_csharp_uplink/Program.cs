@@ -18,6 +18,7 @@ builder.Services.AddScoped<IPositionRegister, PositionComposant>();
 builder.Services.AddScoped<IStationRepository, StationRepository>();
 builder.Services.AddScoped<IStationRegister, StationComposant>();
 builder.Services.AddScoped<IStationFinder, StationComposant>();
+builder.Services.AddSingleton<IGlobalInfluxDb, GlobalInfluxDb>();
 builder.Services.AddEndpointsApiExplorer();
 
 string jsonToRead;
@@ -39,7 +40,6 @@ else
 
 builder.Configuration.AddJsonFile(jsonToRead, optional: false, reloadOnChange: true);
 builder.Services.Configure<InfluxDbSettings>(builder.Configuration.GetSection("InfluxDB"));
-builder.Services.AddSingleton<GlobalInfluxDb>();
 
 var app = builder.Build();
 

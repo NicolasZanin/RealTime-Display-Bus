@@ -4,7 +4,7 @@ using api_csharp_uplink.Interface;
 
 namespace api_csharp_uplink.Repository;
 
-public class CardRepository(GlobalInfluxDb globalInfluxDb) : ICardRepository
+public class CardRepository(IGlobalInfluxDb globalInfluxDb) : ICardRepository
 {
     private const string MeasurementCard = "card";
 
