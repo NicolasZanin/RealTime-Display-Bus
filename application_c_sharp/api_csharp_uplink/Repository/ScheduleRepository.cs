@@ -6,8 +6,10 @@ namespace api_csharp_uplink.Repository
     public interface IScheduleRepository
     {
         public Schedule? AddSchedule(Schedule schedule);
-        public Schedule? GetByStationName(string station);
-        public List<Schedule> GetSchedules();
+        public Schedule? GetAllerByStationName(string station);
+        public Schedule? GetRetourByStationName(string station);
+        public List<Schedule> GetSchedulesAller();
+        public List<Schedule> GetSchedulesRetour();
     }
     public class ScheduleRepository(IInfluxDBSchedule influxDBSchedule) : IScheduleRepository
     {
@@ -18,14 +20,21 @@ namespace api_csharp_uplink.Repository
             return _influxDBSchedule.Add(schedule).Result;
         }
 
-        public Schedule? GetByStationName(string station)
+        public Schedule? GetAllerByStationName(string station)
         {
-            return _influxDBSchedule.GetScheduleByStationName(station).Result;
+            return _influxDBSchedule.GetScheduleAllerByStationName(station).Result;
         }
-
-        public List<Schedule> GetSchedules()
+        public Schedule? GetRetourByStationName(string station)
         {
-            throw new NotImplementedException();
+            return _influxDBSchedule.GetScheduleRetourByStationName(station).Result;
+        }
+        public List<Schedule> GetSchedulesAller()
+        {
+            return _influxDBSchedule.GetAllSchedulesAller().Result;
+        }
+        public List<Schedule> GetSchedulesRetour()
+        {
+            return _influxDBSchedule.GetAllSchedulesRetour().Result;
         }
     }
 }

@@ -15,7 +15,7 @@ def query_station_info(station):
     query = f'''
     from(bucket: "{bucket}")
       |> range(start: -inf)
-      |> filter(fn: (r) => r._measurement == "bus_stations_infosAller")
+      |> filter(fn: (r) => r._measurement == "bus_stations_infosRetour")
       |> filter(fn: (r) => r.station_name == "{station}")
     '''
     
@@ -32,11 +32,12 @@ def query_station_info(station):
     return results
 
 # Example usage
-station = "Đối diện 136"
+#station = "Đối diện 136"
+station = "Số 122"
 results = query_station_info(station)
 
 # Print the results
-#print(results)
+print(results)
 
 # Close the client
 client.close()

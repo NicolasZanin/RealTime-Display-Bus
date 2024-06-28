@@ -6,7 +6,10 @@ namespace api_csharp_uplink.Composant
 {
     public interface IScheduleService
     {
-        Schedule StationSchedules(string station);
+        Schedule StationSchedulesAller(string station);
+        Schedule StationSchedulesRetour(string station);
+        List<Schedule> SchedulesAller();
+        List<Schedule> SchedulesRetour();
         Bus CreateBus(int lineNumber, int busNumber, int devEUICard);
         List<Bus> GetBuses();
         Bus GetBusByBusNumber(int busNumber);
@@ -17,12 +20,30 @@ namespace api_csharp_uplink.Composant
     {
         private readonly IScheduleRepository _scheduleRepository = scheduleRepository;
 
-        public Schedule StationSchedules(string station)
+        public Schedule StationSchedulesAller(string station)
         {
-            Schedule? schedule = _scheduleRepository.GetByStationName(station);
+            Schedule? schedule = _scheduleRepository.GetAllerByStationName(station);
             return schedule ?? throw new ScheduleNotFoundException(station);
 
           
+        }
+
+        public Schedule StationSchedulesRetour(string station)
+        {
+            Schedule? schedule = _scheduleRepository.GetRetourByStationName(station);
+            return schedule ?? throw new ScheduleNotFoundException(station);
+        }
+
+        public List<Schedule> SchedulesAller()
+        {
+            List<Schedule>? schedules = _scheduleRepository.GetSchedulesAller();
+            return schedules ?? throw new Exception();
+        }
+
+        public List<Schedule> SchedulesRetour()
+        {
+            List<Schedule>? schedules = _scheduleRepository.GetSchedulesRetour();
+            return schedules ?? throw new Exception();
         }
 
         public Bus GetBusByBusNumber(int busNumber)
