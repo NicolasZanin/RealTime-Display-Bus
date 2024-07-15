@@ -1,6 +1,4 @@
-﻿using System.Diagnostics.Eventing.Reader;
-
-namespace api_csharp_uplink.Entities
+﻿namespace api_csharp_uplink.Entities
 {
     public class Bus
     {

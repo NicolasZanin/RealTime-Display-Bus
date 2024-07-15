@@ -11,7 +11,7 @@
         "id": "187e3413921597f4",
         "type": "mqtt-broker",
         "name": "",
-        "broker": "45.117.83.198",
+        "broker": "vngalaxy.vn",
         "port": "1883",
         "clientid": "",
         "autoConnect": true,
@@ -39,21 +39,6 @@
         "sessionExpiry": ""
     },
     {
-        "id": "304a96a6963f431e",
-        "type": "influxdb",
-        "hostname": "127.0.0.1",
-        "port": "8086",
-        "protocol": "http",
-        "database": "database",
-        "name": "",
-        "usetls": false,
-        "tls": "",
-        "influxdbVersion": "2.0",
-        "url": "http://influxdb:8086",
-        "timeout": "10",
-        "rejectUnauthorized": true
-    },
-    {
         "id": "018a456cada0d542",
         "type": "mqtt in",
         "z": "46e7946d59e304e2",
@@ -71,27 +56,9 @@
         "wires": [
             [
                 "a349be0d9b8599dd",
-                "ef588388c9bb02a2"
+                "e0d069752b404ee5"
             ]
         ]
-    },
-    {
-        "id": "3f42046c03af1cef",
-        "type": "influxdb out",
-        "z": "46e7946d59e304e2",
-        "influxdb": "304a96a6963f431e",
-        "name": "influxdb",
-        "measurement": "position",
-        "precision": "",
-        "retentionPolicy": "",
-        "database": "database",
-        "precisionV18FluxV20": "ms",
-        "retentionPolicyV18Flux": "",
-        "org": "myorg",
-        "bucket": "mybucket",
-        "x": 580,
-        "y": 240,
-        "wires": []
     },
     {
         "id": "a349be0d9b8599dd",
@@ -110,41 +77,63 @@
         "wires": []
     },
     {
-        "id": "ef588388c9bb02a2",
+        "id": "e0d069752b404ee5",
         "type": "function",
         "z": "46e7946d59e304e2",
-        "name": "function 1",
-        "func": "const payloadJSON = msg.payload.payload;\nconst data = JSON.parse(payloadJSON.objectJSON);\n\nmsg.payload = {\n        latitude: data.location.latitude,\n        longitude: data.location.longitude,\n        deviceName: payloadJSON.deviceName,\n        devEUI: payloadJSON.devEUI,\n        measurement: \"position\",\n        tags: {},\n        timestamp: new Date(payloadJSON.publishedAt).getTime() * 1000000 // Convert to nanoseconds\n    };\n\nreturn msg;\n",
+        "name": "function 2",
+        "func": "const payloadJSON = msg.payload.payload;\nconst data = JSON.parse(payloadJSON.objectJSON);\n\nmsg.payload = {\n  \"position\": {\n    \"latitude\": data.location.latitude,\n    \"longitude\": data.location.longitude,\n  },\n  \"devEuiNumber\": payloadJSON.devEUI   \n};\n\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 360,
+        "x": 400,
         "y": 240,
         "wires": [
             [
-                "cb8f7c1d275fb462",
-                "3f42046c03af1cef"
+                "2c8257f8fbc60db8"
             ]
         ]
     },
     {
-        "id": "cb8f7c1d275fb462",
+        "id": "2c8257f8fbc60db8",
+        "type": "http request",
+        "z": "46e7946d59e304e2",
+        "name": "requete api",
+        "method": "POST",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "http://api_csharp_uplink:8000/api/Position",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 610,
+        "y": 240,
+        "wires": [
+            [
+                "fec2d21a5129f731"
+            ]
+        ]
+    },
+    {
+        "id": "fec2d21a5129f731",
         "type": "debug",
         "z": "46e7946d59e304e2",
-        "name": "debug 2",
+        "name": "debug 3",
         "active": true,
         "tosidebar": true,
         "console": false,
         "tostatus": false,
-        "complete": "true",
-        "targetType": "full",
+        "complete": "false",
         "statusVal": "",
         "statusType": "auto",
-        "x": 560,
-        "y": 360,
+        "x": 840,
+        "y": 240,
         "wires": []
     }
 ]

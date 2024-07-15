@@ -1,33 +1,75 @@
-﻿using InfluxDB.Client;
-using InfluxDB.Client.Core.Flux.Domain;
-using InfluxDB.Client.Writes;
+﻿using api_csharp_uplink.DirException;
+using InfluxDB.Client;
+using InfluxDB.Client.Api.Domain;
+using Microsoft.Extensions.Options;
 
-namespace api_csharp_uplink.DB
+namespace api_csharp_uplink.DB;
+
+public class GlobalInfluxDb(IOptions<InfluxDbSettings> influxDbSettings) : IGlobalInfluxDb
 {
-    public class GlobalInfluxDb(string token = "Xip2vb7g32N9seLG5mOSynBzRSZuY2zRjyNhcVMyTi407UkamsXkepFZAUP-EXdzfQkCiVYns9m2zQyuU-zBkw==")
+    private readonly InfluxDBClient _client = new(influxDbSettings.Value.Url, influxDbSettings.Value.Token);
+    private readonly string _bucketName = influxDbSettings.Value.BucketName;
+    private readonly string _orgName = influxDbSettings.Value.OrgName;
+    private const string BaseQuery = "from(bucket: \"mybucket\")\n  |> range(start: 0)\n";
+    private const string MessageErrorName = "Error writing to InfluxDB cloud: ";
+    
+    public async Task<T> Save<T>(T data)
     {
-        //token Nico
-        //(string token = "77m_AFWkRSDcMUmFv7_50IR2BVuZqcUvY_7w51hPHnUP9KmcW4TsY6U9vfww-EmLLwa6RS7rWjZ9sJLI1ZtzVw=="
-        
-        public readonly InfluxDBClient _client = new("http://influxdb:8086", token);
-        public readonly string _bucket = "mybucket";
-        public readonly string _org = "stationBus";
-        //org Nico
-        //   public readonly string _org = "myorg";
-        public Task GetWriteApiAsync(PointData pointData)
+        try
         {
-            return _client.GetWriteApiAsync().WritePointAsync(pointData, _bucket, _org);
+            await _client.GetWriteApiAsync().WriteMeasurementAsync(data, WritePrecision.Ms, _bucketName, _orgName);
+            return data;
         }
-
-        public Task<List<FluxTable>> GetQueryApiAsync(string query)
+        catch (Exception e)
         {
-            try {
-                return _client.GetQueryApi().QueryAsync(query, _org);
-            } 
-            catch (Exception e)
-            {
-                throw new Exception("Error querying InfluxDB cloud: " + e.Message);
-            }
+            throw new DbException(MessageErrorName + e.Message);
+        }
+    }
+
+    public async Task<List<T>> GetAll<T>(string measurementName)
+    {
+        try
+        {
+            string query = BaseQuery + $"|> filter(fn: (r) => r._measurement == \"{measurementName}\")";
+            return await _client.GetQueryApi().QueryAsync<T>(query, _orgName);
+        }
+        catch (Exception e)
+        {
+            throw new DbException(MessageErrorName + e.Message);
+        }
+    }
+    
+    public async Task<List<T>> Get<T>(string query)
+    {
+        try
+        {
+            return await _client.GetQueryApi().QueryAsync<T>(query, _orgName);
+        }
+        catch (Exception e)
+        {
+            throw new DbException(MessageErrorName + e.Message);
+        }
+    }
+
+    public Task<List<T>> Get<T>(string measurementName, string predicate)
+    {
+        return Get<T>(BaseQuery + $"|> filter(fn: (r) => r._measurement == \"{measurementName}\")\n" + predicate);
+    }
+
+    public Task Delete(string predicate)
+    {
+        return Delete(predicate, DateTime.UnixEpoch, DateTime.Now);
+    }
+
+    public async Task Delete(string predicate, DateTime start, DateTime end)
+    {
+        try
+        {
+            await _client.GetDeleteApi().Delete(start, end, predicate, _bucketName, _orgName);
+        }
+        catch (Exception e)
+        {
+            throw new DbException(MessageErrorName + e.Message);
         }
     }
 }

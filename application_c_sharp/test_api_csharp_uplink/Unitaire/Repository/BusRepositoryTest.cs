@@ -1,6 +1,4 @@
-﻿using api_csharp_uplink.Dto;
-using Moq;
-using api_csharp_uplink.Repository;
+﻿using Moq;
 using api_csharp_uplink.Entities;
 using api_csharp_uplink.DB;
 
