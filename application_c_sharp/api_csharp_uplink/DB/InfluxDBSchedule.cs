@@ -89,8 +89,6 @@ namespace api_csharp_uplink.DB
         }
         public static Schedule ConvertFluxTablesToSchedule(List<FluxTable> tables)
         {
-            string pattern = "^\\d{1,2}h\\d{2}$";
-            Regex regex = new Regex(pattern);
             string stationName = "";
             double lat = 0;
             double longi = 0;
@@ -102,36 +100,19 @@ namespace api_csharp_uplink.DB
                     stationName = record.Values["station_name"].ToString();
 
                     if (record.Values.ContainsValue("latitude"))
-                    {
-                        lat = Convert.ToDouble(record.Values["latitude"]);
-                    }
+                    { lat = Convert.ToDouble(record.Values["latitude"]); }
 
                     if (record.Values.ContainsKey("longitude"))
-                    {
-                        longi = Convert.ToDouble(record.Values["longitude"]);
-                    }
+                    { longi = Convert.ToDouble(record.Values["longitude"]); }
                     else
                     {
                         foreach (var kvp in record.Values)
-                        {
-                          //  string key = kvp.Value.ToString();
-                            //if (regex.IsMatch(key))
-                            //{
-                                horaires.Add(kvp.Value.ToString());
-                            //}
-                        }
+                        { horaires.Add(kvp.Value.ToString()); }
                     }
                 }
             }
-
-            //horaires.Add(record.Values.ToArray().ToString());
             return new Schedule
-            {
-                name = stationName,
-                latitude = lat,
-                longitude = longi,
-                schedules = horaires
-            };
+            { name = stationName, latitude = lat, longitude = longi, schedules = horaires };
         }
         
         public static List<Schedule> ConvertFluxTablesToScheduleList(List<FluxTable> tables)
@@ -165,8 +146,8 @@ namespace api_csharp_uplink.DB
                     currentStationName = stationName;
                     if (record.Values.ContainsKey("latitude"))
                     {
-                        lat = 999999;
-                        //lat = Convert.ToDouble(record.Values["latitude"]);
+                        
+                        lat = Convert.ToDouble(record.Values["latitude"]);
                     }
 
                     if (record.Values.ContainsKey("longitude"))
@@ -207,11 +188,12 @@ namespace api_csharp_uplink.DB
         }
         public async Task<Schedule?> GetScheduleAllerByStationName(string station)
         {
-
-            string query = $"from(bucket: \"bucketStation\") |> range(start: -inf) |> filter(fn: (r) => r._measurement == \"bus_stations_infosAller\") |> filter(fn: (r) => r.station_name == \"{station}\")";
+            string query = $"from(bucket: \"bucketStation\") " +
+                           $"|> range(start: -inf) " +
+                           $"|> filter(fn: (r) => r._measurement == \"bus_stations_infosAller\") " +
+                           $"|> filter(fn: (r) => r.station_name == \"{station}\")";
             List<FluxTable>  tables= await _globalInfluxDb.GetQueryApiAsync(query);
-          
-                return ConvertFluxTablesToSchedule(tables);
+            return ConvertFluxTablesToSchedule(tables);
         }
         public async Task<Schedule?> GetScheduleRetourByStationName(string station)
         {
