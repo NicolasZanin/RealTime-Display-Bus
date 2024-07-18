@@ -1,40 +1,71 @@
 using api_csharp_uplink.DB;
 using api_csharp_uplink.Entities;
+using api_csharp_uplink.Interface;
 
-namespace api_csharp_uplink.Repository
+namespace api_csharp_uplink.Repository;
+
+public class ScheduleRepository(IGlobalInfluxDb globalInfluxDb) : IScheduleRepository
 {
-    public interface IScheduleRepository
+    private const string MeasurementName = "schedule";
+    
+    public Schedule AddSchedule(Schedule schedule)
     {
-        public Schedule? AddSchedule(Schedule schedule);
-        public Schedule? GetAllerByStationName(string station);
-        public Schedule? GetRetourByStationName(string station);
-        public List<Schedule> GetSchedulesAller();
-        public List<Schedule> GetSchedulesRetour();
+        string nameOrientation = schedule.Orientation.ToString();
+        List<Task<ScheduleDb>> schedules = schedule.Hours.AsParallel()
+            .Select(hour => 
+                globalInfluxDb.Save(ConvertScheduleToScheduleDb(schedule.StationName, schedule.LineNumber, nameOrientation, hour)))
+            .ToList();
+
+        ScheduleDb[] scheduleDbs = Task.WhenAll(schedules).Result;
+        List<DateTime> hours = scheduleDbs.AsParallel().Select(scheduleDb => scheduleDb.Hours).ToList();
+        return new Schedule(schedule.StationName, schedule.LineNumber, schedule.Orientation, hours);
     }
-    public class ScheduleRepository(IInfluxDBSchedule influxDBSchedule) : IScheduleRepository
+
+    public Schedule? FindSchedule(string nameStation, int lineNumber, Orientation orientation)
     {
-        private readonly IInfluxDBSchedule _influxDBSchedule = influxDBSchedule;
+        string predicate = $"|> filter(fn: (r) => r.stationName == \"{nameStation}\" and r.lineNumber == \"{lineNumber}\" and r.orientation == \"{orientation}\")";
+        List<ScheduleDb> list = globalInfluxDb.Get<ScheduleDb>(MeasurementName, predicate).Result;
+        
+        if (list.Count == 0)
+            return null;
+        
+        List<DateTime> hours = list.AsParallel().Select(scheduleDb => scheduleDb.Hours).ToList();
+        return new Schedule(nameStation, lineNumber, orientation, hours);
+        
+    }
 
-        public Schedule? AddSchedule(Schedule schedule)
-        {
-            return _influxDBSchedule.Add(schedule).Result;
-        }
+    public List<Schedule> FindScheduleByStationNameOrientation(string nameStation, Orientation orientation)
+    {
+        string predicate = $"|> filter(fn: (r) => r.stationName == \"{nameStation}\" and r.orientation == \"{orientation}\")";
+        List<ScheduleDb> scheduleDbs = globalInfluxDb.Get<ScheduleDb>(MeasurementName, predicate).Result;
 
-        public Schedule? GetAllerByStationName(string station)
+        List<Schedule> schedules = scheduleDbs.AsParallel()
+            .GroupBy(scheduleDb => new FindScheduleMap(scheduleDb.StationName, scheduleDb.LineNumber, orientation))
+            .Select(findScheduleMap =>
+            {
+                List<DateTime> hours = findScheduleMap.AsParallel().Select(scheduleDb => scheduleDb.Hours)
+                    .ToList();
+                hours.Sort((hour1, hour2) => 
+                    hour1.Hour == hour2.Hour? hour1.Minute.CompareTo(hour2.Minute) : hour1.Hour.CompareTo(hour2.Hour));
+                
+                FindScheduleMap key = findScheduleMap.Key;
+                return new Schedule(key.nameStation, key.lineNumber, key.orientation, hours);
+            }).ToList();
+        
+        schedules.Sort((schedule1, schedule2) => schedule1.LineNumber.CompareTo(schedule2.LineNumber));
+        return schedules;
+    }
+
+    private static ScheduleDb ConvertScheduleToScheduleDb(string nameStation, int lineNumber, string orientation, DateTime hour)
+    {
+        return new ScheduleDb
         {
-            return _influxDBSchedule.GetScheduleAllerByStationName(station).Result;
-        }
-        public Schedule? GetRetourByStationName(string station)
-        {
-            return _influxDBSchedule.GetScheduleRetourByStationName(station).Result;
-        }
-        public List<Schedule> GetSchedulesAller()
-        {
-            return _influxDBSchedule.GetAllSchedulesAller().Result;
-        }
-        public List<Schedule> GetSchedulesRetour()
-        {
-            return _influxDBSchedule.GetAllSchedulesRetour().Result;
-        }
+            StationName = nameStation,
+            LineNumber = lineNumber,
+            Orientation = orientation,
+            Hours = hour
+        };
     }
 }
+
+public record FindScheduleMap(string nameStation, int lineNumber, Orientation orientation);

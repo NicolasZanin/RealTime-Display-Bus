@@ -1,7 +1,8 @@
 from influxdb_client import InfluxDBClient, Point, WritePrecision
 from influxdb_client.client.write_api import SYNCHRONOUS
+from datetime import datetime
 import influxdb_client, os, time
-import datetime
+import pytz
 url = "http://localhost:8086"  # Remplacez par l'URL de votre instance InfluxDB
 token = "Xip2vb7g32N9seLG5mOSynBzRSZuY2zRjyNhcVMyTi407UkamsXkepFZAUP-EXdzfQkCiVYns9m2zQyuU-zBkw=="
 org = "stationBus"
@@ -18,27 +19,16 @@ def lire_horaires_et_ajouter_dans_influxdb(nom_du_fichier):
         for ligne in lignes:
             # Supposons que la ligne soit formatée comme : "16.101324, 108.139797 : station_name : 08:00, 09:00, 10:00"
             try:
-                coords, nom_station, horaires = ligne.strip().split(":", 2)
-                latitude, longitude = map(str.strip, coords.split(","))
+                _, nom_station, horaires = ligne.strip().split(":", 2)
                 horaires_bus = [h.strip() for h in horaires.split(",")]
                 
-                # Créer un point de données
-                point = (
-                    Point("bus_stations_infosAller")
-                    .tag("station_name", nom_station.strip())
-                    .field("latitude", float(latitude))
-                    .field("longitude", float(longitude)))
-
-                # Ajouter chaque horaire comme un champ
-                for i, horaire in enumerate(horaires_bus):
-                    if i < 9 : 
-                        point.field(f"horaire_0{i + 1}", horaire)
-                    else :
-                        point.field(f"horaire_{i + 1}", horaire)
+                for horaire in horaires_bus:
+                    hour, minute = horaire.split("h", 1)
+                    time = datetime(2024, 7, 15, hour, minute, 0).replace(tzinfo=pytz.UTC)
+                    point = Point("schedule").tag("stationName", nom_station.strip()).tag("lineNumber", 5).tag("orientation", "FORWARD").field("value", "10").time(int(time.timestamp() * 1e9))
                 
-                # Écrire le point dans la base de données
-                write_api.write(bucket=bucket, org=org, record=point)
-                time.sleep(1)
+                    write_api.write(bucket=bucket, org=org, record=point)
+                    
             except Exception as e:
                 print(f"Erreur lors du traitement de la ligne : {ligne.strip()}")
                 print(f"Exception: {e}")

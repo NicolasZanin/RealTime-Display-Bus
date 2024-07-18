@@ -1,74 +1,55 @@
-﻿using api_csharp_uplink.Entities;
-using api_csharp_uplink.Repository;
-using api_csharp_uplink.DirException;
+﻿using api_csharp_uplink.DirException;
+using api_csharp_uplink.Entities;
+using api_csharp_uplink.Interface;
 
-namespace api_csharp_uplink.Composant
+namespace api_csharp_uplink.Composant;
+
+public class ScheduleComposant(IScheduleRepository scheduleRepository) : IScheduleRegistration, IScheduleFinder
 {
-    public interface IScheduleService
+    public Schedule AddSchedule(string nameStation, int lineNumber, string orientation, List<DateTime> hours)
     {
-        Schedule StationSchedulesAller(string station);
-        Schedule StationSchedulesRetour(string station);
-        List<Schedule> SchedulesAller();
-        List<Schedule> SchedulesRetour();
-        Bus CreateBus(int lineNumber, int busNumber, int devEUICard);
-        List<Bus> GetBuses();
-        Bus GetBusByBusNumber(int busNumber);
-        Bus GetBusByDevEUICard(int busNumber);
+        Orientation enumOrientation = (Orientation) Enum.Parse(typeof(Orientation), orientation, true);
+        HashSet<DateTime> setHours = [];
+        
+        try
+        {
+            Schedule scheduleFind = FindSchedule(nameStation, lineNumber, enumOrientation);
+            
+            foreach (DateTime hour in hours.Where(hour => !scheduleFind.Hours.Contains(hour)))
+                setHours.Add(hour);
+        }
+        catch (NotFoundException)
+        {
+            foreach (DateTime hour in hours)
+                setHours.Add(hour);
+        }
+        
+        Schedule schedule = new Schedule(nameStation, lineNumber, enumOrientation, setHours.ToList());
+        return scheduleRepository.AddSchedule(schedule);
+    }
+    
+    public Schedule FindSchedule(string nameStation, int lineNumber, Orientation orientation)
+    {
+        VerifyArguments(nameStation, lineNumber);
+        
+        return scheduleRepository.FindSchedule(nameStation, lineNumber, orientation) ??
+               throw new NotFoundException($"The schedule with NameStation {nameStation}, LineNumber {lineNumber}, " +
+                   $"Orientation {orientation}");
     }
 
-    public class ScheduleComposant(IScheduleRepository scheduleRepository) : IScheduleService
+    public List<Schedule> FindScheduleByStationNameOrientation(string nameStation, Orientation orientation)
     {
-        private readonly IScheduleRepository _scheduleRepository = scheduleRepository;
+        if (string.IsNullOrEmpty(nameStation))
+            throw new ArgumentNullException(nameof(nameStation), "The name of the station is empty");
+        
+        return scheduleRepository.FindScheduleByStationNameOrientation(nameStation, orientation);
+    }
 
-        public Schedule StationSchedulesAller(string station)
-        {
-            Schedule? schedule = _scheduleRepository.GetAllerByStationName(station);
-            return schedule ?? throw new ScheduleNotFoundException(station);
-
-          
-        }
-
-        public Schedule StationSchedulesRetour(string station)
-        {
-            Schedule? schedule = _scheduleRepository.GetRetourByStationName(station);
-            return schedule ?? throw new ScheduleNotFoundException(station);
-        }
-
-        public List<Schedule> SchedulesAller()
-        {
-            List<Schedule>? schedules = _scheduleRepository.GetSchedulesAller();
-            return schedules ?? throw new Exception();
-        }
-
-        public List<Schedule> SchedulesRetour()
-        {
-            List<Schedule>? schedules = _scheduleRepository.GetSchedulesRetour();
-            return schedules ?? throw new Exception();
-        }
-
-        public Bus GetBusByBusNumber(int busNumber)
-        {
-            //Bus? bus = busRepository.GetByBusNumber(busNumber);
-            //return bus ?? throw new BusNotFoundException(busNumber);
-            return null;
-        }
-
-        public Bus GetBusByDevEUICard(int busNumber)
-        {
-            // Bus? bus = busRepository.GetBusByDevEUICard(busNumber);
-            //return bus ?? throw new BusNotFoundException(busNumber);
-            return null;
-        }
-
-        public List<Bus> GetBuses()
-        {
-            // return busRepository.GetBuses();
-            return null;
-        }
-
-        public Bus CreateBus(int lineNumber, int busNumber, int devEUICard)
-        {
-            throw new NotImplementedException();
-        }
+    private static void VerifyArguments(string nameStation, int lineNumber)
+    {
+        if (string.IsNullOrEmpty(nameStation))
+            throw new ArgumentNullException(nameof(nameStation), "The name of the station is empty");
+        if (lineNumber < 1)
+            throw new ArgumentOutOfRangeException(nameof(lineNumber), "The line number must be greater than 0");
     }
 }
