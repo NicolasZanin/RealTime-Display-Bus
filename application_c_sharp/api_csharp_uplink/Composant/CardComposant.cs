@@ -6,9 +6,9 @@ namespace api_csharp_uplink.Composant;
 
 public class CardComposant(ICardRepository cardRepository) : ICardFinder, ICardRegistration
 {
-    public Card CreateCard(int lineNumber, string devEuiCard)
+    public async Task<Card> CreateCard(int lineNumber, string devEuiCard)
     {
-        if (cardRepository.GetByDevEui(devEuiCard) != null)
+        if (await cardRepository.GetByDevEui(devEuiCard) != null)
         {
             throw new AlreadyCreateException($"The card with devEuiCard {devEuiCard} already exists");
         }
@@ -20,27 +20,27 @@ public class CardComposant(ICardRepository cardRepository) : ICardFinder, ICardR
 
         Card card = new(devEuiCard, lineNumber);
 
-        return cardRepository.Add(card) ?? throw new DbException("Problem with database");
+        return await cardRepository.Add(card) ?? throw new DbException("Problem with database");
     }
 
-    public Card ModifyCard(int lineNumber, string devEuiCard)
+    public async Task<Card> ModifyCard(int lineNumber, string devEuiCard)
     {
-        if (cardRepository.GetByDevEui(devEuiCard) == null)
+        if (await cardRepository.GetByDevEui(devEuiCard) == null)
         {
             throw new NotFoundException($"The card with devEuiCard {devEuiCard} not found");
         }
         
         Card card = new(devEuiCard, lineNumber);
-        return cardRepository.Modify(card);
+        return await cardRepository.Modify(card);
     }
 
-    public Card GetCardByDevEuiCard(string devEuiCard)
+    public async Task<Card> GetCardByDevEuiCard(string devEuiCard)
     {
-        Card? bus = cardRepository.GetByDevEui(devEuiCard);
+        Card? bus = await cardRepository.GetByDevEui(devEuiCard);
         return bus ?? throw new NotFoundException($"The card with devEuiCard {devEuiCard} not found");
     }
 
-    public List<Card> GetCards()
+    public Task<List<Card>> GetCards()
     {
         return cardRepository.GetAll();
     }

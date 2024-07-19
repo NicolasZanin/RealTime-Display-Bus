@@ -8,31 +8,31 @@ public class CardRepository(IGlobalInfluxDb globalInfluxDb) : ICardRepository
 {
     private const string MeasurementCard = "card";
 
-    public Card Add(Card card) {
-        Task<CardDb> taskCardDb = globalInfluxDb.Save(ConvertCardToDb(card));
-        return ConvertDbToCard(taskCardDb.Result);          
+    public async Task<Card> Add(Card card) {
+        CardDb cardDb = await globalInfluxDb.Save(ConvertCardToDb(card));
+        return ConvertDbToCard(cardDb);        
     }
     
 
-    public Card? GetByDevEui(string devEuiCard)
+    public async Task<Card?> GetByDevEui(string devEuiCard)
     {
         string query = $"   |> filter(fn: (r) => r.devEuiCard == \"{devEuiCard}\")";
-        List<CardDb> list = globalInfluxDb.Get<CardDb>(MeasurementCard, query).Result;
+        List<CardDb> list = await globalInfluxDb.Get<CardDb>(MeasurementCard, query);
         return list.Count > 0 ? ConvertDbToCard(list[0]) : null;
     }
     
-    public Card Modify(Card card)
+    public async Task<Card> Modify(Card card)
     {
-        string predicate = $"|> filter(fn: (r) => r.devEuiCard == \"{card.DevEuiCard}\")";
-        globalInfluxDb.Delete(predicate);
+        string predicate = $"devEuiCard=\"{card.DevEuiCard}\"";
+        await globalInfluxDb.Delete(predicate);
         
-        Task<CardDb> taskCardDb = globalInfluxDb.Save(ConvertCardToDb(card));
-        return ConvertDbToCard(taskCardDb.Result);          
+        CardDb cardDb = await globalInfluxDb.Save(ConvertCardToDb(card));
+        return ConvertDbToCard(cardDb);
     }
 
-    public List<Card> GetAll()
+    public async Task<List<Card>> GetAll()
     {
-        List<CardDb> cardDbs = globalInfluxDb.GetAll<CardDb>(MeasurementCard).Result;
+        List<CardDb> cardDbs = await globalInfluxDb.GetAll<CardDb>(MeasurementCard);
         return cardDbs.Select(ConvertDbToCard).ToList();           
     }
     
