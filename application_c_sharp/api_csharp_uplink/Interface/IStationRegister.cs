@@ -4,5 +4,5 @@ namespace api_csharp_uplink.Interface;
 
 public interface IStationRegister
 {
-    public Station AddStation(double latitude, double longitude, string nameStation);
+    public Task<Station> AddStation(double latitude, double longitude, string nameStation);
 }

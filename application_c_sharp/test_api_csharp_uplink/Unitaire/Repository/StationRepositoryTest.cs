@@ -18,20 +18,20 @@ public class StationRepositoryTest
     
     [Fact]
     [Trait("Category", "Unit")]
-    public void TestAdd()
+    public async Task TestAdd()
     {
         Mock<IGlobalInfluxDb> mock = new();
         mock.Setup(globalInfluxDb => globalInfluxDb.Save(It.IsAny<StationDb>()))
             .ReturnsAsync(_stationDb1);
         StationRepository stationRepository = new(mock.Object);
         
-        Station result = stationRepository.Add(_station1);
+        Station result = await stationRepository.Add(_station1);
         Assert.Equal(_station1, result);
     }
     
     [Fact]
     [Trait("Category", "Unit")]
-    public void TestGetStation()
+    public async Task TestGetStation()
     {
         Mock<IGlobalInfluxDb> mock = new();
         mock.SetupSequence(globalInfluxDb => globalInfluxDb.Get<StationDb>(MeasurementStation,
@@ -40,16 +40,16 @@ public class StationRepositoryTest
             .ReturnsAsync([_stationDb1]);
         
         StationRepository stationRepository = new(mock.Object);
-        Station? result = stationRepository.GetStation(_station1.NameStation);
+        Station? result = await stationRepository.GetStation(_station1.NameStation);
         Assert.Null(result);
         
-        result = stationRepository.GetStation(_station1.NameStation);
+        result = await stationRepository.GetStation(_station1.NameStation);
         Assert.Equal(_station1, result);
     }
     
     [Fact]
     [Trait("Category", "Unit")]
-    public void TestGetStationByPosition()
+    public async Task TestGetStationByPosition()
     {
         Mock<IGlobalInfluxDb> mock = new();
         mock.SetupSequence(globalInfluxDb => globalInfluxDb.Get<StationDb>(MeasurementStation,
@@ -58,10 +58,10 @@ public class StationRepositoryTest
             .ReturnsAsync([_stationDb1]);
         
         StationRepository stationRepository = new(mock.Object);
-        Station? result = stationRepository.GetStation(_station1.Position);
+        Station? result = await stationRepository.GetStation(_station1.Position);
         Assert.Null(result);
         
-        result = stationRepository.GetStation(_station1.Position);
+        result = await stationRepository.GetStation(_station1.Position);
         Assert.Equal(_station1, result);
     }
 }

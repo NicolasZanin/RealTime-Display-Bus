@@ -6,29 +6,29 @@ namespace api_csharp_uplink.Composant;
 
 public class StationComposant(IStationRepository stationRepository) : IStationRegister, IStationFinder
 {
-    public Station AddStation(double latitude, double longitude, string nameStation)
+    public async Task<Station> AddStation(double latitude, double longitude, string nameStation)
     { 
-        if (stationRepository.GetStation(nameStation) != null)
+        if (await stationRepository.GetStation(nameStation) != null)
             throw new AlreadyCreateException($"Station {nameStation} already created.");
 
         Station station = new Station(new Position(latitude, longitude), nameStation);
-        return stationRepository.Add(station);
+        return await stationRepository.Add(station);
     }
 
-    public Station GetStation(string nameStation)
+    public async Task<Station> GetStation(string nameStation)
     {
         if (string.IsNullOrEmpty(nameStation))
             throw new ArgumentNullException(nameof(nameStation), "Name of station must not be null or empty.");
         
-        return stationRepository.GetStation(nameStation) ?? 
+        return await stationRepository.GetStation(nameStation) ?? 
                throw new NotFoundException($"The station with the name {nameStation} does not exist.");
     }
 
-    public Station GetStation(double latitude, double longitude)
+    public async Task<Station> GetStation(double latitude, double longitude)
     {
         Position position = new Position(latitude, longitude);
         
-        return stationRepository.GetStation(position) ??
+        return await stationRepository.GetStation(position) ??
                throw new NotFoundException($"The station with the Position {position} does not exist.");
     }
 }

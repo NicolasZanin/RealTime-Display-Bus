@@ -26,11 +26,11 @@ public class StationController(IStationRegister register, IStationFinder finder)
     [ProducesResponseType(typeof(StationDto), 201)]
     [ProducesResponseType(400)]
     [ProducesResponseType(500)]
-    public IActionResult AddStation([FromBody] StationDto stationDto)
+    public async Task<IActionResult> AddStation([FromBody] StationDto stationDto)
     {
         try
         {
-           Station station = register.AddStation(stationDto.Position.Latitude,
+           Station station = await register.AddStation(stationDto.Position.Latitude,
                 stationDto.Position.Longitude,
                 stationDto.NameStation);
             
@@ -56,11 +56,11 @@ public class StationController(IStationRegister register, IStationFinder finder)
     [ProducesResponseType(400)]
     [ProducesResponseType(404)]
     [ProducesResponseType(500)]
-    public IActionResult GetStationByName([FromQuery] string nameStation)
+    public async Task<IActionResult> GetStationByName([FromQuery] string nameStation)
     {
         try
         {
-            Station station = finder.GetStation(nameStation);
+            Station station = await finder.GetStation(nameStation);
             return Ok(ConvertStationIntoDto(station));
         }
         catch (Exception e)
@@ -84,11 +84,11 @@ public class StationController(IStationRegister register, IStationFinder finder)
     [ProducesResponseType(400)]
     [ProducesResponseType(404)]
     [ProducesResponseType(500)]
-    public IActionResult GetStationByPosition(double latitude, double longitude)
+    public async Task<IActionResult> GetStationByPosition(double latitude, double longitude)
     {
         try
         {
-            Station station = finder.GetStation(latitude, longitude);
+            Station station = await finder.GetStation(latitude, longitude);
             return Ok(ConvertStationIntoDto(station));
         }
         catch (Exception e)
