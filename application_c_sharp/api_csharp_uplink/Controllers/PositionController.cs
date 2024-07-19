@@ -26,11 +26,11 @@ public class PositionController(IPositionRegister positionRegister) : Controller
     [ProducesResponseType(typeof(PositionCardDto), 201)]
     [ProducesResponseType(400)]
     [ProducesResponseType(500)]
-    public IActionResult AddNewPosition([FromBody] PositionCardDto positionCardDto)
+    public async Task<IActionResult> AddNewPosition([FromBody] PositionCardDto positionCardDto)
     {
         try
         {
-           PositionCard positionCard = positionRegister.AddPosition(positionCardDto.Position.Latitude,
+           PositionCard positionCard = await positionRegister.AddPosition(positionCardDto.Position.Latitude,
                 positionCardDto.Position.Longitude,
                 positionCardDto.DevEuiNumber);
             
@@ -54,11 +54,11 @@ public class PositionController(IPositionRegister positionRegister) : Controller
     [ProducesResponseType(typeof(PositionCardDto), 200)]
     [ProducesResponseType(404)]
     [ProducesResponseType(500)]
-    public IActionResult GetLastPositionByDevEuiNumber(string devEuiCard)
+    public async Task<IActionResult> GetLastPositionByDevEuiNumber(string devEuiCard)
     {
         try
         {
-            PositionCard positionCard = positionRegister.GetLastPosition(devEuiCard);
+            PositionCard positionCard = await positionRegister.GetLastPosition(devEuiCard);
             return Ok(ConvertPositionCardIntoDto(positionCard));
         }
         catch (Exception e)

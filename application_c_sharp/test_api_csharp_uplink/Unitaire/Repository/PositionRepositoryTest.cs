@@ -18,20 +18,20 @@ public class PositionRepositoryTest
     
     [Fact]
     [Trait("Category", "Unit")]
-    public void TestAdd()
+    public async Task TestAdd()
     {
         Mock<IGlobalInfluxDb> mock = new();
         mock.Setup(globalInfluxDb => globalInfluxDb.Save(It.IsAny<PositionCardDb>()))
             .ReturnsAsync(_positionCardDb0);
         PositionRepository positionRepository = new(mock.Object);
         
-        PositionCard result = positionRepository.Add(_positionCard0);
+        PositionCard result = await positionRepository.Add(_positionCard0);
         Assert.Equal(_positionCard0, result);
     }
     
     [Fact]
     [Trait("Category", "Unit")]
-    public void TestGetLast()
+    public async Task TestGetLast()
     {
         string query = "from(bucket: \"mybucket\")\n  |> range(start: -15m)\n  "
                        + $"|> filter(fn: (r) => r._measurement == \"{MeasurementPosition}\" and r.devEuiCard == \"{_positionCard0.DevEuiCard}\")\n  " +
@@ -41,7 +41,7 @@ public class PositionRepositoryTest
             .ReturnsAsync([_positionCardDb0]);
         PositionRepository positionRepository = new(mock.Object);
         
-        PositionCard? result = positionRepository.GetLast(_positionCard0.DevEuiCard);
+        PositionCard? result = await positionRepository.GetLast(_positionCard0.DevEuiCard);
         Assert.Equal(_positionCard0, result);
     }
 }
