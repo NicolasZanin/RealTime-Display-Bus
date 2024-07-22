@@ -24,7 +24,7 @@ public class CardControllerTest
     {
         ICardRepository cardRepository = new DbTestCard();
         CardComposant cardComposant = new(cardRepository);
-        _cardController = new(cardComposant, cardComposant);
+        _cardController = new CardController(cardComposant, cardComposant);
     }
 
     [Fact]

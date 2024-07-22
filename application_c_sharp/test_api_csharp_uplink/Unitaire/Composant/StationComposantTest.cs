@@ -14,7 +14,7 @@ public class StationComposantTest
     public StationComposantTest()
     {
         IStationRepository stationRepository = new DbTestStation();
-        _stationComposant = new(stationRepository);
+        _stationComposant = new StationComposant(stationRepository);
     }
     
     [Fact]

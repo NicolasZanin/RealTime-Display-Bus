@@ -13,10 +13,10 @@ public class CreateStationTest(ITestOutputHelper testOutputHelper) : IAsyncLifet
 {
     private readonly HttpClient _client = new();
 
-    readonly StationDto _stationDtoStation1 = new(){ NameStation = "Station1", 
+    private readonly StationDto _stationDtoStation1 = new(){ NameStation = "Station1", 
         Position = new PositionDto { Latitude = 15.01, Longitude = 14.01 } };
-    private readonly string _request = "http://api_csharp_uplink:8000/api/Station";
-    private readonly InfluxDBTest _influxDbTest = new();
+    private const string Request = "http://api_csharp_uplink:8000/api/Station";
+    private readonly InfluxDbTest _influxDbTest = new();
 
     public async Task InitializeAsync()
     {
@@ -38,7 +38,7 @@ public class CreateStationTest(ITestOutputHelper testOutputHelper) : IAsyncLifet
 
         try
         {
-            HttpResponseMessage response = await _client.PostAsync(_request, content);
+            HttpResponseMessage response = await _client.PostAsync(Request, content);
             response.EnsureSuccessStatusCode();
             response.StatusCode.Should().Be(HttpStatusCode.Created);
 
@@ -68,15 +68,15 @@ public class CreateStationTest(ITestOutputHelper testOutputHelper) : IAsyncLifet
             StringContent content = new(JsonConvert.SerializeObject(stationDtoErrorLatitude), Encoding.UTF8,
                 "application/json");
 
-            HttpResponseMessage response = await _client.PostAsync(_request, content);
+            HttpResponseMessage response = await _client.PostAsync(Request, content);
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
 
             stationDtoErrorLatitude.Position.Latitude = -91.0;
             
-            content = new(JsonConvert.SerializeObject(stationDtoErrorLatitude), Encoding.UTF8,
+            content = new StringContent(JsonConvert.SerializeObject(stationDtoErrorLatitude), Encoding.UTF8,
                 "application/json");
 
-            response = await _client.PostAsync(_request, content);
+            response = await _client.PostAsync(Request, content);
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
 
 
@@ -86,18 +86,18 @@ public class CreateStationTest(ITestOutputHelper testOutputHelper) : IAsyncLifet
                 Position = new PositionDto { Latitude = _stationDtoStation1.Position.Latitude, Longitude = 180.01 }
             };
             
-            content = new(JsonConvert.SerializeObject(stationDtoErrorLongitude), Encoding.UTF8,
+            content = new StringContent(JsonConvert.SerializeObject(stationDtoErrorLongitude), Encoding.UTF8,
                 "application/json");
 
-            response = await _client.PostAsync(_request, content);
+            response = await _client.PostAsync(Request, content);
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
 
             stationDtoErrorLongitude.Position.Longitude = -180.01;
             
-            content = new(JsonConvert.SerializeObject(stationDtoErrorLongitude), Encoding.UTF8,
+            content = new StringContent(JsonConvert.SerializeObject(stationDtoErrorLongitude), Encoding.UTF8,
                 "application/json");
 
-            response = await _client.PostAsync(_request, content);
+            response = await _client.PostAsync(Request, content);
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         }
         catch (HttpRequestException e)
@@ -122,21 +122,21 @@ public class CreateStationTest(ITestOutputHelper testOutputHelper) : IAsyncLifet
         
         try
         {
-            await _client.PostAsync(_request, contentStation1);
+            await _client.PostAsync(Request, contentStation1);
             
-            HttpResponseMessage response = await _client.GetAsync($"{_request}?nameStation={_stationDtoStation1.NameStation}");
+            HttpResponseMessage response = await _client.GetAsync($"{Request}?nameStation={_stationDtoStation1.NameStation}");
             response.EnsureSuccessStatusCode();
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             string responseString = await response.Content.ReadAsStringAsync();
             responseString.Should().NotBeNullOrEmpty();
             responseString.Should().BeEquivalentTo(jsonStation1);
             
-            response = await _client.GetAsync(_request + $"?nameStation={stationDtoStation2.NameStation}");
+            response = await _client.GetAsync(Request + $"?nameStation={stationDtoStation2.NameStation}");
             response.StatusCode.Should().Be(HttpStatusCode.NotFound);
             
-            await _client.PostAsync(_request, contentStation2);
+            await _client.PostAsync(Request, contentStation2);
             
-            response = await _client.GetAsync($"{_request}?nameStation={stationDtoStation2.NameStation}");
+            response = await _client.GetAsync($"{Request}?nameStation={stationDtoStation2.NameStation}");
             response.EnsureSuccessStatusCode();
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             responseString = await response.Content.ReadAsStringAsync();
@@ -156,7 +156,7 @@ public class CreateStationTest(ITestOutputHelper testOutputHelper) : IAsyncLifet
     {
         try
         {
-            HttpResponseMessage response = await _client.GetAsync($"{_request}");
+            HttpResponseMessage response = await _client.GetAsync($"{Request}");
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         }
         catch (HttpRequestException e)
@@ -181,21 +181,21 @@ public class CreateStationTest(ITestOutputHelper testOutputHelper) : IAsyncLifet
         
         try
         {
-            await _client.PostAsync(_request, contentStation1);
+            await _client.PostAsync(Request, contentStation1);
             
-            HttpResponseMessage response = await _client.GetAsync($"{_request}/{_stationDtoStation1.Position.Latitude}/{_stationDtoStation1.Position.Longitude}");
+            HttpResponseMessage response = await _client.GetAsync($"{Request}/{_stationDtoStation1.Position.Latitude}/{_stationDtoStation1.Position.Longitude}");
             response.EnsureSuccessStatusCode();
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             string responseString = await response.Content.ReadAsStringAsync();
             responseString.Should().NotBeNullOrEmpty();
             responseString.Should().BeEquivalentTo(jsonStation1);
             
-            response = await _client.GetAsync(_request + $"/{stationDtoStation2.Position.Latitude}/{stationDtoStation2.Position.Longitude}");
+            response = await _client.GetAsync(Request + $"/{stationDtoStation2.Position.Latitude}/{stationDtoStation2.Position.Longitude}");
             response.StatusCode.Should().Be(HttpStatusCode.NotFound);
             
-            await _client.PostAsync(_request, contentStation2);
+            await _client.PostAsync(Request, contentStation2);
             
-            response = await _client.GetAsync($"{_request}/{stationDtoStation2.Position.Latitude}/{stationDtoStation2.Position.Longitude}");
+            response = await _client.GetAsync($"{Request}/{stationDtoStation2.Position.Latitude}/{stationDtoStation2.Position.Longitude}");
             response.EnsureSuccessStatusCode();
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             responseString = await response.Content.ReadAsStringAsync();
@@ -215,16 +215,16 @@ public class CreateStationTest(ITestOutputHelper testOutputHelper) : IAsyncLifet
     {
         try
         {
-            HttpResponseMessage response = await _client.GetAsync($"{_request}/90.01/{_stationDtoStation1.Position.Longitude}");
+            HttpResponseMessage response = await _client.GetAsync($"{Request}/90.01/{_stationDtoStation1.Position.Longitude}");
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
             
-            response = await _client.GetAsync($"{_request}/-90.01/{_stationDtoStation1.Position.Longitude}");
+            response = await _client.GetAsync($"{Request}/-90.01/{_stationDtoStation1.Position.Longitude}");
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
             
-            response = await _client.GetAsync($"{_request}/{_stationDtoStation1.Position.Latitude}/180.01");
+            response = await _client.GetAsync($"{Request}/{_stationDtoStation1.Position.Latitude}/180.01");
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
             
-            response = await _client.GetAsync($"{_request}/{_stationDtoStation1.Position.Latitude}/-180.01");
+            response = await _client.GetAsync($"{Request}/{_stationDtoStation1.Position.Latitude}/-180.01");
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         }
         catch (HttpRequestException e)
