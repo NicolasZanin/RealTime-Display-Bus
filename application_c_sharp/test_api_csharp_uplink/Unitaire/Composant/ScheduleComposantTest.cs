@@ -20,141 +20,141 @@ public class ScheduleComposantTest
 
     [Fact]
     [Trait("Category", "Unit")]
-    public void AddScheduleTest()
+    public async Task AddScheduleTest()
     {
         Schedule scheduleExpected = new Schedule("Station1", 1, Orientation.FORWARD, [_dateTime1010]);
         
-        Schedule scheduleActual = _scheduleComposant.AddSchedule("Station1", 1, "FORWARD", [_dateTime1010, _dateTime1010]);
+        Schedule scheduleActual = await _scheduleComposant.AddSchedule("Station1", 1, "FORWARD", [_dateTime1010, _dateTime1010]);
         Assert.Equal(scheduleExpected, scheduleActual);
         
-        scheduleActual = _scheduleComposant.FindSchedule("Station1", 1, Orientation.FORWARD);
+        scheduleActual = await _scheduleComposant.FindSchedule("Station1", 1, Orientation.FORWARD);
         Assert.Equal(scheduleExpected, scheduleActual);
         
-        scheduleActual = _scheduleComposant.AddSchedule("Station1", 1, "FORWARD", [_dateTime1010, _dateTime1020]);
+        scheduleActual = await _scheduleComposant.AddSchedule("Station1", 1, "FORWARD", [_dateTime1010, _dateTime1020]);
         scheduleExpected = new Schedule("Station1", 1, Orientation.FORWARD, [_dateTime1020]);
         Assert.Equal(scheduleExpected, scheduleActual);
         
-        scheduleActual = _scheduleComposant.FindSchedule("Station1", 1, Orientation.FORWARD);
+        scheduleActual = await _scheduleComposant.FindSchedule("Station1", 1, Orientation.FORWARD);
         scheduleExpected = new Schedule("Station1", 1, Orientation.FORWARD, [_dateTime1010, _dateTime1020]);
         Assert.Equal(scheduleExpected, scheduleActual);
         
-        scheduleActual = _scheduleComposant.AddSchedule("Station1", 1, "BACKWARD", [_dateTime1010]);
+        scheduleActual = await _scheduleComposant.AddSchedule("Station1", 1, "BACKWARD", [_dateTime1010]);
         scheduleExpected = new Schedule("Station1", 1, Orientation.BACKWARD, [_dateTime1010]);
         Assert.Equal(scheduleExpected, scheduleActual);
         
-        scheduleActual = _scheduleComposant.FindSchedule("Station1", 1, Orientation.BACKWARD);
+        scheduleActual = await _scheduleComposant.FindSchedule("Station1", 1, Orientation.BACKWARD);
         Assert.Equal(scheduleExpected, scheduleActual);
         
-        scheduleActual = _scheduleComposant.FindSchedule("Station1", 1, Orientation.FORWARD);
+        scheduleActual = await _scheduleComposant.FindSchedule("Station1", 1, Orientation.FORWARD);
         scheduleExpected = new Schedule("Station1", 1, Orientation.FORWARD, [_dateTime1010, _dateTime1020]);
         Assert.Equal(scheduleExpected, scheduleActual);
         
-        scheduleActual = _scheduleComposant.AddSchedule("Station1", 2, "FORWARD", [_dateTime1010]);
+        scheduleActual = await _scheduleComposant.AddSchedule("Station1", 2, "FORWARD", [_dateTime1010]);
         scheduleExpected = new Schedule("Station1", 2, Orientation.FORWARD, [_dateTime1010]);
         Assert.Equal(scheduleExpected, scheduleActual);
         
-        scheduleActual =  _scheduleComposant.AddSchedule("Station2", 1, "FORWARD", [_dateTime1010]);
+        scheduleActual =  await _scheduleComposant.AddSchedule("Station2", 1, "FORWARD", [_dateTime1010]);
         scheduleExpected = new Schedule("Station2", 1, Orientation.FORWARD, [_dateTime1010]);
         Assert.Equal(scheduleExpected, scheduleActual);
     }
 
     [Fact]
     [Trait("Category", "Unit")]
-    public void AddErrorScheduleTest()
+    public async Task AddErrorScheduleTest()
     {
-        Assert.Throws<ArgumentOutOfRangeException>(() => _scheduleComposant.AddSchedule("Station1", 1, "FORWARD", []));
-        Assert.Throws<ArgumentOutOfRangeException>(() => _scheduleComposant.AddSchedule("Station1", 0, "FORWARD", [_dateTime1010]));
-        Assert.Throws<ArgumentNullException>(() => _scheduleComposant.AddSchedule("", 1, "FORWARD", [_dateTime1010]));
-        Assert.Throws<ArgumentException>(() => _scheduleComposant.AddSchedule("Station1", 1, "FORWAR", [_dateTime1010]));
+        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => _scheduleComposant.AddSchedule("Station1", 1, "FORWARD", []));
+        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => _scheduleComposant.AddSchedule("Station1", 0, "FORWARD", [_dateTime1010]));
+        await Assert.ThrowsAsync<ArgumentNullException>(() => _scheduleComposant.AddSchedule("", 1, "FORWARD", [_dateTime1010]));
+        await Assert.ThrowsAsync<ArgumentException>(() => _scheduleComposant.AddSchedule("Station1", 1, "FORWAR", [_dateTime1010]));
        
-        _scheduleComposant.AddSchedule("Station1", 1, "FORWARD", [_dateTime1010]);
-        Assert.Throws<ArgumentOutOfRangeException>(() => _scheduleComposant.AddSchedule("Station1", 1, "FORWARD", [_dateTime1010]));
+        await _scheduleComposant.AddSchedule("Station1", 1, "FORWARD", [_dateTime1010]);
+        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => _scheduleComposant.AddSchedule("Station1", 1, "FORWARD", [_dateTime1010]));
     }
 
     [Fact]
     [Trait("Category", "Unit")]
-    public void FindScheduleTest()
+    public async Task FindScheduleTest()
     {
-        _scheduleComposant.AddSchedule("Station1", 1, "FORWARD", [_dateTime1010]);
+        await _scheduleComposant.AddSchedule("Station1", 1, "FORWARD", [_dateTime1010]);
         
         Schedule scheduleExpected = new Schedule("Station1", 1, Orientation.FORWARD, [_dateTime1010]);
-        Schedule scheduleActual = _scheduleComposant.FindSchedule("Station1", 1, Orientation.FORWARD);
+        Schedule scheduleActual = await _scheduleComposant.FindSchedule("Station1", 1, Orientation.FORWARD);
         Assert.Equal(scheduleExpected, scheduleActual);
         
-        _scheduleComposant.AddSchedule("Station1", 1, "FORWARD", [_dateTime1020]);
-        scheduleActual = _scheduleComposant.FindSchedule("Station1", 1, Orientation.FORWARD);
+        await _scheduleComposant.AddSchedule("Station1", 1, "FORWARD", [_dateTime1020]);
+        scheduleActual = await _scheduleComposant.FindSchedule("Station1", 1, Orientation.FORWARD);
         scheduleExpected = new Schedule("Station1", 1, Orientation.FORWARD, [_dateTime1010, _dateTime1020]);
         Assert.Equal(scheduleExpected, scheduleActual);
         
-        _scheduleComposant.AddSchedule("Station1", 1, "BACKWARD", [_dateTime1010]);
-        scheduleActual = _scheduleComposant.FindSchedule("Station1", 1, Orientation.BACKWARD);
+        await _scheduleComposant.AddSchedule("Station1", 1, "BACKWARD", [_dateTime1010]);
+        scheduleActual = await _scheduleComposant.FindSchedule("Station1", 1, Orientation.BACKWARD);
         scheduleExpected = new Schedule("Station1", 1, Orientation.BACKWARD, [_dateTime1010]);
         Assert.Equal(scheduleExpected, scheduleActual);
         
-        scheduleActual = _scheduleComposant.FindSchedule("Station1", 1, Orientation.FORWARD);
+        scheduleActual = await _scheduleComposant.FindSchedule("Station1", 1, Orientation.FORWARD);
         scheduleExpected = new Schedule("Station1", 1, Orientation.FORWARD, [_dateTime1010, _dateTime1020]);
         Assert.Equal(scheduleExpected, scheduleActual);
         
-        _scheduleComposant.AddSchedule("Station1", 2, "FORWARD", [_dateTime1010]);
-        scheduleActual = _scheduleComposant.FindSchedule("Station1", 2, Orientation.FORWARD);
+        await _scheduleComposant.AddSchedule("Station1", 2, "FORWARD", [_dateTime1010]);
+        scheduleActual = await _scheduleComposant.FindSchedule("Station1", 2, Orientation.FORWARD);
         scheduleExpected = new Schedule("Station1", 2, Orientation.FORWARD, [_dateTime1010]);
         Assert.Equal(scheduleExpected, scheduleActual);
         
-        _scheduleComposant.AddSchedule("Station2", 1, "FORWARD", [_dateTime1010]);
-        scheduleActual = _scheduleComposant.FindSchedule("Station2", 1, Orientation.FORWARD);
+        await _scheduleComposant.AddSchedule("Station2", 1, "FORWARD", [_dateTime1010]);
+        scheduleActual = await _scheduleComposant.FindSchedule("Station2", 1, Orientation.FORWARD);
         scheduleExpected = new Schedule("Station2", 1, Orientation.FORWARD, [_dateTime1010]);
         Assert.Equal(scheduleExpected, scheduleActual);
     }
     
     [Fact]
     [Trait("Category", "Unit")]
-    public void FindErrorScheduleTest()
+    public async Task FindErrorScheduleTest()
     {
-        Assert.Throws<ArgumentOutOfRangeException>(() => _scheduleComposant.FindSchedule("Station1", 0, Orientation.FORWARD));
-        Assert.Throws<ArgumentNullException>(() => _scheduleComposant.FindSchedule("", 1, Orientation.FORWARD));
+        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => _scheduleComposant.FindSchedule("Station1", 0, Orientation.FORWARD));
+        await Assert.ThrowsAsync<ArgumentNullException>(() => _scheduleComposant.FindSchedule("", 1, Orientation.FORWARD));
         
-        _scheduleComposant.AddSchedule("Station1", 1, "FORWARD", [_dateTime1010]);
-        Assert.Throws<NotFoundException>(() => _scheduleComposant.FindSchedule("Station1", 1, Orientation.BACKWARD));
-        Assert.Throws<NotFoundException>(() => _scheduleComposant.FindSchedule("Station1", 2, Orientation.FORWARD));
-        Assert.Throws<NotFoundException>(() => _scheduleComposant.FindSchedule("Station2", 1, Orientation.FORWARD));
+        await _scheduleComposant.AddSchedule("Station1", 1, "FORWARD", [_dateTime1010]);
+        await Assert.ThrowsAsync<NotFoundException>(() => _scheduleComposant.FindSchedule("Station1", 1, Orientation.BACKWARD));
+        await Assert.ThrowsAsync<NotFoundException>(() => _scheduleComposant.FindSchedule("Station1", 2, Orientation.FORWARD));
+        await Assert.ThrowsAsync<NotFoundException>(() => _scheduleComposant.FindSchedule("Station2", 1, Orientation.FORWARD));
     }
     
     [Fact]
     [Trait("Category", "Unit")]
-    public void FindScheduleByNameOrientationTest()
+    public async Task FindScheduleByNameOrientationTest()
     {
-        _scheduleComposant.AddSchedule("Station1", 1, "FORWARD", [_dateTime1010, _dateTime1020]);
-        _scheduleComposant.AddSchedule("Station1", 2, "FORWARD", [_dateTime1010, _dateTime1020]);
+        await _scheduleComposant.AddSchedule("Station1", 1, "FORWARD", [_dateTime1010, _dateTime1020]);
+        await _scheduleComposant.AddSchedule("Station1", 2, "FORWARD", [_dateTime1010, _dateTime1020]);
         
         List<Schedule> schedulesExpected = [
             new Schedule("Station1", 1, Orientation.FORWARD, [_dateTime1010, _dateTime1020]),
             new Schedule("Station1", 2, Orientation.FORWARD, [_dateTime1010, _dateTime1020])
         ];
-        List<Schedule> schedulesActual = _scheduleComposant.FindScheduleByStationNameOrientation("Station1", Orientation.FORWARD);
+        List<Schedule> schedulesActual = await _scheduleComposant.FindScheduleByStationNameOrientation("Station1", Orientation.FORWARD);
         Assert.Equal(schedulesExpected, schedulesActual);
         
-        schedulesActual = _scheduleComposant.FindScheduleByStationNameOrientation("Station2", Orientation.FORWARD);
+        schedulesActual = await _scheduleComposant.FindScheduleByStationNameOrientation("Station2", Orientation.FORWARD);
         Assert.Empty(schedulesActual);
         
-        schedulesActual = _scheduleComposant.FindScheduleByStationNameOrientation("Station1", Orientation.BACKWARD);
+        schedulesActual = await _scheduleComposant.FindScheduleByStationNameOrientation("Station1", Orientation.BACKWARD);
         Assert.Empty(schedulesActual);
         
-        _scheduleComposant.AddSchedule("Station2", 1, "FORWARD", [_dateTime1010, _dateTime1020]);
-        _scheduleComposant.AddSchedule("Station1", 1, "BACKWARD", [_dateTime1010, _dateTime1020]);
+        await _scheduleComposant.AddSchedule("Station2", 1, "FORWARD", [_dateTime1010, _dateTime1020]);
+        await _scheduleComposant.AddSchedule("Station1", 1, "BACKWARD", [_dateTime1010, _dateTime1020]);
         
         schedulesExpected = [new Schedule("Station1", 1, Orientation.BACKWARD, [_dateTime1010, _dateTime1020])];
-        schedulesActual = _scheduleComposant.FindScheduleByStationNameOrientation("Station1", Orientation.BACKWARD);
+        schedulesActual = await _scheduleComposant.FindScheduleByStationNameOrientation("Station1", Orientation.BACKWARD);
         Assert.Equal(schedulesExpected, schedulesActual);
         
         schedulesExpected = [new Schedule("Station2", 1, Orientation.FORWARD, [_dateTime1010, _dateTime1020])];
-        schedulesActual = _scheduleComposant.FindScheduleByStationNameOrientation("Station2", Orientation.FORWARD);
+        schedulesActual = await _scheduleComposant.FindScheduleByStationNameOrientation("Station2", Orientation.FORWARD);
         Assert.Equal(schedulesExpected, schedulesActual);
     }
     
     [Fact]
     [Trait("Category", "Unit")]
-    public void FindErrorScheduleByNameOrientationTest()
+    public async Task FindErrorScheduleByNameOrientationTest()
     {
-        Assert.Throws<ArgumentNullException>(() => _scheduleComposant.FindScheduleByStationNameOrientation("", Orientation.FORWARD));
+        await Assert.ThrowsAsync<ArgumentNullException>(() => _scheduleComposant.FindScheduleByStationNameOrientation("", Orientation.FORWARD));
     }
 }

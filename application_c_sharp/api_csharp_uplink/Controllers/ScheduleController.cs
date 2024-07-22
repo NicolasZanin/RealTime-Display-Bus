@@ -13,13 +13,13 @@ public class ScheduleController(IScheduleRegistration scheduleRegistration, ISch
     [HttpPost]
     [ProducesResponseType(typeof(ScheduleDto), 201)]
     [ProducesResponseType(400)]
-    public IActionResult AddSchedule(ScheduleDto schedule)
+    public async Task<IActionResult> AddSchedule(ScheduleDto schedule)
     {
         try
         {
             List<DateTime> hours = schedule.Hours.Select(hour =>
                 new DateTime(2024, 7, 15, hour.Hour, hour.Minute, 0, DateTimeKind.Utc)).ToList();
-            Schedule scheduleAdd = scheduleRegistration.AddSchedule(schedule.NameStation, schedule.LineNumber,
+            Schedule scheduleAdd = await scheduleRegistration.AddSchedule(schedule.NameStation, schedule.LineNumber,
                 schedule.Orientation, hours);
             
             return Created($"api/Schedule/{scheduleAdd.StationName}/{scheduleAdd.LineNumber}/{scheduleAdd.Orientation.ToString()}"
@@ -40,11 +40,11 @@ public class ScheduleController(IScheduleRegistration scheduleRegistration, ISch
     [HttpGet("forward/{stationName}/{lineNumber:int}")]
     [ProducesResponseType(typeof(ScheduleDto), 200)]
     [ProducesResponseType(404)]
-    public IActionResult GetScheduleForward(string stationName, int lineNumber)
+    public async Task<IActionResult> GetScheduleForward(string stationName, int lineNumber)
     {
         try
         {
-            Schedule schedule = scheduleFinder.FindSchedule(stationName, lineNumber, Orientation.FORWARD);
+            Schedule schedule = await scheduleFinder.FindSchedule(stationName, lineNumber, Orientation.FORWARD);
             return Ok(ConvertScheduleToScheduleDto(schedule));
         }
         catch (Exception e)
@@ -62,11 +62,11 @@ public class ScheduleController(IScheduleRegistration scheduleRegistration, ISch
     [HttpGet("backward/{stationName}/{lineNumber:int}")]
     [ProducesResponseType(typeof(ScheduleDto), 200)]
     [ProducesResponseType(404)]
-    public IActionResult GetScheduleBackward(string stationName, int lineNumber)
+    public async Task<IActionResult> GetScheduleBackward(string stationName, int lineNumber)
     {
         try
         {
-            Schedule schedule = scheduleFinder.FindSchedule(stationName, lineNumber, Orientation.BACKWARD);
+            Schedule schedule = await scheduleFinder.FindSchedule(stationName, lineNumber, Orientation.BACKWARD);
             return Ok(ConvertScheduleToScheduleDto(schedule));
         }
         catch (Exception e)
@@ -83,11 +83,11 @@ public class ScheduleController(IScheduleRegistration scheduleRegistration, ISch
     [HttpGet("forward/{stationName}")]
     [ProducesResponseType(typeof(List<ScheduleDto>), 200)]
     [ProducesResponseType(400)]
-    public IActionResult GetScheduleByStationNameForward(string stationName)
+    public async Task<IActionResult> GetScheduleByStationNameForward(string stationName)
     {
         try
         {
-            List<Schedule> schedules = scheduleFinder.FindScheduleByStationNameOrientation(stationName, Orientation.FORWARD);
+            List<Schedule> schedules = await scheduleFinder.FindScheduleByStationNameOrientation(stationName, Orientation.FORWARD);
             return Ok(schedules.AsParallel().Select(ConvertScheduleToScheduleDto).ToList());
         }
         catch (Exception e)
@@ -104,11 +104,11 @@ public class ScheduleController(IScheduleRegistration scheduleRegistration, ISch
     [HttpGet("backward/{stationName}")]
     [ProducesResponseType(typeof(List<ScheduleDto>), 200)]
     [ProducesResponseType(400)]
-    public IActionResult GetScheduleByStationNameBackward(string stationName)
+    public async Task<IActionResult> GetScheduleByStationNameBackward(string stationName)
     {
         try
         {
-            List<Schedule> schedules = scheduleFinder.FindScheduleByStationNameOrientation(stationName, Orientation.BACKWARD);
+            List<Schedule> schedules = await scheduleFinder.FindScheduleByStationNameOrientation(stationName, Orientation.BACKWARD);
             return Ok(schedules.AsParallel().Select(ConvertScheduleToScheduleDto).ToList());
         }
         catch (Exception e)

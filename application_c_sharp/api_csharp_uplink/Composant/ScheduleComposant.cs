@@ -6,14 +6,14 @@ namespace api_csharp_uplink.Composant;
 
 public class ScheduleComposant(IScheduleRepository scheduleRepository) : IScheduleRegistration, IScheduleFinder
 {
-    public Schedule AddSchedule(string nameStation, int lineNumber, string orientation, List<DateTime> hours)
+    public async Task<Schedule> AddSchedule(string nameStation, int lineNumber, string orientation, List<DateTime> hours)
     {
         Orientation enumOrientation = (Orientation) Enum.Parse(typeof(Orientation), orientation, true);
         HashSet<DateTime> setHours = [];
         
         try
         {
-            Schedule scheduleFind = FindSchedule(nameStation, lineNumber, enumOrientation);
+            Schedule scheduleFind = await FindSchedule(nameStation, lineNumber, enumOrientation);
             
             foreach (DateTime hour in hours.Where(hour => !scheduleFind.Hours.Contains(hour)))
                 setHours.Add(hour);
@@ -25,19 +25,19 @@ public class ScheduleComposant(IScheduleRepository scheduleRepository) : ISchedu
         }
         
         Schedule schedule = new Schedule(nameStation, lineNumber, enumOrientation, setHours.ToList());
-        return scheduleRepository.AddSchedule(schedule);
+        return await scheduleRepository.AddSchedule(schedule);
     }
     
-    public Schedule FindSchedule(string nameStation, int lineNumber, Orientation orientation)
+    public async Task<Schedule> FindSchedule(string nameStation, int lineNumber, Orientation orientation)
     {
         VerifyArguments(nameStation, lineNumber);
         
-        return scheduleRepository.FindSchedule(nameStation, lineNumber, orientation) ??
+        return await scheduleRepository.FindSchedule(nameStation, lineNumber, orientation) ??
                throw new NotFoundException($"The schedule with NameStation {nameStation}, LineNumber {lineNumber}, " +
                    $"Orientation {orientation}");
     }
 
-    public List<Schedule> FindScheduleByStationNameOrientation(string nameStation, Orientation orientation)
+    public Task<List<Schedule>> FindScheduleByStationNameOrientation(string nameStation, Orientation orientation)
     {
         if (string.IsNullOrEmpty(nameStation))
             throw new ArgumentNullException(nameof(nameStation), "The name of the station is empty");

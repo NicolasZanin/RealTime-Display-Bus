@@ -7,7 +7,7 @@ public class DbTestSchedule : IScheduleRepository
 {
     private readonly Dictionary<FindScheduleMap, Schedule> _dico = [];
     
-    public Schedule AddSchedule(Schedule schedule)
+    public Task<Schedule> AddSchedule(Schedule schedule)
     {
         FindScheduleMap findScheduleMap =
             new FindScheduleMap(schedule.StationName, schedule.LineNumber, schedule.Orientation);
@@ -15,24 +15,24 @@ public class DbTestSchedule : IScheduleRepository
         if (_dico.TryGetValue(findScheduleMap, out Schedule? scheduleDico))
         {
             scheduleDico.Hours.AddRange(schedule.Hours);
-            return schedule;
+            return Task.FromResult(schedule);
         }
         
         _dico.Add(findScheduleMap, schedule);
-        return schedule;
+        return Task.FromResult(schedule);
     }
 
-    public Schedule? FindSchedule(string nameStation, int lineNumber, Orientation orientation)
+    public Task<Schedule?> FindSchedule(string nameStation, int lineNumber, Orientation orientation)
     {
         _dico.TryGetValue(new FindScheduleMap(nameStation, lineNumber, orientation), out Schedule? schedule);
-        return schedule;
+        return Task.FromResult(schedule);
     }
 
-    public List<Schedule> FindScheduleByStationNameOrientation(string nameStation, Orientation orientation)
+    public Task<List<Schedule>> FindScheduleByStationNameOrientation(string nameStation, Orientation orientation)
     {
-        return _dico.Keys
+        return Task.FromResult(_dico.Keys
             .Where(findScheduleMap => findScheduleMap.nameStation.Equals(nameStation) && findScheduleMap.orientation == orientation)
-            .Select(map => _dico[map]).ToList();
+            .Select(map => _dico[map]).ToList());
     }
     
     private record FindScheduleMap(string nameStation, int lineNumber, Orientation orientation);

@@ -21,7 +21,7 @@ public class ScheduleRepositoryTest
     
     [Fact]
     [Trait("Category", "Unit")]
-    public void TestAddSchedule()
+    public async Task TestAddSchedule()
     {
         ScheduleDb scheduleDb1020 = new ScheduleDb{Hours = DateTime1020, LineNumber = 1, Orientation = "FORWARD", StationName = "Station1"};
         Schedule scheduleExpected = new Schedule("Station1", 1, Orientation.FORWARD, [DateTime1010, DateTime1020]);
@@ -32,13 +32,13 @@ public class ScheduleRepositoryTest
             .ReturnsAsync(scheduleDb1020);
         ScheduleRepository scheduleRepository = new(mock.Object);
         
-        Schedule result = scheduleRepository.AddSchedule(scheduleExpected);
+        Schedule result = await scheduleRepository.AddSchedule(scheduleExpected);
         Assert.Equal(scheduleExpected, result);
     }
     
     [Fact]
     [Trait("Category", "Unit")]
-    public void TestFindSchedule()
+    public async Task TestFindSchedule()
     {
         Mock<IGlobalInfluxDb> mock = new();
         mock.SetupSequence(globalInfluxDb => globalInfluxDb.Get<ScheduleDb>(MeasurementSchedule,
@@ -47,34 +47,34 @@ public class ScheduleRepositoryTest
             .ReturnsAsync([ScheduleDb1010B1]);
         ScheduleRepository scheduleRepository = new(mock.Object);
         
-        Schedule? result = scheduleRepository.FindSchedule("Station1", 1, Orientation.FORWARD);
+        Schedule? result = await scheduleRepository.FindSchedule("Station1", 1, Orientation.FORWARD);
         Assert.Null(result);
         
-        result = scheduleRepository.FindSchedule("Station1", 1, Orientation.FORWARD);
+        result = await scheduleRepository.FindSchedule("Station1", 1, Orientation.FORWARD);
         Assert.Equal(Schedule1010F1, result);
 
         mock.Setup(globalInfluxDb => globalInfluxDb.Get<ScheduleDb>(MeasurementSchedule,
                 "|> filter(fn: (r) => r.stationName == \"Station1\" and r.lineNumber == \"1\" and r.orientation == \"BACKWARD\")"))
             .ReturnsAsync([ScheduleDb1010B1]);
-        result = scheduleRepository.FindSchedule("Station1", 1, Orientation.BACKWARD);
+        result = await scheduleRepository.FindSchedule("Station1", 1, Orientation.BACKWARD);
         Assert.Equal(Schedule1010B1, result);
         
         mock.Setup(globalInfluxDb => globalInfluxDb.Get<ScheduleDb>(MeasurementSchedule,
                 "|> filter(fn: (r) => r.stationName == \"Station1\" and r.lineNumber == \"2\" and r.orientation == \"FORWARD\")"))
             .ReturnsAsync([ScheduleDb1010F2]);
-        result = scheduleRepository.FindSchedule("Station1", 2, Orientation.FORWARD);
+        result = await scheduleRepository.FindSchedule("Station1", 2, Orientation.FORWARD);
         Assert.Equal(Schedule1010F2, result);
         
         mock.Setup(globalInfluxDb => globalInfluxDb.Get<ScheduleDb>(MeasurementSchedule,
                 "|> filter(fn: (r) => r.stationName == \"Station2\" and r.lineNumber == \"1\" and r.orientation == \"FORWARD\")"))
             .ReturnsAsync([ScheduleDb1010F1Station2]);
-        result = scheduleRepository.FindSchedule("Station2", 1, Orientation.FORWARD);
+        result = await scheduleRepository.FindSchedule("Station2", 1, Orientation.FORWARD);
         Assert.Equal(Schedule1010F1Station2, result);
     }
 
     [Fact]
     [Trait("Category", "Unit")]
-    public void TestFindScheduleByStationNameOrientation()
+    public async Task TestFindScheduleByStationNameOrientation()
     {
         Mock<IGlobalInfluxDb> mock = new();
         mock.Setup(globalInfluxDb => globalInfluxDb.Get<ScheduleDb>(MeasurementSchedule,
@@ -82,21 +82,21 @@ public class ScheduleRepositoryTest
             .ReturnsAsync([ScheduleDb1010F1, ScheduleDb1010F2]);
         ScheduleRepository scheduleRepository = new(mock.Object);
         
-        List<Schedule> result = scheduleRepository.FindScheduleByStationNameOrientation("Station1", Orientation.FORWARD);
+        List<Schedule> result = await scheduleRepository.FindScheduleByStationNameOrientation("Station1", Orientation.FORWARD);
         Assert.Equal([Schedule1010F1, Schedule1010F2], result);
 
         mock.Setup(globalInfluxDb => globalInfluxDb.Get<ScheduleDb>(MeasurementSchedule,
                 "|> filter(fn: (r) => r.stationName == \"Station1\" and r.orientation == \"BACKWARD\")"))
             .ReturnsAsync([ScheduleDb1010B1]);
         
-        result = scheduleRepository.FindScheduleByStationNameOrientation("Station1", Orientation.BACKWARD);
+        result = await scheduleRepository.FindScheduleByStationNameOrientation("Station1", Orientation.BACKWARD);
         Assert.Equal([Schedule1010B1], result);
         
         mock.Setup(globalInfluxDb => globalInfluxDb.Get<ScheduleDb>(MeasurementSchedule,
                 "|> filter(fn: (r) => r.stationName == \"Station2\" and r.orientation == \"FORWARD\")"))
             .ReturnsAsync([ScheduleDb1010F1Station2]);
         
-        result = scheduleRepository.FindScheduleByStationNameOrientation("Station2", Orientation.FORWARD);
+        result = await scheduleRepository.FindScheduleByStationNameOrientation("Station2", Orientation.FORWARD);
         Assert.Equal([Schedule1010F1Station2], result);
     }
 }

@@ -4,6 +4,6 @@ namespace api_csharp_uplink.Interface;
 
 public interface IScheduleFinder
 {
-    public Schedule FindSchedule(string nameStation, int lineNumber, Orientation orientation);
-    public List<Schedule> FindScheduleByStationNameOrientation(string nameStation, Orientation orientation);
+    public Task<Schedule> FindSchedule(string nameStation, int lineNumber, Orientation orientation);
+    public Task<List<Schedule>> FindScheduleByStationNameOrientation(string nameStation, Orientation orientation);
 }

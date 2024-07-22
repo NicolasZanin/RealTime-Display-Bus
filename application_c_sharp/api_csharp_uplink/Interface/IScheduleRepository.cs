@@ -4,7 +4,7 @@ namespace api_csharp_uplink.Interface;
 
 public interface IScheduleRepository
 {
-    Schedule AddSchedule(Schedule schedule);
-    Schedule? FindSchedule(string nameStation, int lineNumber, Orientation orientation);
-    List<Schedule> FindScheduleByStationNameOrientation(string nameStation, Orientation orientation);
+    Task<Schedule> AddSchedule(Schedule schedule);
+    Task<Schedule?> FindSchedule(string nameStation, int lineNumber, Orientation orientation);
+    Task<List<Schedule>> FindScheduleByStationNameOrientation(string nameStation, Orientation orientation);
 }
