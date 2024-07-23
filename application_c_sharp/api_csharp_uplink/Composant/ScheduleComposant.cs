@@ -4,16 +4,18 @@ using api_csharp_uplink.Interface;
 
 namespace api_csharp_uplink.Composant;
 
-public class ScheduleComposant(IScheduleRepository scheduleRepository) : IScheduleRegistration, IScheduleFinder
+public class ScheduleComposant(IScheduleRepository scheduleRepository, IStationFinder stationFinder) : IScheduleRegistration, IScheduleFinder
 {
     public async Task<Schedule> AddSchedule(string nameStation, int lineNumber, string orientation, List<DateTime> hours)
     {
         Orientation enumOrientation = (Orientation) Enum.Parse(typeof(Orientation), orientation, true);
         HashSet<DateTime> setHours = [];
+
+        Station station = await stationFinder.GetStation(nameStation);
         
         try
         {
-            Schedule scheduleFind = await FindSchedule(nameStation, lineNumber, enumOrientation);
+            Schedule scheduleFind = await FindSchedule(station.NameStation, lineNumber, enumOrientation);
             
             foreach (DateTime hour in hours.Where(hour => !scheduleFind.Hours.Contains(hour)))
                 setHours.Add(hour);
@@ -24,7 +26,7 @@ public class ScheduleComposant(IScheduleRepository scheduleRepository) : ISchedu
                 setHours.Add(hour);
         }
         
-        Schedule schedule = new Schedule(nameStation, lineNumber, enumOrientation, setHours.ToList());
+        Schedule schedule = new Schedule(station.NameStation, lineNumber, enumOrientation, setHours.ToList());
         return await scheduleRepository.AddSchedule(schedule);
     }
     

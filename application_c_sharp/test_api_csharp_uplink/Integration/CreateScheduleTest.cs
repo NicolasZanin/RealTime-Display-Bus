@@ -19,9 +19,23 @@ public class CreateScheduleTest(ITestOutputHelper testOutputHelper) : IAsyncLife
     private readonly ScheduleDto _scheduleDtoStation1Forward = new(){ NameStation = "Station1", LineNumber = 1, Orientation = "FORWARD", Hours = [HourDto1010] };
     
 
+    private static StringContent CreateContent(StationDto stationDto)
+    {
+        string jsonStation = JsonConvert.SerializeObject(stationDto);
+        return new(jsonStation, Encoding.UTF8, "application/json");
+    }
+    
     public async Task InitializeAsync()
     {
         await _influxDbTest.InitializeBucket();
+
+        StringContent content = CreateContent(new()
+            { NameStation = "Station1", Position = new PositionDto { Latitude = 15.01, Longitude = 14.01 } });
+        await _client.PostAsync("http://api_csharp_uplink:8000/api/Station", content);
+        
+        content = CreateContent(new()
+            { NameStation = "Station2", Position = new PositionDto { Latitude = 15.01, Longitude = 14.01 } });
+        await _client.PostAsync("http://api_csharp_uplink:8000/api/Station", content);
     }
 
     public Task DisposeAsync()
@@ -235,6 +249,13 @@ public class CreateScheduleTest(ITestOutputHelper testOutputHelper) : IAsyncLife
             
             response = await _client.PostAsync(Request, content);
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+
+            ScheduleDto scheduleDtoStationNotFound = new ScheduleDto
+                { NameStation = "Station3", LineNumber = 1, Orientation = "FORWARD", Hours = [HourDto1010] };
+            jsonSchedule = JsonConvert.SerializeObject(scheduleDtoStationNotFound);
+            content = new(jsonSchedule, Encoding.UTF8, "application/json");
+            response = await _client.PostAsync(Request, content);
+            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
         }
         catch (HttpRequestException e)
         {

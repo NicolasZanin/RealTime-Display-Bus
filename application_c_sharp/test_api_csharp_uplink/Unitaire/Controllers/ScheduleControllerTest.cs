@@ -1,6 +1,7 @@
 using api_csharp_uplink.Composant;
 using api_csharp_uplink.Controllers;
 using api_csharp_uplink.Dto;
+using api_csharp_uplink.Entities;
 using api_csharp_uplink.Interface;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
@@ -17,7 +18,13 @@ public class ScheduleControllerTest
     public ScheduleControllerTest()
     {
         IScheduleRepository scheduleRepository = new DbTestSchedule();
-        ScheduleComposant scheduleComposant = new ScheduleComposant(scheduleRepository);
+        IStationRepository stationRepository = new DbTestStation();
+        IStationFinder stationFinder = new StationComposant(stationRepository);
+        
+        stationRepository.Add(new Station(10.0, 10.0, "Station1"));
+        stationRepository.Add(new Station(10.0, 10.0, "Station2"));
+        
+        ScheduleComposant scheduleComposant = new ScheduleComposant(scheduleRepository, stationFinder);
         _scheduleController = new ScheduleController(scheduleComposant, scheduleComposant);
     }
     
@@ -43,8 +50,7 @@ public class ScheduleControllerTest
         VerifyObjectResult<OkObjectResult>(scheduleExpected, result);
         
         scheduleExpected.Hours = [_hourDto1020];
-        result = await _scheduleController.AddSchedule(
-            new ScheduleDto{Hours = [_hourDto1010, _hourDto1020], LineNumber = 1, NameStation = "Station1", Orientation = "FORWARD"});
+        result = await _scheduleController.AddSchedule(scheduleExpected);
         VerifyObjectResult<CreatedResult>(scheduleExpected, result);
         
         result = await _scheduleController.GetScheduleForward("Station1", 1);
@@ -52,8 +58,7 @@ public class ScheduleControllerTest
         VerifyObjectResult<OkObjectResult>(scheduleExpected, result);
         
         scheduleExpected = new ScheduleDto{Hours = [_hourDto1010], LineNumber = 1, NameStation = "Station1", Orientation = "BACKWARD"};
-        result = await _scheduleController.AddSchedule(
-            new ScheduleDto{Hours = [_hourDto1010], LineNumber = 1, NameStation = "Station1", Orientation = "BACKWARD"});
+        result = await _scheduleController.AddSchedule(scheduleExpected);
         VerifyObjectResult<CreatedResult>(scheduleExpected, result);
         
         result = await _scheduleController.GetScheduleBackward("Station1", 1);
@@ -64,14 +69,14 @@ public class ScheduleControllerTest
         VerifyObjectResult<OkObjectResult>(scheduleExpected, result);
         
         scheduleExpected = new ScheduleDto{Hours = [_hourDto1010], LineNumber = 2, NameStation = "Station1", Orientation = "FORWARD"};
-        result = await _scheduleController.AddSchedule(
-            new ScheduleDto{Hours = [_hourDto1010], LineNumber = 2, NameStation = "Station1", Orientation = "FORWARD"});
+        result = await _scheduleController.AddSchedule(scheduleExpected);
         VerifyObjectResult<CreatedResult>(scheduleExpected, result);
         
         scheduleExpected = new ScheduleDto{Hours = [_hourDto1010], LineNumber = 1, NameStation = "Station2", Orientation = "FORWARD"};
-        result = await _scheduleController.AddSchedule(
-            new ScheduleDto{Hours = [_hourDto1010], LineNumber = 1, NameStation = "Station2", Orientation = "FORWARD"});
+        result = await _scheduleController.AddSchedule(scheduleExpected);
         VerifyObjectResult<CreatedResult>(scheduleExpected, result);
+        
+        
     }
     
     [Fact]
@@ -103,6 +108,10 @@ public class ScheduleControllerTest
         result = await _scheduleController.AddSchedule(
             new ScheduleDto{Hours = [_hourDto1010], LineNumber = 1, NameStation = "Station1", Orientation = "FORWAR"});
         result.Should().BeOfType<BadRequestObjectResult>();
+        
+        result = await _scheduleController.AddSchedule(
+            new ScheduleDto{Hours = [_hourDto1010], LineNumber = 1, NameStation = "Station3", Orientation = "FORWARD"});
+        result.Should().BeOfType<NotFoundObjectResult>();
     }
     
     [Fact]
@@ -122,9 +131,8 @@ public class ScheduleControllerTest
         result = await _scheduleController.GetScheduleForward("Station1", 1);
         VerifyObjectResult<OkObjectResult>(scheduleExpected, result);
         
-        await _scheduleController.AddSchedule(
-            new ScheduleDto{Hours = [_hourDto1010], LineNumber = 1, NameStation = "Station1", Orientation = "BACKWARD"});
         scheduleExpected = new ScheduleDto{Hours = [_hourDto1010], LineNumber = 1, NameStation = "Station1", Orientation = "BACKWARD"};
+        await _scheduleController.AddSchedule(scheduleExpected);
         result = await _scheduleController.GetScheduleBackward("Station1", 1);
         VerifyObjectResult<OkObjectResult>(scheduleExpected, result);
         
@@ -132,15 +140,13 @@ public class ScheduleControllerTest
         scheduleExpected = new ScheduleDto{Hours = [_hourDto1010, _hourDto1020], LineNumber = 1, NameStation = "Station1", Orientation = "FORWARD"};
         VerifyObjectResult<OkObjectResult>(scheduleExpected, result);
         
-        await _scheduleController.AddSchedule(
-            new ScheduleDto{Hours = [_hourDto1010], LineNumber = 2, NameStation = "Station1", Orientation = "FORWARD"});
         scheduleExpected = new ScheduleDto{Hours = [_hourDto1010], LineNumber = 2, NameStation = "Station1", Orientation = "FORWARD"};
+        await _scheduleController.AddSchedule(scheduleExpected);
         result = await _scheduleController.GetScheduleForward("Station1", 2);
         VerifyObjectResult<OkObjectResult>(scheduleExpected, result);
         
-        await _scheduleController.AddSchedule(
-            new ScheduleDto{Hours = [_hourDto1010], LineNumber = 1, NameStation = "Station2", Orientation = "FORWARD"});
         scheduleExpected = new ScheduleDto{Hours = [_hourDto1010], LineNumber = 1, NameStation = "Station2", Orientation = "FORWARD"};
+        await _scheduleController.AddSchedule(scheduleExpected);
         result = await _scheduleController.GetScheduleForward("Station2", 1);
         VerifyObjectResult<OkObjectResult>(scheduleExpected, result);
     }
@@ -189,7 +195,6 @@ public class ScheduleControllerTest
         ];
         IActionResult result = await _scheduleController.GetScheduleByStationNameForward("Station1");
         VerifyObjectResultList<OkObjectResult>(schedulesExpected, result);
-        
         
         result = await _scheduleController.GetScheduleByStationNameForward("Station2");
         VerifyObjectResultList<OkObjectResult>([], result);

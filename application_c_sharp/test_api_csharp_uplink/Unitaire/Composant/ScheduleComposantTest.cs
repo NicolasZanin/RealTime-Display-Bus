@@ -15,7 +15,13 @@ public class ScheduleComposantTest
     public ScheduleComposantTest()
     {
         IScheduleRepository scheduleRepository = new DbTestSchedule();
-        _scheduleComposant = new ScheduleComposant(scheduleRepository);
+        IStationRepository stationRepository = new DbTestStation();
+        IStationFinder stationFinder = new StationComposant(stationRepository);
+        
+        stationRepository.Add(new Station(10.0, 10.0, "Station1"));
+        stationRepository.Add(new Station(10.0, 10.0, "Station2"));
+        
+        _scheduleComposant = new ScheduleComposant(scheduleRepository, stationFinder);
     }
 
     [Fact]
@@ -66,6 +72,7 @@ public class ScheduleComposantTest
         await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => _scheduleComposant.AddSchedule("Station1", 0, "FORWARD", [_dateTime1010]));
         await Assert.ThrowsAsync<ArgumentNullException>(() => _scheduleComposant.AddSchedule("", 1, "FORWARD", [_dateTime1010]));
         await Assert.ThrowsAsync<ArgumentException>(() => _scheduleComposant.AddSchedule("Station1", 1, "FORWAR", [_dateTime1010]));
+        await Assert.ThrowsAsync<NotFoundException>(() => _scheduleComposant.AddSchedule("Station3", 1, "FORWARD", [_dateTime1010]));
        
         await _scheduleComposant.AddSchedule("Station1", 1, "FORWARD", [_dateTime1010]);
         await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => _scheduleComposant.AddSchedule("Station1", 1, "FORWARD", [_dateTime1010]));
