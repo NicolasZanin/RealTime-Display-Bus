@@ -8,22 +8,22 @@ public class DbTestStation : IStationRepository
     
     private readonly List<Station> _stations = [];
     
-    public Station Add(Station station)
+    public Task<Station> Add(Station station)
     {
         _stations.Add(station);
-        return station;
+        return Task.FromResult(station);
     }
 
-    public Station? GetStation(string nameStation)
+    public Task<Station?> GetStation(string nameStation)
     {
         Station? station = _stations.Find(station => station.NameStation.Equals(nameStation));
-        return station;
+        return Task.FromResult(station);
     }
 
-    public Station? GetStation(Position position)
+    public Task<Station?> GetStation(Position position)
     {
         Station? station = _stations.Find(station => station.Position.Equals(position));
-        return station;
+        return Task.FromResult(station);
     }
     
 }

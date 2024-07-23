@@ -8,20 +8,20 @@ public class PositionRepository(IGlobalInfluxDb globalInfluxDb) : IPositionRepos
 {
     private const string MeasurementPosition = "positionCard";
 
-    public PositionCard Add(PositionCard positionCard)
+    public async Task<PositionCard> Add(PositionCard positionCard)
     {
-        PositionCardDb positionCardDb = globalInfluxDb.Save(ConvertPositionCardToDb(positionCard)).Result;
+        PositionCardDb positionCardDb = await globalInfluxDb.Save(ConvertPositionCardToDb(positionCard));
         return ConvertDbToBus(positionCardDb);
     }
     
 
-    public PositionCard? GetLast(string devEuiCard)
+    public async Task<PositionCard?> GetLast(string devEuiCard)
     {
         string query = "from(bucket: \"mybucket\")\n  |> range(start: -15m)\n  "
         + $"|> filter(fn: (r) => r._measurement == \"{MeasurementPosition}\" and r.devEuiCard == \"{devEuiCard}\")\n  " +
         "|> last()";
         
-        List <PositionCardDb> positionCardDbs = globalInfluxDb.Get<PositionCardDb>(query).Result;
+        List <PositionCardDb> positionCardDbs = await globalInfluxDb.Get<PositionCardDb>(query);
         return positionCardDbs.Count > 0 ? ConvertDbToBus(positionCardDbs[0]) : null;
     }
     

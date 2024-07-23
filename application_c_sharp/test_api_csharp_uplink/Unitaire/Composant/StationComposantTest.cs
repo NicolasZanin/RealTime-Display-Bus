@@ -14,114 +14,114 @@ public class StationComposantTest
     public StationComposantTest()
     {
         IStationRepository stationRepository = new DbTestStation();
-        _stationComposant = new(stationRepository);
+        _stationComposant = new StationComposant(stationRepository);
     }
     
     [Fact]
     [Trait("Category", "Unit")]
-    public void AddStationTest()
+    public async Task AddStationTest()
     {
-        Station stationActual = _stationComposant.AddStation(_stationStation1.Position.Latitude, 
+        Station stationActual = await _stationComposant.AddStation(_stationStation1.Position.Latitude, 
             _stationStation1.Position.Longitude, _stationStation1.NameStation);
         Assert.NotNull(stationActual);
         Assert.Equal(_stationStation1, stationActual);
         
-        Station stationActual2 = _stationComposant.GetStation("Station1");
+        Station stationActual2 = await _stationComposant.GetStation("Station1");
         Assert.NotNull(stationActual2);
         Assert.Equal(_stationStation1, stationActual2);
     }
     
     [Fact]
     [Trait("Category", "Unit")]
-    public void AddErrorStationTest()
+    public async Task AddErrorStationTest()
     {
-        _stationComposant.AddStation(_stationStation1.Position.Latitude,
+        await _stationComposant.AddStation(_stationStation1.Position.Latitude,
             _stationStation1.Position.Longitude, _stationStation1.NameStation);
         
-        Assert.Throws<ArgumentOutOfRangeException>(() => _stationComposant.AddStation(90.01,
+        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => _stationComposant.AddStation(90.01,
             _stationStation1.Position.Longitude, "Test"));
         
-        Assert.Throws<ArgumentOutOfRangeException>(() => _stationComposant.AddStation(-90.01,
+        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => _stationComposant.AddStation(-90.01,
             _stationStation1.Position.Longitude, "Test"));
         
-        Assert.Throws<ArgumentOutOfRangeException>(() => _stationComposant.AddStation(_stationStation1.Position.Latitude,
+        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => _stationComposant.AddStation(_stationStation1.Position.Latitude,
             180.01, "Test"));
         
-        Assert.Throws<ArgumentOutOfRangeException>(() => _stationComposant.AddStation(_stationStation1.Position.Latitude,
+        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => _stationComposant.AddStation(_stationStation1.Position.Latitude,
             -180.01, "Test"));
         
-        Assert.Throws<ArgumentNullException>(() => _stationComposant.AddStation(_stationStation1.Position.Latitude,
+        await Assert.ThrowsAsync<ArgumentNullException>(() => _stationComposant.AddStation(_stationStation1.Position.Latitude,
             _stationStation1.Position.Longitude, ""));
         
-        Assert.Throws<AlreadyCreateException>(() => _stationComposant.AddStation(_stationStation1.Position.Latitude,
+        await Assert.ThrowsAsync<AlreadyCreateException>(() => _stationComposant.AddStation(_stationStation1.Position.Latitude,
             _stationStation1.Position.Longitude, _stationStation1.NameStation));
     }
     
     [Fact]
     [Trait("Category", "Unit")]
-    public void GetStationByNameTest()
+    public async Task GetStationByNameTest()
     {
         Station stationStation2 = new Station(15.5, 14.0, "Station2");
         
-        _stationComposant.AddStation(_stationStation1.Position.Latitude, 
+        await _stationComposant.AddStation(_stationStation1.Position.Latitude, 
             _stationStation1.Position.Longitude, _stationStation1.NameStation);
         
-        Station stationActual = _stationComposant.GetStation("Station1");
+        Station stationActual = await _stationComposant.GetStation("Station1");
         Assert.NotNull(stationActual);
         Assert.Equal(_stationStation1, stationActual);
         
-        Assert.Throws<NotFoundException>(() => _stationComposant.GetStation("Station2"));
+        await Assert.ThrowsAsync<NotFoundException>(() => _stationComposant.GetStation("Station2"));
         
-        _stationComposant.AddStation(stationStation2.Position.Latitude, 
+        await _stationComposant.AddStation(stationStation2.Position.Latitude, 
             stationStation2.Position.Longitude, stationStation2.NameStation);
         
-        stationActual = _stationComposant.GetStation("Station2");
+        stationActual = await _stationComposant.GetStation("Station2");
         Assert.NotNull(stationActual);
         Assert.Equal(stationStation2, stationActual);
     }
     
     [Fact]
     [Trait("Category", "Unit")]
-    public void GetStationByNameErrorTest()
+    public async Task GetStationByNameErrorTest()
     {
-        Assert.Throws<ArgumentNullException>(() => _stationComposant.GetStation(""));
+        await Assert.ThrowsAsync<ArgumentNullException>(() => _stationComposant.GetStation(""));
     }
     
     [Fact]
     [Trait("Category", "Unit")]
-    public void GetStationByPositionTest()
+    public async Task GetStationByPositionTest()
     {
         Position positionStation2 = new(15.5, 14.0);
         Station stationStation2 = new Station(positionStation2, "Station2");
         
-        _stationComposant.AddStation(_stationStation1.Position.Latitude, 
+        await _stationComposant.AddStation(_stationStation1.Position.Latitude, 
             _stationStation1.Position.Longitude, _stationStation1.NameStation);
         
-        Station stationActual = _stationComposant.GetStation(_stationStation1.Position.Latitude, 
+        Station stationActual = await _stationComposant.GetStation(_stationStation1.Position.Latitude, 
             _stationStation1.Position.Longitude);
         Assert.NotNull(stationActual);
         Assert.Equal(_stationStation1, stationActual);
         
-        Assert.Throws<NotFoundException>(() => _stationComposant.GetStation(positionStation2.Latitude, positionStation2.Longitude));
+        await Assert.ThrowsAsync<NotFoundException>(() => _stationComposant.GetStation(positionStation2.Latitude, positionStation2.Longitude));
         
-        _stationComposant.AddStation(stationStation2.Position.Latitude, 
+        await _stationComposant.AddStation(stationStation2.Position.Latitude, 
             stationStation2.Position.Longitude, stationStation2.NameStation);
         
-        stationActual = _stationComposant.GetStation(positionStation2.Latitude, positionStation2.Longitude);
+        stationActual = await _stationComposant.GetStation(positionStation2.Latitude, positionStation2.Longitude);
         Assert.NotNull(stationActual);
         Assert.Equal(stationStation2, stationActual);
     }
     
     [Fact]
     [Trait("Category", "Unit")]
-    public void GetStationByPositionErrorTest()
+    public async Task GetStationByPositionErrorTest()
     {
-        Assert.Throws<ArgumentOutOfRangeException>(() => _stationComposant.GetStation(90.1, 14.5));
+        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => _stationComposant.GetStation(90.1, 14.5));
         
-        Assert.Throws<ArgumentOutOfRangeException>(() => _stationComposant.GetStation(-90.1, 14.5));
+        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => _stationComposant.GetStation(-90.1, 14.5));
         
-        Assert.Throws<ArgumentOutOfRangeException>(() => _stationComposant.GetStation(14.5, 180.1));
+        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => _stationComposant.GetStation(14.5, 180.1));
         
-        Assert.Throws<ArgumentOutOfRangeException>(() => _stationComposant.GetStation(14.5, -180.1));
+        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => _stationComposant.GetStation(14.5, -180.1));
     }
 }

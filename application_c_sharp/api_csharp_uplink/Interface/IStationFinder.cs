@@ -4,6 +4,6 @@ namespace api_csharp_uplink.Interface;
 
 public interface IStationFinder
 {
-    public Station GetStation(string nameStation);
-    public Station GetStation(double latitude, double longitude);
+    public Task<Station> GetStation(string nameStation);
+    public Task<Station> GetStation(double latitude, double longitude);
 }

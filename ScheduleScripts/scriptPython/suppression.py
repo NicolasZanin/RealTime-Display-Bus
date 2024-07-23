@@ -13,8 +13,8 @@ delete_api = write_client.delete_api()
 def supprimer_donnees():
     start = "1970-01-01T00:00:00Z"
     stop = "2024-12-31T23:59:59Z"
-    predicate1 = '_measurement="bus_stations_horaireAller"'
-    predicate2 = '_measurement="bus_stations_position"'
+    predicate1 = '_measurement="bus_stations_infosAller"'
+    predicate2 = '_measurement="bus_stations_infosRetour"'
     delete_api.delete(start, stop, predicate1, bucket=bucket, org=org)
     delete_api.delete(start, stop, predicate2, bucket=bucket, org=org)
     print("Les données ont été supprimées avec succès.")

@@ -13,6 +13,7 @@ public class ErrorManager : ControllerBase
             ValueNotCorrectException => new BadRequestObjectResult(exception.Message),
             ArgumentOutOfRangeException => new BadRequestObjectResult(exception.Message),
             ArgumentNullException => new BadRequestObjectResult(exception.Message),
+            ArgumentException => new BadRequestObjectResult(exception.Message),
             DbException => new ObjectResult(new ProblemDetails
             {
                 Detail = exception.Message, Status = 500, Title = "Error DB."

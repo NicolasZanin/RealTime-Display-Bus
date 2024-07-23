@@ -9,18 +9,18 @@ public class StationRepository(IGlobalInfluxDb globalInfluxDb) : IStationReposit
 {
     private const string MeasurementStation = "station";
     
-    public Station Add(Station station)
+    public async Task<Station> Add(Station station)
     {
-        StationDb stationDb = globalInfluxDb.Save(ConvertStationToDb(station)).Result;
+        StationDb stationDb = await globalInfluxDb.Save(ConvertStationToDb(station));
         return ConvertDbToStation(stationDb);
     }
 
-    public Station? GetStation(string nameStation)
+    public async Task<Station?> GetStation(string nameStation)
     {
         string query = $"|> filter(fn: (r) => r.nameStation == \"{nameStation}\")";
         try
         {
-            List<StationDb> list = globalInfluxDb.Get<StationDb>(MeasurementStation, query).Result;
+            List<StationDb> list = await globalInfluxDb.Get<StationDb>(MeasurementStation, query);
             return list.Count > 0 ? ConvertDbToStation(list[0]) : null;
         }
         catch (Exception e)
@@ -29,12 +29,12 @@ public class StationRepository(IGlobalInfluxDb globalInfluxDb) : IStationReposit
         }
     }
 
-    public Station? GetStation(Position position)
+    public async Task<Station?> GetStation(Position position)
     {
         string query = $"  |> filter(fn: (r) => r.longitude == \"{position.Longitude}\" and r.latitude == \"{position.Latitude}\")";
         try
         {
-            List<StationDb> list = globalInfluxDb.Get<StationDb>(MeasurementStation, query).Result;
+            List<StationDb> list = await globalInfluxDb.Get<StationDb>(MeasurementStation, query);
             return list.Count > 0 ? ConvertDbToStation(list[0]) : null;
         }
         catch (Exception e)
