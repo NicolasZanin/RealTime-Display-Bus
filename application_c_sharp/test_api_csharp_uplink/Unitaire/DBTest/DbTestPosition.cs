@@ -7,15 +7,15 @@ public class DbTestPosition : IPositionRepository
 {
     private readonly List<PositionCard> _positionCards = [];
 
-    public PositionCard Add(PositionCard positionCard)
+    public Task<PositionCard> Add(PositionCard positionCard)
     {
         _positionCards.Add(positionCard);
-        return positionCard;
+        return Task.FromResult(positionCard);
     }
 
-    public PositionCard? GetLast(string devEuiCard)
+    public Task<PositionCard?> GetLast(string devEuiCard)
     {
         List<PositionCard> list = _positionCards.FindAll(position => position.DevEuiCard.Equals(devEuiCard));
-        return list.Count > 0 ? list[^1] : null;
+        return Task.FromResult(list.Count > 0 ? list[^1] : null);
     }
 }

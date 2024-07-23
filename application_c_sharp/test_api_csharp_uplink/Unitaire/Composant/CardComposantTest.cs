@@ -25,29 +25,29 @@ public class CardComposantTest
 
     [Fact]
     [Trait("Category", "Unit")]
-    public void TestCreateCard()
+    public async Task TestCreateCard()
     {
-        Card cardActual = _cardComposant.CreateCard(_cardDto.LineBus, _cardDto.DevEuiCard);
+        Card cardActual = await _cardComposant.CreateCard(_cardDto.LineBus, _cardDto.DevEuiCard);
         Assert.NotNull(cardActual);
         Assert.Equal(_cardExpected, cardActual);
     }
 
     [Fact]
     [Trait("Category", "Unit")]
-    public void TestFalseCreate2CardSameTime()
+    public async Task TestFalseCreate2CardSameTime()
     {
-        _cardComposant.CreateCard(_cardDto.LineBus, _cardDto.DevEuiCard);
-        Assert.Throws<AlreadyCreateException>(() => _cardComposant.CreateCard(_cardDto.LineBus, _cardDto.DevEuiCard));
+        await _cardComposant.CreateCard(_cardDto.LineBus, _cardDto.DevEuiCard);
+        await Assert.ThrowsAsync<AlreadyCreateException>(() => _cardComposant.CreateCard(_cardDto.LineBus, _cardDto.DevEuiCard));
     }
     
     [Fact]
     [Trait("Category", "Unit")]
-    public void TestGetCardByDevEui()
+    public async Task TestGetCardByDevEui()
     {
-        Assert.Throws<NotFoundException>(() => _cardComposant.GetCardByDevEuiCard(_cardExpected.DevEuiCard));
+        await Assert.ThrowsAsync<NotFoundException>(() => _cardComposant.GetCardByDevEuiCard(_cardExpected.DevEuiCard));
         
-        _cardComposant.CreateCard(_cardDto.LineBus, _cardDto.DevEuiCard);
-        Card cardActual = _cardComposant.GetCardByDevEuiCard(_cardExpected.DevEuiCard);
+        await _cardComposant.CreateCard(_cardDto.LineBus, _cardDto.DevEuiCard);
+        Card cardActual = await _cardComposant.GetCardByDevEuiCard(_cardExpected.DevEuiCard);
         Assert.NotNull(cardActual);
         Assert.Equal(_cardExpected, cardActual);
     }
@@ -55,24 +55,24 @@ public class CardComposantTest
 
     [Fact]
     [Trait("Category", "Unit")]
-    public void TestModifyCard()
+    public async Task TestModifyCard()
     {
-        _cardComposant.CreateCard(_cardDto.LineBus, _cardDto.DevEuiCard);
-        Card cardActual = _cardComposant.ModifyCard(_cardExpected.LineBus, _cardExpected.DevEuiCard);
+        await _cardComposant.CreateCard(_cardDto.LineBus, _cardDto.DevEuiCard);
+        Card cardActual = await _cardComposant.ModifyCard(_cardExpected.LineBus, _cardExpected.DevEuiCard);
         Assert.NotNull(cardActual);
         Assert.Equal(_cardExpected, cardActual);
     }
     
     [Fact]
     [Trait("Category", "Unit")]
-    public void TestModifyCardError()
+    public async Task TestModifyCardError()
     {
-        Assert.Throws<NotFoundException>(() => _cardComposant.ModifyCard(_cardExpected.LineBus, _cardExpected.DevEuiCard));
+        await Assert.ThrowsAsync<NotFoundException>(() => _cardComposant.ModifyCard(_cardExpected.LineBus, _cardExpected.DevEuiCard));
     }
 
     [Fact]
     [Trait("Category", "Unit")]
-    public void TestGetCards()
+    public async Task TestGetCards()
     {
         Card cardExpected1 = new("1", 1);
 
@@ -80,16 +80,16 @@ public class CardComposantTest
 
         Card cardExpected3 = new("3", 5);
         
-        List<Card> cards = _cardComposant.GetCards();
+        List<Card> cards = await _cardComposant.GetCards();
         Assert.Empty(cards);
         
-        _cardComposant.CreateCard(cardExpected1.LineBus, cardExpected1.DevEuiCard);
-        cards = _cardComposant.GetCards();
+        await _cardComposant.CreateCard(cardExpected1.LineBus, cardExpected1.DevEuiCard);
+        cards = await _cardComposant.GetCards();
         Assert.Equal(Assert.Single(cards), cardExpected1);
         
-        _cardComposant.CreateCard(cardExpected2.LineBus, cardExpected2.DevEuiCard);
-        _cardComposant.CreateCard(cardExpected3.LineBus, cardExpected3.DevEuiCard);
-        cards = _cardComposant.GetCards();
+        await _cardComposant.CreateCard(cardExpected2.LineBus, cardExpected2.DevEuiCard);
+        await _cardComposant.CreateCard(cardExpected3.LineBus, cardExpected3.DevEuiCard);
+        cards = await _cardComposant.GetCards();
         Assert.Equal(3, cards.Count);
         Assert.Equal([cardExpected1, cardExpected2, cardExpected3], cards);
     }

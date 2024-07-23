@@ -21,11 +21,12 @@ public class CardController(ICardFinder cardFinder, ICardRegistration cardRegist
     [HttpPost]
     [ProducesResponseType(typeof(Card), 201)]
     [ProducesResponseType(409)]
-    public IActionResult AddCard([FromBody] CardDto cardDto)
+    public async Task<IActionResult> AddCard([FromBody] CardDto cardDto)
     {
         try
         {
-            return Created($"api/Card/devEuiCard/{cardDto.DevEuiCard}", cardRegistration.CreateCard(cardDto.LineBus, cardDto.DevEuiCard));
+            Card cardAdded = await cardRegistration.CreateCard(cardDto.LineBus, cardDto.DevEuiCard);
+            return Created($"api/Card/devEuiCard/{cardDto.DevEuiCard}", cardAdded);
         }
         catch(Exception e)
         {
@@ -41,11 +42,12 @@ public class CardController(ICardFinder cardFinder, ICardRegistration cardRegist
     [HttpPut]
     [ProducesResponseType(typeof(Card), 200)]
     [ProducesResponseType(404)]
-    public IActionResult ModifyCard([FromBody] CardDto cardDto)
+    public async Task<IActionResult> ModifyCard([FromBody] CardDto cardDto)
     {
         try
         {
-            return Ok(cardRegistration.ModifyCard(cardDto.LineBus, cardDto.DevEuiCard));
+            Card cardModify = await cardRegistration.ModifyCard(cardDto.LineBus, cardDto.DevEuiCard);
+            return Ok(cardModify);
         }
         catch(Exception e)
         {
@@ -61,11 +63,12 @@ public class CardController(ICardFinder cardFinder, ICardRegistration cardRegist
     [HttpGet("devEuiCard/{devEuiCard}")]
     [ProducesResponseType(typeof(Card), 200)]
     [ProducesResponseType(404)]
-    public IActionResult GetCardByDevEui(string devEuiCard)
+    public async Task<IActionResult> GetCardByDevEui(string devEuiCard)
     {
         try
         {
-            return Ok(cardFinder.GetCardByDevEuiCard(devEuiCard));
+            Card cardFind = await cardFinder.GetCardByDevEuiCard(devEuiCard);
+            return Ok(cardFind);
         }
         catch(Exception e)
         {
@@ -79,11 +82,12 @@ public class CardController(ICardFinder cardFinder, ICardRegistration cardRegist
     /// <returns>A list of card</returns>
     [HttpGet]
     [ProducesResponseType(typeof(List<Card>), 200)]
-    public IActionResult GetCards()
+    public async Task<IActionResult> GetCards()
     {
         try
         {
-            return Ok(cardFinder.GetCards());
+            List<Card> cards = await cardFinder.GetCards();
+            return Ok(cards);
         }
         catch(Exception e)
         {

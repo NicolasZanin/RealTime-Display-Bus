@@ -4,6 +4,6 @@ namespace api_csharp_uplink.Interface;
 
 public interface IPositionRegister
 {
-    public PositionCard AddPosition(double latitude, double longitude, string devEuiCard);
-    public PositionCard GetLastPosition(string devEuiCard);
+    public Task<PositionCard> AddPosition(double latitude, double longitude, string devEuiCard);
+    public Task<PositionCard> GetLastPosition(string devEuiCard);
 }

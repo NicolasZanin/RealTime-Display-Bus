@@ -6,254 +6,252 @@ using System.Text;
 using test_api_csharp_uplink.Integration.DBTest;
 using Xunit.Abstractions;
 
-namespace test_api_csharp_uplink.Integration
+namespace test_api_csharp_uplink.Integration;
+
+[Collection("NonParallel")]
+public class CreateCardTest(ITestOutputHelper testOutputHelper) : IAsyncLifetime
 {
+    private readonly HttpClient _client = new();
+    private readonly string _request = "http://api_csharp_uplink:8000/api/Card";
+    private readonly InfluxDbTest _influxDbTest = new();
 
-    [Collection("NonParallel")]
-    public class CreateCardTest(ITestOutputHelper testOutputHelper) : IAsyncLifetime
+    public async Task InitializeAsync()
     {
-        private readonly HttpClient _client = new();
-        private readonly string _request = "http://api_csharp_uplink:8000/api/Card";
-        private readonly InfluxDBTest _influxDbTest = new();
+        await _influxDbTest.InitializeBucket();
+    }
 
-        public async Task InitializeAsync()
+    public Task DisposeAsync()
+    {
+        return Task.CompletedTask;
+    }
+
+    [Fact]
+    [Trait("Category", "Integration")]
+    public async Task TestGetCards()
+    {
+        await _influxDbTest.InitializeBucket();
+
+        try
         {
-            await _influxDbTest.InitializeBucket();
-        }
+            HttpResponseMessage response = await _client.GetAsync(_request);
 
-        public Task DisposeAsync()
+            response.EnsureSuccessStatusCode();
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            string responseString = await response.Content.ReadAsStringAsync();
+            responseString.Should().NotBeNullOrEmpty();
+            responseString.Should().Be("[]");
+        }
+        catch (HttpRequestException e)
         {
-            return Task.CompletedTask;
+            testOutputHelper.WriteLine($"Request error: {e.Message}");
+            Assert.True(false);
         }
+    }
 
-        [Fact]
-        [Trait("Category", "Integration")]
-        public async Task TestGetCards()
+    [Fact]
+    [Trait("Category", "Integration")]
+    public async Task TestAddCardNormal()
+    {
+        CardDto card = new()
         {
-            await _influxDbTest.InitializeBucket();
+            LineBus = 1,
+            DevEuiCard = "0"
+        };
 
-            try
-            {
-                HttpResponseMessage response = await _client.GetAsync(_request);
+        string json = JsonConvert.SerializeObject(card);
+        StringContent content = new(json, Encoding.UTF8, "application/json");
 
-                response.EnsureSuccessStatusCode();
-                response.StatusCode.Should().Be(HttpStatusCode.OK);
-                string responseString = await response.Content.ReadAsStringAsync();
-                responseString.Should().NotBeNullOrEmpty();
-                responseString.Should().Be("[]");
-            }
-            catch (HttpRequestException e)
-            {
-                testOutputHelper.WriteLine($"Request error: {e.Message}");
-                Assert.True(false);
-            }
-        }
-
-        [Fact]
-        [Trait("Category", "Integration")]
-        public async Task TestAddCardNormal()
+        try
         {
-            CardDto card = new()
-            {
-                LineBus = 1,
-                DevEuiCard = "0"
-            };
+            HttpResponseMessage response = await _client.PostAsync(_request, content);
+            response.EnsureSuccessStatusCode();
+            response.StatusCode.Should().Be(HttpStatusCode.Created);
 
-            string json = JsonConvert.SerializeObject(card);
-            StringContent content = new(json, Encoding.UTF8, "application/json");
-
-            try
-            {
-                HttpResponseMessage response = await _client.PostAsync(_request, content);
-                response.EnsureSuccessStatusCode();
-                response.StatusCode.Should().Be(HttpStatusCode.Created);
-
-                string responseString = await response.Content.ReadAsStringAsync();
-                responseString.Should().NotBeNullOrEmpty();
-                responseString.Should().BeEquivalentTo(json);
-            }
-            catch (HttpRequestException e)
-            {
-                testOutputHelper.WriteLine($"Request error: {e.Message}");
-                Assert.True(false);
-            }
+            string responseString = await response.Content.ReadAsStringAsync();
+            responseString.Should().NotBeNullOrEmpty();
+            responseString.Should().BeEquivalentTo(json);
         }
-
-        [Fact]
-        [Trait("Category", "Integration")]
-        public async Task TestAddCardError()
+        catch (HttpRequestException e)
         {
-            CardDto card = new()
-            {
-                LineBus = 1,
-                DevEuiCard = "1"
-            };
-
-            StringContent content = new(JsonConvert.SerializeObject(card), Encoding.UTF8, "application/json");
-
-            try
-            {
-                HttpResponseMessage response = await _client.PostAsync(_request, content);
-                response.EnsureSuccessStatusCode();
-                response.StatusCode.Should().Be(HttpStatusCode.Created);
-
-                response = await _client.PostAsync(_request, content);
-                response.StatusCode.Should().Be(HttpStatusCode.Conflict);
-            }
-            catch (HttpRequestException e)
-            {
-                testOutputHelper.WriteLine($"Request error: {e.Message}");
-                Assert.True(false);
-            }
+            testOutputHelper.WriteLine($"Request error: {e.Message}");
+            Assert.True(false);
         }
+    }
 
-        [Fact]
-        [Trait("Category", "Integration")]
-        public async Task TestModifyCard()
+    [Fact]
+    [Trait("Category", "Integration")]
+    public async Task TestAddCardError()
+    {
+        CardDto card = new()
         {
-            CardDto card = new()
-            {
-                LineBus = 1,
-                DevEuiCard = "2"
-            };
+            LineBus = 1,
+            DevEuiCard = "1"
+        };
 
-            string json12 = JsonConvert.SerializeObject(card);
-            StringContent content12 = new(json12, Encoding.UTF8, "application/json");
-            
-            try
-            {
-                // Add card
-                HttpResponseMessage response = await _client.PostAsync(_request, content12);
-                response.EnsureSuccessStatusCode();
-                response.StatusCode.Should().Be(HttpStatusCode.Created);
+        StringContent content = new(JsonConvert.SerializeObject(card), Encoding.UTF8, "application/json");
 
-                // Get card by DevEUI
-                response = await _client.GetAsync($"{_request}/devEuiCard/{card.DevEuiCard}");
-                response.EnsureSuccessStatusCode();
-                response.StatusCode.Should().Be(HttpStatusCode.OK);
+        try
+        {
+            HttpResponseMessage response = await _client.PostAsync(_request, content);
+            response.EnsureSuccessStatusCode();
+            response.StatusCode.Should().Be(HttpStatusCode.Created);
 
-                string responseString = await response.Content.ReadAsStringAsync();
-                responseString.Should().NotBeNullOrEmpty();
-                responseString.Should().BeEquivalentTo(json12);
-                
-                // Modify card
-
-                card = new CardDto{ LineBus = 2, DevEuiCard = card.DevEuiCard };
-                string json22 = JsonConvert.SerializeObject(card);
-                
-                StringContent content22 = new StringContent(json22, Encoding.UTF8, "application/json");
-                response = await _client.PutAsync(_request, content22);
-                response.EnsureSuccessStatusCode();
-                response.StatusCode.Should().Be(HttpStatusCode.OK);
-
-                responseString = await response.Content.ReadAsStringAsync();
-                responseString.Should().NotBeNullOrEmpty();
-                responseString.Should().BeEquivalentTo(json22);
-            }
-            catch (HttpRequestException e)
-            {
-                testOutputHelper.WriteLine($"Request error: {e.Message}");
-                Assert.True(false);
-            }
+            response = await _client.PostAsync(_request, content);
+            response.StatusCode.Should().Be(HttpStatusCode.Conflict);
         }
+        catch (HttpRequestException e)
+        {
+            testOutputHelper.WriteLine($"Request error: {e.Message}");
+            Assert.True(false);
+        }
+    }
+
+    [Fact]
+    [Trait("Category", "Integration")]
+    public async Task TestModifyCard()
+    {
+        CardDto card = new()
+        {
+            LineBus = 1,
+            DevEuiCard = "2"
+        };
+
+        string json12 = JsonConvert.SerializeObject(card);
+        StringContent content12 = new(json12, Encoding.UTF8, "application/json");
         
-        [Fact]
-        [Trait("Category", "Integration")]
-        public async Task TestModifyCardError()
+        try
         {
-            CardDto card = new()
-            {
-                LineBus = 1,
-                DevEuiCard = "2"
-            };
+            // Add card
+            HttpResponseMessage response = await _client.PostAsync(_request, content12);
+            response.EnsureSuccessStatusCode();
+            response.StatusCode.Should().Be(HttpStatusCode.Created);
 
-            string json = JsonConvert.SerializeObject(card);
-            StringContent content = new(json, Encoding.UTF8, "application/json");
+            // Get card by DevEUI
+            response = await _client.GetAsync($"{_request}/devEuiCard/{card.DevEuiCard}");
+            response.EnsureSuccessStatusCode();
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+            string responseString = await response.Content.ReadAsStringAsync();
+            responseString.Should().NotBeNullOrEmpty();
+            responseString.Should().BeEquivalentTo(json12);
             
-            try
-            {
-                // Add card
-                HttpResponseMessage response = await _client.PutAsync(_request, content);
-                response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-            }
-            catch (HttpRequestException e)
-            {
-                testOutputHelper.WriteLine($"Request error: {e.Message}");
-                Assert.True(false);
-            }
+            // Modify card
+
+            card = new CardDto{ LineBus = 2, DevEuiCard = card.DevEuiCard };
+            string json22 = JsonConvert.SerializeObject(card);
+            
+            StringContent content22 = new StringContent(json22, Encoding.UTF8, "application/json");
+            response = await _client.PutAsync(_request, content22);
+            response.EnsureSuccessStatusCode();
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+            responseString = await response.Content.ReadAsStringAsync();
+            responseString.Should().NotBeNullOrEmpty();
+            responseString.Should().BeEquivalentTo(json22);
         }
+        catch (HttpRequestException e)
+        {
+            testOutputHelper.WriteLine($"Request error: {e.Message}");
+            Assert.True(false);
+        }
+    }
+    
+    [Fact]
+    [Trait("Category", "Integration")]
+    public async Task TestModifyCardError()
+    {
+        CardDto card = new()
+        {
+            LineBus = 1,
+            DevEuiCard = "2"
+        };
+
+        string json = JsonConvert.SerializeObject(card);
+        StringContent content = new(json, Encoding.UTF8, "application/json");
         
-
-        [Fact]
-        [Trait("Category", "Integration")]
-        public async Task TestGetCard()
+        try
         {
-            CardDto card = new()
-            {
-                LineBus = 2,
-                DevEuiCard = "2"
-            };
-
-            string json = JsonConvert.SerializeObject(card);
-            StringContent content = new(json, Encoding.UTF8, "application/json");
-            try
-            {
-                // Add card
-                HttpResponseMessage response = await _client.PostAsync(_request, content);
-                response.EnsureSuccessStatusCode();
-                response.StatusCode.Should().Be(HttpStatusCode.Created);
-
-                // Get card by DevEUI
-                response = await _client.GetAsync($"{_request}/devEuiCard/{card.DevEuiCard}");
-                response.EnsureSuccessStatusCode();
-                response.StatusCode.Should().Be(HttpStatusCode.OK);
-
-                string responseString = await response.Content.ReadAsStringAsync();
-                responseString.Should().NotBeNullOrEmpty();
-                responseString.Should().BeEquivalentTo(json);
-
-            }
-            catch (HttpRequestException e)
-            {
-                testOutputHelper.WriteLine($"Request error: {e.Message}");
-                Assert.True(false);
-            }
+            // Add card
+            HttpResponseMessage response = await _client.PutAsync(_request, content);
+            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
         }
-
-        [Fact]
-        [Trait("Category", "Integration")]
-        public async Task TestGetAllCard()
+        catch (HttpRequestException e)
         {
-            CardDto card = new()
-            {
-                LineBus = 2,
-                DevEuiCard = "0"
-            };
-            try
-            {
-                await _client.PostAsync(_request, new StringContent(JsonConvert.SerializeObject(card), Encoding.UTF8, "application/json"));
+            testOutputHelper.WriteLine($"Request error: {e.Message}");
+            Assert.True(false);
+        }
+    }
+    
 
-                card.DevEuiCard = "1";
-                await _client.PostAsync(_request, new StringContent(JsonConvert.SerializeObject(card), Encoding.UTF8, "application/json"));
+    [Fact]
+    [Trait("Category", "Integration")]
+    public async Task TestGetCard()
+    {
+        CardDto card = new()
+        {
+            LineBus = 2,
+            DevEuiCard = "2"
+        };
 
-                card.DevEuiCard = "2";
-                await _client.PostAsync(_request, new StringContent(JsonConvert.SerializeObject(card), Encoding.UTF8, "application/json"));
+        string json = JsonConvert.SerializeObject(card);
+        StringContent content = new(json, Encoding.UTF8, "application/json");
+        try
+        {
+            // Add card
+            HttpResponseMessage response = await _client.PostAsync(_request, content);
+            response.EnsureSuccessStatusCode();
+            response.StatusCode.Should().Be(HttpStatusCode.Created);
 
-                HttpResponseMessage response = await _client.GetAsync(_request);
-                response.EnsureSuccessStatusCode();
-                response.StatusCode.Should().Be(HttpStatusCode.OK);
-                string responseString = await response.Content.ReadAsStringAsync();
-                responseString.Should().NotBeNullOrEmpty();
+            // Get card by DevEUI
+            response = await _client.GetAsync($"{_request}/devEuiCard/{card.DevEuiCard}");
+            response.EnsureSuccessStatusCode();
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-                List<CardDto>? buses = JsonConvert.DeserializeObject<List<CardDto>>(responseString);
-                buses.Should().NotBeNull();
-                buses.Should().HaveCount(3);
-            }
-            catch (HttpRequestException e)
-            {
-                testOutputHelper.WriteLine($"Request error: {e.Message}");
-                Assert.True(false);
-            }
+            string responseString = await response.Content.ReadAsStringAsync();
+            responseString.Should().NotBeNullOrEmpty();
+            responseString.Should().BeEquivalentTo(json);
+
+        }
+        catch (HttpRequestException e)
+        {
+            testOutputHelper.WriteLine($"Request error: {e.Message}");
+            Assert.True(false);
+        }
+    }
+
+    [Fact]
+    [Trait("Category", "Integration")]
+    public async Task TestGetAllCard()
+    {
+        CardDto card = new()
+        {
+            LineBus = 2,
+            DevEuiCard = "0"
+        };
+        try
+        {
+            await _client.PostAsync(_request, new StringContent(JsonConvert.SerializeObject(card), Encoding.UTF8, "application/json"));
+
+            card.DevEuiCard = "1";
+            await _client.PostAsync(_request, new StringContent(JsonConvert.SerializeObject(card), Encoding.UTF8, "application/json"));
+
+            card.DevEuiCard = "2";
+            await _client.PostAsync(_request, new StringContent(JsonConvert.SerializeObject(card), Encoding.UTF8, "application/json"));
+
+            HttpResponseMessage response = await _client.GetAsync(_request);
+            response.EnsureSuccessStatusCode();
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            string responseString = await response.Content.ReadAsStringAsync();
+            responseString.Should().NotBeNullOrEmpty();
+
+            List<CardDto>? buses = JsonConvert.DeserializeObject<List<CardDto>>(responseString);
+            buses.Should().NotBeNull();
+            buses.Should().HaveCount(3);
+        }
+        catch (HttpRequestException e)
+        {
+            testOutputHelper.WriteLine($"Request error: {e.Message}");
+            Assert.True(false);
         }
     }
 }

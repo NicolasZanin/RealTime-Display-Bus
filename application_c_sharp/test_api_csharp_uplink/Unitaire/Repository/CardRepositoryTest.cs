@@ -13,20 +13,20 @@ public class CardRepositoryTest
     
     [Fact]
     [Trait("Category", "Unit")]
-    public void TestAdd()
+    public async Task TestAdd()
     {
         Mock<IGlobalInfluxDb> mock = new();
         mock.Setup(globalInfluxDb => globalInfluxDb.Save(It.IsAny<CardDb>()))
             .ReturnsAsync(_cardDbExpected);
         CardRepository cardRepository = new(mock.Object);
         
-        Card result = cardRepository.Add(_cardExpected01);
+        Card result = await cardRepository.Add(_cardExpected01);
         Assert.Equal(_cardExpected01, result);
     }
     
     [Fact]
     [Trait("Category", "Unit")]
-    public void TestModify()
+    public async Task TestModify()
     {
         Mock<IGlobalInfluxDb> mock = new();
         mock.Setup(globalInfluxDb => globalInfluxDb.Get<CardDb>(MeasurementCard, 
@@ -35,13 +35,13 @@ public class CardRepositoryTest
         mock.Setup(globalInfluxDb => globalInfluxDb.Save(It.IsAny<CardDb>()))
             .ReturnsAsync(_cardDbExpected);
         
-        Card result = new CardRepository(mock.Object).Modify(_cardExpected01);
+        Card result = await new CardRepository(mock.Object).Modify(_cardExpected01);
         Assert.Equal(_cardExpected01, result);
     }
     
     [Fact]
     [Trait("Category", "Unit")]
-    public void TestGetByDevEui()
+    public async Task TestGetByDevEui()
     {
         Mock<IGlobalInfluxDb> mock = new();
         mock.SetupSequence(globalInfluxDb => globalInfluxDb.Get<CardDb>(MeasurementCard,
@@ -50,16 +50,16 @@ public class CardRepositoryTest
             .ReturnsAsync([new CardDb{DevEuiCard = _cardExpected01.DevEuiCard, LineBus = _cardExpected01.LineBus}]);
         
         CardRepository cardRepository = new(mock.Object);
-        Card? result = cardRepository.GetByDevEui(_cardExpected01.DevEuiCard);
+        Card? result = await cardRepository.GetByDevEui(_cardExpected01.DevEuiCard);
         Assert.Null(result);
         
-        result = cardRepository.GetByDevEui(_cardExpected01.DevEuiCard);
+        result = await cardRepository.GetByDevEui(_cardExpected01.DevEuiCard);
         Assert.Equal(_cardExpected01, result);
     }
     
     [Fact]
     [Trait("Category", "Unit")]
-    public void TestGetAll()
+    public async Task TestGetAll()
     {
         Card cardExpected12 = new("1", 2);
         Mock<IGlobalInfluxDb> mock = new();
@@ -67,7 +67,7 @@ public class CardRepositoryTest
             .ReturnsAsync([new CardDb{DevEuiCard = _cardExpected01.DevEuiCard, LineBus = _cardExpected01.LineBus}, 
                 new CardDb{DevEuiCard = cardExpected12.DevEuiCard, LineBus = cardExpected12.LineBus}]);
 
-        List<Card> result = new CardRepository(mock.Object).GetAll();
+        List<Card> result = await new CardRepository(mock.Object).GetAll();
         Assert.Equal(2, result.Count);
         Assert.Equal(_cardExpected01, result[0]);
         Assert.Equal(cardExpected12, result[1]);

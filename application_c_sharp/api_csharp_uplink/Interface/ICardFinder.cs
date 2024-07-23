@@ -4,6 +4,6 @@ namespace api_csharp_uplink.Interface;
 
 public interface ICardFinder
 {
-    List<Card> GetCards();
-    Card GetCardByDevEuiCard(string devEuiCard);
+    Task<List<Card>> GetCards();
+    Task<Card> GetCardByDevEuiCard(string devEuiCard);
 }

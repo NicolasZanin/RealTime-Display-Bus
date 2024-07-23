@@ -8,7 +8,7 @@ public class ScheduleRepository(IGlobalInfluxDb globalInfluxDb) : IScheduleRepos
 {
     private const string MeasurementName = "schedule";
     
-    public Schedule AddSchedule(Schedule schedule)
+    public async Task<Schedule> AddSchedule(Schedule schedule)
     {
         string nameOrientation = schedule.Orientation.ToString();
         List<Task<ScheduleDb>> schedules = schedule.Hours.AsParallel()
@@ -16,15 +16,15 @@ public class ScheduleRepository(IGlobalInfluxDb globalInfluxDb) : IScheduleRepos
                 globalInfluxDb.Save(ConvertScheduleToScheduleDb(schedule.StationName, schedule.LineNumber, nameOrientation, hour)))
             .ToList();
 
-        ScheduleDb[] scheduleDbs = Task.WhenAll(schedules).Result;
+        ScheduleDb[] scheduleDbs = await Task.WhenAll(schedules);
         List<DateTime> hours = scheduleDbs.AsParallel().Select(scheduleDb => scheduleDb.Hours).ToList();
         return new Schedule(schedule.StationName, schedule.LineNumber, schedule.Orientation, hours);
     }
 
-    public Schedule? FindSchedule(string nameStation, int lineNumber, Orientation orientation)
+    public async Task<Schedule?> FindSchedule(string nameStation, int lineNumber, Orientation orientation)
     {
         string predicate = $"|> filter(fn: (r) => r.stationName == \"{nameStation}\" and r.lineNumber == \"{lineNumber}\" and r.orientation == \"{orientation}\")";
-        List<ScheduleDb> list = globalInfluxDb.Get<ScheduleDb>(MeasurementName, predicate).Result;
+        List<ScheduleDb> list = await globalInfluxDb.Get<ScheduleDb>(MeasurementName, predicate);
         
         if (list.Count == 0)
             return null;
@@ -34,10 +34,10 @@ public class ScheduleRepository(IGlobalInfluxDb globalInfluxDb) : IScheduleRepos
         
     }
 
-    public List<Schedule> FindScheduleByStationNameOrientation(string nameStation, Orientation orientation)
+    public async Task<List<Schedule>> FindScheduleByStationNameOrientation(string nameStation, Orientation orientation)
     {
         string predicate = $"|> filter(fn: (r) => r.stationName == \"{nameStation}\" and r.orientation == \"{orientation}\")";
-        List<ScheduleDb> scheduleDbs = globalInfluxDb.Get<ScheduleDb>(MeasurementName, predicate).Result;
+        List<ScheduleDb> scheduleDbs = await globalInfluxDb.Get<ScheduleDb>(MeasurementName, predicate);
 
         List<Schedule> schedules = scheduleDbs.AsParallel()
             .GroupBy(scheduleDb => new FindScheduleMap(scheduleDb.StationName, scheduleDb.LineNumber, orientation))

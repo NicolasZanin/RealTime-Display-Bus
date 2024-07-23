@@ -7,26 +7,27 @@ public class DbTestCard : ICardRepository
 {
     private List<Card> _cards = [];
     
-    public Card Add(Card card)
+    public Task<Card> Add(Card card)
     {
         _cards.Add(card);
-        return card;
+        return Task.FromResult(card);
     }
 
-    public Card? GetByDevEui(string devEuiCard)
+    public Task<Card?> GetByDevEui(string devEuiCard)
     {
-        return _cards.Find(card => card.DevEuiCard == devEuiCard);
+        Card? cardFind = _cards.Find(card => card.DevEuiCard == devEuiCard);
+        return Task.FromResult(cardFind);
     }
 
-    public Card Modify(Card card)
+    public Task<Card> Modify(Card card)
     {
         _cards = _cards.Where(cardd => cardd.DevEuiCard != card.DevEuiCard).ToList();
         _cards.Add(card);
-        return card;
+        return Task.FromResult(card);
     }
 
-    public List<Card> GetAll()
+    public Task<List<Card>> GetAll()
     {
-        return _cards;
+        return Task.FromResult(_cards);
     }
 }

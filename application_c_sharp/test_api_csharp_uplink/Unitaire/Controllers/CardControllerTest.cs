@@ -24,14 +24,14 @@ public class CardControllerTest
     {
         ICardRepository cardRepository = new DbTestCard();
         CardComposant cardComposant = new(cardRepository);
-        _cardController = new(cardComposant, cardComposant);
+        _cardController = new CardController(cardComposant, cardComposant);
     }
 
     [Fact]
     [Trait("Category", "Unit")]
-    public void TestCreateCard()
+    public async Task TestCreateCard()
     {
-        IActionResult actionResult = _cardController.AddCard(_cardDto);
+        IActionResult actionResult = await _cardController.AddCard(_cardDto);
         actionResult.Should().BeOfType<CreatedResult>();
         CreatedResult createdResult = (CreatedResult) actionResult;
         createdResult.Should().NotBeNull();
@@ -40,19 +40,19 @@ public class CardControllerTest
 
     [Fact]
     [Trait("Category", "Unit")]
-    public void TestFalseCreate2CardSameTime()
+    public async Task TestFalseCreate2CardSameTime()
     {
-        _cardController.AddCard(_cardDto);
-        IActionResult actionResult = _cardController.AddCard(_cardDto);
+        await _cardController.AddCard(_cardDto);
+        IActionResult actionResult = await _cardController.AddCard(_cardDto);
         actionResult.Should().BeOfType<ConflictObjectResult>();
     }
     
     [Fact]
     [Trait("Category", "Unit")]
-    public void TestModifyCard()
+    public async Task TestModifyCard()
     {
-        _cardController.AddCard(_cardDto);
-        IActionResult actionResult = _cardController.ModifyCard(_cardDto);
+        await _cardController.AddCard(_cardDto);
+        IActionResult actionResult = await _cardController.ModifyCard(_cardDto);
         actionResult.Should().BeOfType<OkObjectResult>();
         OkObjectResult okResult = (OkObjectResult) actionResult;
         okResult.Should().NotBeNull();
@@ -61,22 +61,22 @@ public class CardControllerTest
     
     [Fact]
     [Trait("Category", "Unit")]
-    public void TestModifyCardError()
+    public async Task TestModifyCardError()
     {
-        IActionResult actionResult = _cardController.ModifyCard(_cardDto);
+        IActionResult actionResult = await _cardController.ModifyCard(_cardDto);
         actionResult.Should().BeOfType<NotFoundObjectResult>();
     }
     
 
     [Fact]
     [Trait("Category", "Unit")]
-    public void TestGetCardByDevEui()
+    public async Task TestGetCardByDevEui()
     {
-        IActionResult actionResult = _cardController.GetCardByDevEui(_cardDto.DevEuiCard);
+        IActionResult actionResult = await _cardController.GetCardByDevEui(_cardDto.DevEuiCard);
         actionResult.Should().BeOfType<NotFoundObjectResult>();
         
-        _cardController.AddCard(_cardDto);
-        actionResult = _cardController.GetCardByDevEui(_cardDto.DevEuiCard);
+        await _cardController.AddCard(_cardDto);
+        actionResult = await _cardController.GetCardByDevEui(_cardDto.DevEuiCard);
         actionResult.Should().BeOfType<OkObjectResult>();
         OkObjectResult? okObject = actionResult as OkObjectResult;
         okObject.Should().NotBeNull();
@@ -85,30 +85,30 @@ public class CardControllerTest
 
     [Fact]
     [Trait("Category", "Unit")]
-    public void TestGetCards()
+    public async Task TestGetCards()
     {
         Card cardExpected2 = new("2", 5);
 
         Card cardExpected3 = new("3", 5);
 
-        IActionResult actionResult = _cardController.GetCards();
+        IActionResult actionResult = await _cardController.GetCards();
         actionResult.Should().BeOfType<OkObjectResult>();
         OkObjectResult? okObject = actionResult as OkObjectResult;
         okObject.Should().NotBeNull();
         List<Card>? buses = okObject?.Value as List<Card>;
         buses.Should().BeEmpty();
 
-        _cardController.AddCard(_cardDto);
-        actionResult = _cardController.GetCards();
+        await _cardController.AddCard(_cardDto);
+        actionResult = await _cardController.GetCards();
         actionResult.Should().BeOfType<OkObjectResult>();
         okObject = actionResult as OkObjectResult;
         okObject.Should().NotBeNull();
         buses = okObject?.Value as List<Card>;
         buses.Should().BeEquivalentTo([_cardExpected]);
 
-        _cardController.AddCard(new CardDto{DevEuiCard = cardExpected2.DevEuiCard, LineBus = cardExpected2.LineBus});
-        _cardController.AddCard(new CardDto{DevEuiCard = cardExpected3.DevEuiCard, LineBus = cardExpected3.LineBus});
-        actionResult = _cardController.GetCards();
+        await _cardController.AddCard(new CardDto{DevEuiCard = cardExpected2.DevEuiCard, LineBus = cardExpected2.LineBus});
+        await _cardController.AddCard(new CardDto{DevEuiCard = cardExpected3.DevEuiCard, LineBus = cardExpected3.LineBus});
+        actionResult = await _cardController.GetCards();
         actionResult.Should().BeOfType<OkObjectResult>();
         okObject = actionResult as OkObjectResult;
         okObject.Should().NotBeNull();
