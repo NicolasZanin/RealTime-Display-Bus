@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <!-- Background Image -->
+    <ImageView
+        android:id="@+id/map"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:src="@drawable/map_image"
+    android:scaleType="centerCrop"
+    app:layout_constraintTop_toTopOf="parent"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintLeft_toLeftOf="parent"
+    app:layout_constraintRight_toRightOf="parent" />
+
+    <!-- Top Menu Button -->
+    <ImageButton
+        android:id="@+id/settingsPopup"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:src="@drawable/ic_menu"
+        android:layout_margin="10dp"
+    android:background="?attr/selectableItemBackgroundBorderless"
+    android:contentDescription="Menu Button"
+    app:layout_constraintTop_toTopOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+  />
+
+
+    <ImageView
+        android:id="@+id/circleIcon"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:src="@drawable/ic_circle"
+    android:contentDescription="Circle Icon"
+    app:layout_constraintTop_toBottomOf="@id/settingsPopup"
+        app:layout_constraintLeft_toLeftOf="@id/settingsPopup"
+        app:layout_constraintRight_toRightOf="@id/settingsPopup"
+        android:layout_marginTop="10dp"
+ />
+
+    <!-- Search Bar -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="200px"
+        app:layout_constraintBottom_toTopOf="@id/bottomNavigationBar"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:background="@drawable/orange_toproundedcorner">
+        <androidx.constraintlayout.widget.ConstraintLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/edittextround"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+           >
+            <ImageView
+                android:id="@+id/search_icon"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:src="@drawable/search"
+           app:layout_constraintRight_toLeftOf="@id/searchBar"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_margin="30px"/>
+    <EditText
+        android:id="@+id/searchBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:hint="Search a road..."
+        android:textColorHint="@color/blacktransparent"
+        android:textSize="20dp"
+        app:layout_constraintTop_toTopOf="parent"
+
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+
+        android:paddingRight="50px"
+        />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Bottom Navigation Bar -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/bottomNavigationBar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:paddingBottom="50px"
+        android:paddingTop="50px"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintEnd_toEndOf="parent">
+
+
+
+        <ImageView
+            android:id="@+id/homeButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/home_off"
+        android:contentDescription="Home Button"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginLeft="40px"/>
+
+        <ImageView
+            android:id="@+id/schedulesButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/schedules_off"
+        android:contentDescription="Schedules Button"
+            app:layout_constraintLeft_toLeftOf="@id/homeButton"
+            app:layout_constraintRight_toRightOf="@id/trafficInfoButton"
+            app:layout_constraintTop_toTopOf="parent"
+            />
+ <ImageView
+            android:id="@+id/trafficInfoButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/trafficinfo_off"
+        android:contentDescription="Traffic Info Button"
+     android:layout_marginRight="40px"
+     app:layout_constraintRight_toRightOf="parent"
+     app:layout_constraintTop_toTopOf="parent"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/textHomebutton"
+            android:text="Home"
+            android:textColor="@color/black"
+            android:textSize="50px"
+            app:layout_constraintTop_toBottomOf="@id/homeButton"
+            app:layout_constraintLeft_toLeftOf="@id/homeButton"
+            app:layout_constraintRight_toRightOf="@id/homeButton"
+
+            />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/textSchedulesButton"
+            android:text="Schedules"
+            android:textColor="@color/black"
+            android:textSize="50px"
+            app:layout_constraintTop_toBottomOf="@id/schedulesButton"
+            app:layout_constraintLeft_toLeftOf="@id/schedulesButton"
+            app:layout_constraintRight_toRightOf="@id/schedulesButton"
+            
+            />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/textTrafficinfoButton"
+            android:text="Traffic info"
+            android:textColor="@color/black"
+            android:textSize="50px"
+            app:layout_constraintTop_toBottomOf="@id/trafficInfoButton"
+            app:layout_constraintLeft_toLeftOf="@id/trafficInfoButton"
+            app:layout_constraintRight_toRightOf="@id/trafficInfoButton"
+
+            />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
