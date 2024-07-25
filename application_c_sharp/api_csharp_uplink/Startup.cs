@@ -23,6 +23,10 @@ public class Startup(IConfiguration configuration)
         services.AddScoped<IStationRepository, StationRepository>();
         services.AddScoped<IStationRegister, StationComposant>();
         services.AddScoped<IStationFinder, StationComposant>();
+        services.AddScoped<ILinkRepository, LinkRepository>();
+        services.AddScoped<ILinkRegistration, LinkComposant>();
+        services.AddScoped<IAddLink, TimeEngine>();
+        services.AddScoped<ILinkFinder, LinkComposant>();
         services.AddSingleton<IGlobalInfluxDb, GlobalInfluxDb>();
         services.Configure<InfluxDbSettings>(configuration.GetSection("InfluxDB"));
         services.AddEndpointsApiExplorer();
