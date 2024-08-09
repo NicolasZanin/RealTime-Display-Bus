@@ -1,4 +1,4 @@
-package com.example.myapplication;
+package com.example.myapplication.Activity;
 
 import android.content.Intent;
 import android.graphics.Color;
@@ -12,6 +12,8 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.myapplication.R;
 
 public class MainActivity extends AppCompatActivity {
     private boolean english = true;
@@ -35,6 +37,22 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, SchedulesActivity.class);
+                startActivity(intent);
+
+            }
+        });
+        findViewById(R.id.trafficInfoButton).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, TrafficInfoActivity.class);
+                startActivity(intent);
+
+            }
+        });
+        findViewById(R.id.searchRoadBTN).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, SearchRoadActivity.class);
                 startActivity(intent);
 
             }

@@ -10,10 +10,22 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MyApplication">
         <activity
-            android:name=".SchedulesActivity"
+            android:name=".Activity.SchedulesActivity"
             android:exported="false" />
         <activity
-            android:name=".MainActivity"
+            android:name=".Activity.TrafficInfoActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Activity.BusStopScheduleActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Activity.SearchRoadActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Activity.ScheduleLineActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Activity.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

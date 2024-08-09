@@ -13,33 +13,104 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         android:background="@color/orange"
-        android:paddingBottom="15dp"
-        android:paddingTop="15dp"
-        android:id="@+id/orangeHeader">
+        android:id="@+id/orangeHeader"
+        android:paddingBottom="10dp">
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Traffic info"
-            android:gravity="center"
-            android:textSize="30dp"
-            android:id="@+id/titleTafficInfoTxt"
+        <ImageView
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/returnbutton"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-
+            android:id="@+id/retourBusStop"
             />
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/edittextround"
+            app:layout_constraintTop_toTopOf="@id/retourBusStop"
+            app:layout_constraintLeft_toRightOf="@id/retourBusStop"
+            app:layout_constraintRight_toRightOf="parent"
+            android:id="@+id/divFromBusStop"
+            >
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:background="@drawable/line5"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                android:id="@+id/nbLine"
+                android:layout_margin="10dp"
+
+                />
+            <TextView
+                android:layout_width="wrap_content"
+                android:singleLine="false"
+                android:layout_height="wrap_content"
+                app:layout_constraintLeft_toRightOf="@id/nbLine"
+                app:layout_constraintTop_toTopOf="parent"
+                android:text="from: Số 34 Nguyễn Lương Bằng"
+                android:textColor="@color/black"
+                android:gravity="center"
+                android:id="@+id/busStopFirst"
+                android:layout_margin="10dp"
+                android:textSize="20dp"/>
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/edittextround"
+            app:layout_constraintTop_toBottomOf="@id/divFromBusStop"
+            app:layout_constraintLeft_toRightOf="@id/retourBusStop"
+            app:layout_constraintRight_toRightOf="parent"
+            android:id="@+id/divToBusStop"
+            android:layout_marginTop="10dp"
+            >
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:background="@drawable/change"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                android:id="@+id/change"
+                android:layout_margin="10dp"
+
+                />
+            <TextView
+                android:layout_width="wrap_content"
+                android:singleLine="false"
+                android:layout_height="wrap_content"
+                app:layout_constraintLeft_toRightOf="@id/change"
+                app:layout_constraintTop_toTopOf="parent"
+
+                android:text="to: Số 34 Nguyễn Lương Bằng"
+                android:textColor="@color/black"
+                android:gravity="center"
+                android:id="@+id/busStopSecond"
+                android:layout_margin="10dp"
+                android:textSize="15dp"/>
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <androidx.recyclerview.widget.RecyclerView
+    <ListView
         android:layout_width="match_parent"
-        android:layout_height="530sp"
+        android:layout_height="500sp"
+        app:layout_constraintBottom_toTopOf="@id/bottomNavigationBar"
         app:layout_constraintTop_toBottomOf="@id/orangeHeader"
+
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        android:id="@+id/listTrafficInfo"
-
+        android:id="@+id/listSchedulesBusStop"
+        android:dividerHeight="20dp"
         />
 
 
@@ -73,7 +144,7 @@
             android:id="@+id/schedulesButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/schedules_off"
+            android:src="@drawable/schedules_on"
             android:contentDescription="Schedules Button"
             app:layout_constraintLeft_toLeftOf="@id/homeButton"
             app:layout_constraintRight_toRightOf="@id/trafficInfoButton"
@@ -83,7 +154,7 @@
             android:id="@+id/trafficInfoButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/trafficinfo_on"
+            android:src="@drawable/trafficinfo_off"
             android:contentDescription="Traffic Info Button"
             android:layout_marginRight="40px"
             app:layout_constraintRight_toRightOf="parent"

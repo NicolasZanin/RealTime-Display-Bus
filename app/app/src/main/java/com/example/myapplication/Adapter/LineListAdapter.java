@@ -1,6 +1,7 @@
-    package com.example.myapplication;
+    package com.example.myapplication.Adapter;
 
     import android.content.Context;
+    import android.content.Intent;
     import android.view.LayoutInflater;
     import android.view.View;
     import android.view.ViewGroup;
@@ -11,13 +12,21 @@
     import androidx.annotation.NonNull;
     import androidx.annotation.Nullable;
 
-    import org.w3c.dom.Text;
+    import com.example.myapplication.Activity.BusStopScheduleActivity;
+    import com.example.myapplication.Activity.ScheduleLineActivity;
+    import com.example.myapplication.Activity.SchedulesActivity;
+    import com.example.myapplication.Activity.TrafficInfoActivity;
+    import com.example.myapplication.Item.LineList;
+    import com.example.myapplication.R;
 
     import java.util.ArrayList;
 
     public class LineListAdapter extends ArrayAdapter<LineList> {
+        private Context mContext;
         public LineListAdapter(@NonNull Context context, ArrayList<LineList> dataArrayList) {
+
             super(context, R.layout.listview_line,dataArrayList);
+            mContext = context;
         }
 
         @NonNull
@@ -50,6 +59,15 @@
                         favImage.setImageResource(R.drawable.favorite_on);
                     else
                         favImage.setImageResource(R.drawable.favorite_off);
+                }
+            });
+            view.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    Intent intent = new Intent(mContext, ScheduleLineActivity.class);
+                    intent.putExtra("lineList",lineList);
+                    mContext.startActivity(intent);
                 }
             });
 
