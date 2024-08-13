@@ -6,45 +6,67 @@
     android:layout_height="match_parent"
     tools:context=".Activity.MainActivity">
 
-    <!-- Background Image -->
-    <ImageView
+    <fragment
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:id="@+id/map"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:src="@drawable/map_image"
-    android:scaleType="centerCrop"
-    app:layout_constraintTop_toTopOf="parent"
-    app:layout_constraintBottom_toBottomOf="parent"
-    app:layout_constraintLeft_toLeftOf="parent"
-    app:layout_constraintRight_toRightOf="parent" />
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        />
 
-    <!-- Top Menu Button -->
-    <ImageButton
+
+
+    <ImageView
         android:id="@+id/settingsPopup"
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:src="@drawable/ic_menu"
         android:layout_margin="10dp"
-    android:background="?attr/selectableItemBackgroundBorderless"
-    android:contentDescription="Menu Button"
     app:layout_constraintTop_toTopOf="parent"
     app:layout_constraintStart_toStartOf="parent"
   />
 
-
-    <ImageView
-        android:id="@+id/circleIcon"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:src="@drawable/ic_circle"
-    android:contentDescription="Circle Icon"
-    app:layout_constraintTop_toBottomOf="@id/settingsPopup"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/settingsPopup"
         app:layout_constraintLeft_toLeftOf="@id/settingsPopup"
         app:layout_constraintRight_toRightOf="@id/settingsPopup"
-        android:layout_marginTop="10dp"
- />
+        android:background="@drawable/edittextround"
+        android:paddingRight="10dp"
+        android:paddingLeft="10dp">
 
-    <!-- Search Bar -->
+        <ImageView
+            android:id="@+id/circleIcon"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:src="@drawable/snow"
+            app:layout_constraintTop_toTopOf="parent"
+
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+
+        />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/temperature"
+            android:text="30 °C"
+            android:textStyle="bold"
+            android:textSize="20dp"
+            android:textColor="@color/black"
+            app:layout_constraintTop_toBottomOf="@id/circleIcon"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="200px"
@@ -92,7 +114,7 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <!-- Bottom Navigation Bar -->
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/bottomNavigationBar"
         android:layout_width="0dp"
