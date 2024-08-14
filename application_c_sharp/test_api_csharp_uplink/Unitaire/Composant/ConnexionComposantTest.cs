@@ -30,7 +30,8 @@ public class ConnexionComposantTest
             _ = stationComposant.AddStation(i * 5.0, i * 4.0, $"Station{i}").Result;
 
         DbTestItinerary itineraryRepository = new DbTestItinerary();
-        _itineraryRegister = new ItineraryComposant(itineraryRepository, stationComposant);
+        IGraphHelper graphHelper = new GraphHopperTest();
+        _itineraryRegister = new ItineraryComposant(itineraryRepository, stationComposant, graphHelper);
         _connexionComposant = new ConnexionComposant(itineraryRepository);
     }
 

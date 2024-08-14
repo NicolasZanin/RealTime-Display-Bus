@@ -65,7 +65,8 @@ public class ConnexionControllerTest
             _ = stationComposant.AddStation(i * 5.0, i * 5.0, $"Station{i}").Result;
 
         DbTestItinerary itineraryRepository = new DbTestItinerary();
-        ItineraryComposant itineraryComposant = new ItineraryComposant(itineraryRepository, stationComposant);
+        IGraphHelper graphHelper = new GraphHopperTest();
+        ItineraryComposant itineraryComposant = new ItineraryComposant(itineraryRepository, stationComposant, graphHelper);
         ConnexionComposant connexionComposant = new ConnexionComposant(itineraryRepository);
         _itineraryController = new ItineraryController(itineraryComposant, itineraryComposant);
         _connexionController = new ConnexionController(connexionComposant);

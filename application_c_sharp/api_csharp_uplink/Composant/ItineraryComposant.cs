@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using api_csharp_uplink.Connectors.ExternalEntities;
 using api_csharp_uplink.DirException;
 using api_csharp_uplink.Dto;
 using api_csharp_uplink.Entities;
@@ -7,8 +8,8 @@ using api_csharp_uplink.Repository.Interface;
 
 namespace api_csharp_uplink.Composant;
 
-public class ItineraryComposant(IItineraryRepository itineraryRepository, IStationFinder stationFinder) : 
-    IItineraryRegister, IItineraryFinder
+public class ItineraryComposant(IItineraryRepository itineraryRepository, IStationFinder stationFinder, 
+    IGraphHelper serviceTimeExternal) : IItineraryRegister, IItineraryFinder
 {
     public async Task<Itinerary> AddItinerary(int lineNumber, string orientation, List<ConnexionDto> connexions)
     {
@@ -18,13 +19,8 @@ public class ItineraryComposant(IItineraryRepository itineraryRepository, IStati
         List<string> connexionsSorted = TopologicalSort(connexions).AsParallel()
             .Where(connexion => connexion.Length > 0).ToList();
         
-        List<Connexion> connexionsList = [..new Connexion[connexionsSorted.Count]];
-        await Parallel.ForAsync(0, connexionsSorted.Count,
-            async (indexConnexion, _) =>
-            {
-                Connexion connexion = await GetConnexions(lineNumber, orientation, connexionsSorted[indexConnexion]);
-                connexionsList[indexConnexion] = connexion;
-            });
+        List<Station> stations = await GetAllStation(connexionsSorted);
+        List<Connexion> connexionsList = await GetAllConnexions(lineNumber, orientation, stations);
         
         Itinerary itinerary = new Itinerary(lineNumber, orientation, connexionsList);
         return await itineraryRepository.AddItinerary(itinerary);
@@ -114,9 +110,35 @@ public class ItineraryComposant(IItineraryRepository itineraryRepository, IStati
         return result;
     }
     
-    private async Task<Connexion> GetConnexions(int lineNumber, string orientation, string nameStation)
+    private async Task<List<Station>> GetAllStation(List<string> connexionsSorted)
     {
-        Station station = await stationFinder.GetStation(nameStation);
-        return new Connexion(lineNumber, orientation, station, 5, 5);
+        List<Station> stations = [..new Station[connexionsSorted.Count]];
+        
+        await Parallel.ForAsync(0, connexionsSorted.Count, async (indexStation, _) =>
+        {
+            Station station = await stationFinder.GetStation(connexionsSorted[indexStation]);
+            stations[indexStation] = station;
+        });
+        
+        return stations;
+    }
+    
+    private async Task<List<Connexion>> GetAllConnexions(int lineNumber, string orientation, List<Station> stations)
+    {
+        List<Connexion> connexionsList = [..new Connexion[stations.Count]];
+        
+        await Parallel.ForAsync(0, stations.Count - 1, async (indexConnexion, _) =>
+        {
+            TimeDistance timeDistance = await serviceTimeExternal.GetTimeAndDistance(stations[indexConnexion].Position, 
+                stations[indexConnexion + 1].Position);
+            
+            connexionsList[indexConnexion] = new Connexion(lineNumber, orientation, stations[indexConnexion], 
+                timeDistance.Time, timeDistance.Distance);
+        });
+        
+        connexionsList[stations.Count - 1] = new Connexion(lineNumber, orientation, stations[^1], 
+            0, 0.0);
+
+        return connexionsList;
     }
 }

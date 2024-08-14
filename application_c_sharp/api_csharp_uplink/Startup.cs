@@ -1,3 +1,6 @@
+using api_csharp_uplink.Connectors;
+using api_csharp_uplink.Settings;
+
 namespace api_csharp_uplink;
 
 using System.Reflection;
@@ -29,8 +32,10 @@ public class Startup(IConfiguration configuration)
         services.AddScoped<IItineraryFinder, ItineraryComposant>();
         services.AddScoped<IConnexionRepository, ItineraryRepository>();
         services.AddScoped<IConnexionFinder, ConnexionComposant>();
+        services.AddScoped<IGraphHelper, GraphHelperService>();
         services.AddSingleton<IGlobalInfluxDb, GlobalInfluxDb>();
         services.Configure<InfluxDbSettings>(configuration.GetSection("InfluxDB"));
+        services.Configure<GraphHopperSettings>(configuration.GetSection("GraphHopper"));
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen(c =>
         {
