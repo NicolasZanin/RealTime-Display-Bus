@@ -13,94 +13,97 @@ public class ItineraryController(IItineraryRegister itineraryRegister, IItinerar
     [HttpPost]
     [ProducesResponseType(typeof(ItineraryDto), 201)]
     [ProducesResponseType(400)]
-    public async Task<IActionResult> AddItineraire(ItineraryDto itineraryDto)
+    [ProducesResponseType(500)]
+    public async Task<IActionResult> AddItinerary(ItineraryDto itineraryDto)
     {
         try
         {
-            // TODO Convert Itinerary
             Itinerary itinerary =
-                await itineraryRegister.AddItinerary(itineraryDto.LineNumber, itineraryDto.Orientation, null);
-            return Created($"", null);
+                await itineraryRegister.AddItinerary(itineraryDto.LineNumber, itineraryDto.Orientation, itineraryDto.Connexions);
+            return Created($"{itinerary.lineNumber}/{itinerary.orientation.ToString()}", ConvertItineraryToDto(itinerary));
         }
         catch (Exception e)
         {
             return ErrorManager.HandleError(e);
         }
     }
-    /*[HttpPost]
-    [ProducesResponseType(typeof(ConnexionBeetweenStationDto), 201)]
-    [ProducesResponseType(400)]
-    public async Task<IActionResult> AddLink(ConnexionBeetweenStationDto connexionBeetweenStation)
-    {
-        try
-        {
-            Link linkAdd =
-                await addItinerary.AddLink(connexionBeetweenStation.NameStation1, connexionBeetweenStation.NameStation2, connexionBeetweenStation.LineNumber, connexionBeetweenStation.Orientation);
-            return Created($"", ConvertLinkToLinkDto(linkAdd));
-        }
-        catch (Exception e)
-        {
-            return ErrorManager.HandleError(e);
-        }
-    }
-
-    [HttpGet("{nameStation1}/{nameStation2}/{lineNumber:int}")]
-    [ProducesResponseType(typeof(ConnexionBeetweenStationDto), 200)]
+    
+    [HttpGet("{lineNumber:int}/{orientation}")]
+    [ProducesResponseType(typeof(ItineraryDto), 200)]
     [ProducesResponseType(400)]
     [ProducesResponseType(404)]
-    public async Task<IActionResult> FindLink(string nameStation1, string nameStation2, int lineNumber)
+    [ProducesResponseType(500)]
+    public async Task<IActionResult> FindItinerary(int lineNumber, string orientation)
     {
         try
         {
-            Link link = await linkFinder.FindLink(nameStation1, nameStation2, lineNumber);
-            return Ok(ConvertLinkToLinkDto(link));
+            Itinerary itinerary = await itineraryFinder.FindItinerary(lineNumber, orientation);
+            return Ok(ConvertItineraryToDto(itinerary));
         }
         catch (Exception e)
         {
             return ErrorManager.HandleError(e);
         }
     }
-
-    [HttpGet("{lineNumber:int}")]
-    [ProducesResponseType(typeof(ConnexionBeetweenStationDto), 200)]
+    
+    [HttpGet("{lineNumber:int}/{orientation}/{station1}/{station2}")]
+    [ProducesResponseType(typeof(ItineraryDto), 200)]
     [ProducesResponseType(400)]
-    public async Task<IActionResult> FindLinksByLineNumber(int lineNumber)
+    [ProducesResponseType(404)]
+    [ProducesResponseType(500)]
+    public async Task<IActionResult> FindItineraryBetweenStation(int lineNumber, string orientation, 
+        string station1, string station2)
     {
         try
         {
-            List<Link> links = await linkFinder.FindLinksByLineNumber(lineNumber);
-            return Ok(links.Select(ConvertLinkToLinkDto));
+            Itinerary itinerary = await itineraryFinder.FindItineraryBetweenStation(lineNumber, orientation, station1, station2);
+            return Ok(ConvertItineraryToDto(itinerary));
         }
         catch (Exception e)
         {
             return ErrorManager.HandleError(e);
         }
     }
-
-    [HttpGet]
-    [ProducesResponseType(typeof(ConnexionBeetweenStationDto), 200)]
-    public async Task<IActionResult> FindAllLinks()
+    
+    [HttpDelete("{lineNumber:int}/{orientation}")]
+    [ProducesResponseType(204)]
+    [ProducesResponseType(400)]
+    [ProducesResponseType(500)]
+    public async Task<IActionResult> DeleteItinerary(int lineNumber, string orientation)
     {
         try
         {
-            List<Link> links = await linkFinder.FindAllLinks();
-            return Ok(links.Select(ConvertLinkToLinkDto));
+            bool deleted = await itineraryRegister.DeleteItinerary(lineNumber, orientation);
+            Console.WriteLine(deleted);
+            return deleted? NoContent() :  StatusCode(500, "An error occurred while deleting the itinerary.");
         }
         catch (Exception e)
         {
             return ErrorManager.HandleError(e);
         }
     }
-
-
-    private static ConnexionBeetweenStationDto ConvertLinkToLinkDto(Link link)
+    
+    private static ItineraryDto ConvertItineraryToDto(Itinerary itinerary)
     {
-        return new ConnexionBeetweenStationDto
+        List<ConnexionDto> connexionDtos = [..new ConnexionDto[itinerary.connexions.Count - 1]];
+        
+        Parallel.For(0, itinerary.connexions.Count - 1,i =>
         {
-            NameStation1 = link.nameStation1,
-            NameStation2 = link.nameStation2,
-            LineNumber = link.lineNumber,
-            Orientation = link.orientation.ToString(),
+            Connexion connexionCurrent = itinerary.connexions[i];
+            Connexion connexionNext = itinerary.connexions[i + 1];
+
+            connexionDtos[i] = new ConnexionDto
+            {
+                CurrentNameStation = connexionCurrent.stationCurrent.NameStation,
+                NextNameStation = connexionNext.stationCurrent.NameStation,
+            };
+        });
+        
+        return new ItineraryDto
+        {
+            LineNumber = itinerary.lineNumber,
+            Orientation = itinerary.orientation.ToString(),
+            Connexions = connexionDtos
         };
-    }*/
+    }
 }

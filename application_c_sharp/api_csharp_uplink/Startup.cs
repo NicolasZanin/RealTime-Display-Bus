@@ -6,6 +6,7 @@ using Repository;
 using DB;
 using Interface;
 using Microsoft.OpenApi.Models;
+using api_csharp_uplink.Repository.Interface;
 
 public class Startup(IConfiguration configuration)
 {
@@ -23,10 +24,11 @@ public class Startup(IConfiguration configuration)
         services.AddScoped<IStationRepository, StationRepository>();
         services.AddScoped<IStationRegister, StationComposant>();
         services.AddScoped<IStationFinder, StationComposant>();
-        services.AddScoped<ILinkRepository, LinkRepository>();
-        services.AddScoped<ILinkRegistration, LinkComposant>();
-        services.AddScoped<IAddLink, TimeEngine>();
-        services.AddScoped<ILinkFinder, LinkComposant>();
+        services.AddScoped<IItineraryRepository, ItineraryRepository>();
+        services.AddScoped<IItineraryRegister, ItineraryComposant>();
+        services.AddScoped<IItineraryFinder, ItineraryComposant>();
+        services.AddScoped<IConnexionRepository, ItineraryRepository>();
+        services.AddScoped<IConnexionFinder, ConnexionComposant>();
         services.AddSingleton<IGlobalInfluxDb, GlobalInfluxDb>();
         services.Configure<InfluxDbSettings>(configuration.GetSection("InfluxDB"));
         services.AddEndpointsApiExplorer();
