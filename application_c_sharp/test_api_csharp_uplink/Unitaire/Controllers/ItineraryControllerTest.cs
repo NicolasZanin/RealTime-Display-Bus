@@ -46,7 +46,8 @@ public class ItineraryControllerTest
 
         IItineraryRepository itineraryRepository = new DbTestItinerary();
         IGraphHelper graphHelper = new GraphHopperTest();
-        ItineraryComposant itineraryComposant = new ItineraryComposant(itineraryRepository, stationComposant, graphHelper);
+        IGraphItinerary graphItinerary = new GraphComposant();
+        ItineraryComposant itineraryComposant = new ItineraryComposant(itineraryRepository, stationComposant, graphHelper, graphItinerary);
         _itineraryController = new ItineraryController(itineraryComposant, itineraryComposant);
     }
 

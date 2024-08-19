@@ -31,7 +31,8 @@ public class ConnexionComposantTest
 
         DbTestItinerary itineraryRepository = new DbTestItinerary();
         IGraphHelper graphHelper = new GraphHopperTest();
-        _itineraryRegister = new ItineraryComposant(itineraryRepository, stationComposant, graphHelper);
+        IGraphItinerary graphItinerary = new GraphComposant();
+        _itineraryRegister = new ItineraryComposant(itineraryRepository, stationComposant, graphHelper, graphItinerary);
         _connexionComposant = new ConnexionComposant(itineraryRepository);
     }
 

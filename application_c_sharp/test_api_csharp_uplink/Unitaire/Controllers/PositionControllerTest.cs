@@ -17,7 +17,13 @@ public class PositionControllerTest
     public PositionControllerTest()
     {
         IPositionRepository positionRepository = new DbTestPosition();
-        PositionComposant positionRegister = new(positionRepository);
+        CardComposant cardComposant = new(new DbTestCard());
+        _ = cardComposant.CreateCard(5, "0").Result;
+        _ = cardComposant.CreateCard(5, "1").Result;
+        
+        GraphComposant graphComposant = new GraphComposant();
+        IPositionProcessor positionProcessor = new TimeComposant(graphComposant, graphComposant, cardComposant);
+        PositionComposant positionRegister = new(positionRepository, positionProcessor);
         _positionController = new PositionController(positionRegister);
     }
 

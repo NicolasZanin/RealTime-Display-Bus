@@ -29,8 +29,9 @@ public class ItineraryComposantTest
             _ = stationComposant.AddStation(i * 5.0, i * 4.0, $"Station{i}").Result;
 
         IItineraryRepository itineraryRepository = new DbTestItinerary();
-        IGraphHelper graphHelper = new GraphHopperTest();
-        _itineraryComposant = new ItineraryComposant(itineraryRepository, stationComposant, graphHelper);
+        IGraphHelper graphHelper = new GraphHopperTest();        
+        IGraphItinerary graphItinerary = new GraphComposant();
+        _itineraryComposant = new ItineraryComposant(itineraryRepository, stationComposant, graphHelper, graphItinerary);
     }
     
     [Fact]
