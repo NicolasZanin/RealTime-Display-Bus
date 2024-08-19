@@ -34,7 +34,10 @@ public class Startup(IConfiguration configuration)
         services.AddScoped<IConnexionRepository, ItineraryRepository>();
         services.AddScoped<IConnexionFinder, ConnexionComposant>();
         services.AddScoped<IGraphHelper, GraphHelperService>();
+        services.AddScoped<IPositionProcessor, TimeComposant>();
         services.AddSingleton<IGlobalInfluxDb, GlobalInfluxDb>();
+        services.AddSingleton<IGraphPosition, GraphComposant>();
+        services.AddSingleton<IGraphItinerary, GraphComposant>();
         services.Configure<InfluxDbSettings>(configuration.GetSection("InfluxDB"));
         services.Configure<GraphHopperSettings>(configuration.GetSection("GraphHopper"));
         services.AddEndpointsApiExplorer();

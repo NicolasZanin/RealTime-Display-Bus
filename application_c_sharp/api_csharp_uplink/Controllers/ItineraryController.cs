@@ -24,6 +24,7 @@ public class ItineraryController(IItineraryRegister itineraryRegister, IItinerar
         }
         catch (Exception e)
         {
+            Console.WriteLine(e.Message);
             return ErrorManager.HandleError(e);
         }
     }
@@ -42,6 +43,7 @@ public class ItineraryController(IItineraryRegister itineraryRegister, IItinerar
         }
         catch (Exception e)
         {
+            Console.WriteLine(e.Message);
             return ErrorManager.HandleError(e);
         }
     }
@@ -61,6 +63,7 @@ public class ItineraryController(IItineraryRegister itineraryRegister, IItinerar
         }
         catch (Exception e)
         {
+            Console.WriteLine(e.Message);
             return ErrorManager.HandleError(e);
         }
     }
@@ -79,6 +82,7 @@ public class ItineraryController(IItineraryRegister itineraryRegister, IItinerar
         }
         catch (Exception e)
         {
+            Console.WriteLine(e.Message);
             return ErrorManager.HandleError(e);
         }
     }

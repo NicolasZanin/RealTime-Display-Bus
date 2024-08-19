@@ -45,8 +45,6 @@ public class GraphHelperService(IOptions<GraphHopperSettings> graphHopperSetting
     
     public async Task<TimeDistance> GetTimeAndDistance(Position position1, Position position2)
     {
-        Console.WriteLine(graphHopperSettings.Value.Use + " " + graphHopperSettings.Value.Url + " " + 
-                          graphHopperSettings.Value.Token);
         try
         {
             if (!graphHopperSettings.Value.Use) 

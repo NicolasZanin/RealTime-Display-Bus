@@ -9,8 +9,15 @@ public class TimeComposant(IGraphPosition graphPosition, IGraphItinerary graphIt
 {
     public async Task<int> RegisterPositionCard(PositionCard positionCard)
     {
-        Card card = await cardFinder.GetCardByDevEuiCard(positionCard.DevEuiCard);
-        return await graphPosition.RegisterPositionCard(card, positionCard.Position);
+        try
+        {
+            Card card = await cardFinder.GetCardByDevEuiCard(positionCard.DevEuiCard);
+            return await graphPosition.RegisterPositionCard(card, positionCard.Position);
+        }
+        catch (NotFoundException)
+        {
+            return -1;
+        }
     }
 
     public async Task<int> GetTimeBetweenStations(int lineNumber, string nameStation1, string nameStation2)

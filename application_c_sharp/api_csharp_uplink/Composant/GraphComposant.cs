@@ -37,9 +37,7 @@ public class GraphComposant : IGraphPosition, IGraphItinerary
     {
         LinkedList<Connexion> connexions = new(itinerary.connexions);
         LineOrientation lineOrientation = new(itinerary.lineNumber, itinerary.orientation);
-        bool add = _graph.TryAdd(lineOrientation, connexions);
-        if (add == false)
-            throw new AggregateException();
+        _graph.TryAdd(lineOrientation, connexions);
         return Task.CompletedTask;
     }
 
