@@ -1,10 +1,11 @@
 using api_csharp_uplink.DirException;
 using api_csharp_uplink.Entities;
 using api_csharp_uplink.Interface;
+using api_csharp_uplink.Repository;
 
 namespace api_csharp_uplink.Composant;
 
-public class PositionComposant(IPositionRepository positionRepository) : IPositionRegister
+public class PositionComposant(IPositionRepository positionRepository, IPositionProcessor positionProcessor) : IPositionRegister
 {
     public async Task<PositionCard> AddPosition(double latitude, double longitude, string devEuiCard)
     {
@@ -12,6 +13,8 @@ public class PositionComposant(IPositionRepository positionRepository) : IPositi
             throw new ValueNotCorrectException("Latitude or longitude is not correct");
         
         PositionCard positionCard = new(new Position(latitude, longitude), devEuiCard);
+        
+        await positionProcessor.RegisterPositionCard(positionCard);
         return await positionRepository.Add(positionCard);
     }
 

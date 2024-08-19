@@ -9,7 +9,7 @@ using api_csharp_uplink.Repository.Interface;
 namespace api_csharp_uplink.Composant;
 
 public class ItineraryComposant(IItineraryRepository itineraryRepository, IStationFinder stationFinder, 
-    IGraphHelper serviceTimeExternal) : IItineraryRegister, IItineraryFinder
+    IGraphHelper serviceTimeExternal, IGraphItinerary graphItinerary) : IItineraryRegister, IItineraryFinder
 {
     public async Task<Itinerary> AddItinerary(int lineNumber, string orientation, List<ConnexionDto> connexions)
     {
@@ -23,6 +23,8 @@ public class ItineraryComposant(IItineraryRepository itineraryRepository, IStati
         List<Connexion> connexionsList = await GetAllConnexions(lineNumber, orientation, stations);
         
         Itinerary itinerary = new Itinerary(lineNumber, orientation, connexionsList);
+        await graphItinerary.RegisterItineraryCard(itinerary);
+        
         return await itineraryRepository.AddItinerary(itinerary);
     }
 
@@ -51,13 +53,14 @@ public class ItineraryComposant(IItineraryRepository itineraryRepository, IStati
                throw new NotFoundException($"Itinerary not found with line {lineNumber} and orientation {orientation}");
     }
     
-    public Task<bool> DeleteItinerary(int lineNumber, string orientation)
+    public async Task<bool> DeleteItinerary(int lineNumber, string orientation)
     {
         if (lineNumber < 1)
             throw new ArgumentOutOfRangeException(nameof(lineNumber), "Line number must be positive");
-        Enum.Parse<Orientation>(orientation);
+        Orientation orientationEnum = Enum.Parse<Orientation>(orientation);
         
-        return itineraryRepository.DeleteItinerary(lineNumber, orientation);
+        await graphItinerary.RemoveItineraryCard(lineNumber, orientationEnum);
+        return await itineraryRepository.DeleteItinerary(lineNumber, orientation);
     }
     
     private static List<string> TopologicalSort(List<ConnexionDto> connexionDtos)

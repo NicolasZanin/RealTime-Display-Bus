@@ -18,6 +18,7 @@ public class Startup(IConfiguration configuration)
         services.AddControllers();
         services.AddScoped<IScheduleRepository, ScheduleRepository>();
         services.AddScoped<IScheduleRegistration, ScheduleComposant>();
+        services.AddScoped<ScheduleComposant>();
         services.AddScoped<IScheduleFinder, ScheduleComposant>();
         services.AddScoped<ICardFinder, CardComposant>();
         services.AddScoped<ICardRegistration, CardComposant>();

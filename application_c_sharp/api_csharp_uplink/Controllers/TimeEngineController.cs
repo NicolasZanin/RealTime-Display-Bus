@@ -1,4 +1,5 @@
 using api_csharp_uplink.Connectors.ExternalEntities;
+using api_csharp_uplink.DirException;
 using api_csharp_uplink.Dto;
 using api_csharp_uplink.Entities;
 using api_csharp_uplink.Interface;
@@ -14,7 +15,7 @@ public class TimeDistanceDto(int time, double distance)
 
 [ApiController]
 [Route("api/[controller]")]
-public class TimeEngineController(IGraphHelper graphHelper) : ControllerBase
+public class TimeEngineController(IGraphHelper graphHelper, ITimeProcessor timeProcessor) : ControllerBase
 {
     [HttpPost]
     [ProducesResponseType(typeof(TimeDistanceDto), 200)]
@@ -36,6 +37,22 @@ public class TimeEngineController(IGraphHelper graphHelper) : ControllerBase
         {
             Console.WriteLine(e.Message);
             return Ok(false);
+        }
+    }
+    
+    [HttpGet("{lineNumber:int}/{station1}/{station2}")]
+    [ProducesResponseType(typeof(int), 200)]
+    [ProducesResponseType(400)]
+    public async Task<IActionResult> GetTimeDistance(int lineNumber, string station1, string station2)
+    {
+        try
+        {
+            int time = await timeProcessor.GetTimeBetweenStations(lineNumber, station1, station2);
+            return Ok(time);
+        }
+        catch (Exception e)
+        {
+            return ErrorManager.HandleError(e);
         }
     }
 }
