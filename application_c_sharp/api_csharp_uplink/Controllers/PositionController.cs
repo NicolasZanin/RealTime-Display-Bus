@@ -38,6 +38,7 @@ public class PositionController(IPositionRegister positionRegister) : Controller
         }
         catch (Exception e)
         {
+            Console.WriteLine(e.Message);
             return ErrorManager.HandleError(e);
         }
     }
@@ -63,6 +64,7 @@ public class PositionController(IPositionRegister positionRegister) : Controller
         }
         catch (Exception e)
         {
+            Console.WriteLine(e.Message);
             return ErrorManager.HandleError(e);
         }
     }
