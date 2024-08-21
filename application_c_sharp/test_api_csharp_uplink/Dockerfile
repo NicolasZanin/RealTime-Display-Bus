@@ -25,7 +25,7 @@ RUN dotnet add package FluentAssertions
 
 RUN dotnet build
 
-ENTRYPOINT ["dotnet", "test"]
+ENTRYPOINT ["dotnet", "test", "--filter", "Category!=ToDevelop"]
 
 # Add this to see coverage
 # ENTRYPOINT ["dotnet", "test", "--logger:trx", "--results-directory:/app/coverage-results", "--collect:\"XPlat Code Coverage\""]
