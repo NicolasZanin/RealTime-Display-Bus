@@ -1,7 +1,6 @@
 using api_csharp_uplink.DirException;
 using api_csharp_uplink.Entities;
 using api_csharp_uplink.Interface;
-using api_csharp_uplink.Repository;
 
 namespace api_csharp_uplink.Composant;
 
@@ -14,7 +13,9 @@ public class PositionComposant(IPositionRepository positionRepository, IPosition
         
         PositionCard positionCard = new(new Position(latitude, longitude), devEuiCard);
         
-        await positionProcessor.RegisterPositionCard(positionCard);
+        // To change into RegisterPositionCard when algorithm graph is test totally and ready
+        await positionProcessor.RegisterPositionOneStation(positionCard.Position);
+        
         return await positionRepository.Add(positionCard);
     }
 

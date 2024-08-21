@@ -12,6 +12,7 @@ public class GraphComposant(IGraphHelper graphHelperService, int timeCache=300) 
 {
     private readonly MemoryCache _cache = new(new MemoryCacheOptions());
     private readonly ConcurrentDictionary<LineOrientation, LinkedList<Connexion>> _graph = new();
+    private TimeStationCard? _oneStation;
     
     public async Task<int> RegisterPositionCard(Card card, Position position)
     {
@@ -48,6 +49,21 @@ public class GraphComposant(IGraphHelper graphHelperService, int timeCache=300) 
         }
 
         return timeCache;
+    }
+
+    public async Task<int> RegisterPositionOneStation(Position positionCard)
+    {
+        Console.WriteLine(_oneStation == null);
+        if (_oneStation == null)
+            return -1;
+        
+        Console.WriteLine(_oneStation.Station.Position);
+        TimeDistance timeDistance = await graphHelperService.GetTimeAndDistance(_oneStation.Station.Position, positionCard);
+        Console.WriteLine(timeDistance);
+        _oneStation = new TimeStationCard(_oneStation.Station, _oneStation.DevEui, timeDistance.Time);
+        
+        return timeDistance.Time;
+
     }
 
     private CardNearStation GetOrientation(CardNearStation lastPositionCard, Station? stationNearest1,
@@ -234,6 +250,20 @@ public class GraphComposant(IGraphHelper graphHelperService, int timeCache=300) 
         return Task.CompletedTask;
     }
 
+    public Task<Station> AddStationGraph(Station station)
+    {
+        _oneStation = new TimeStationCard(station);
+        Console.WriteLine(_oneStation != null);
+        return Task.FromResult(station);
+    }
+
+    public Task<int> GetTimeStation(string nameStation)
+    {
+        if (nameStation == _oneStation?.Station.NameStation)
+            return Task.FromResult(_oneStation.Time);
+        return Task.FromResult(-1);
+    }
+
     public static int GetTimeBetweenStations(LinkedList<Connexion>? connexions, int indexStation1, int indexStation2)
     {
         if (connexions == null || connexions.Count <= indexStation2)
@@ -254,4 +284,11 @@ public class GraphComposant(IGraphHelper graphHelperService, int timeCache=300) 
 
         return time;
     }
+}
+
+public class TimeStationCard(Station station, string devEui = "", int time = -1)
+{
+    public Station Station { get; } = station;
+    public string DevEui { get; set; } = devEui;
+    public int Time { get; set; } = time;
 }

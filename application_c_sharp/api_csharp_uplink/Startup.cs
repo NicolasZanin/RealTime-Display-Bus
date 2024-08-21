@@ -33,11 +33,13 @@ public class Startup(IConfiguration configuration)
         services.AddScoped<IItineraryFinder, ItineraryComposant>();
         services.AddScoped<IConnexionRepository, ItineraryRepository>();
         services.AddScoped<IConnexionFinder, ConnexionComposant>();
-        services.AddScoped<IGraphHelper, GraphHelperService>();
+        services.AddSingleton<IGraphHelper, GraphHelperService>();
         services.AddScoped<IPositionProcessor, TimeComposant>();
+        services.AddScoped<ITimeProcessor, TimeComposant>();
         services.AddSingleton<IGlobalInfluxDb, GlobalInfluxDb>();
         services.AddSingleton<IGraphPosition, GraphComposant>();
-        services.AddSingleton<IGraphItinerary, GraphComposant>();
+        services.AddSingleton<IGraphItinerary>(sp => sp.GetRequiredService<IGraphPosition>() as GraphComposant ?? 
+                                                     throw new InvalidOperationException());
         services.Configure<InfluxDbSettings>(configuration.GetSection("InfluxDB"));
         services.Configure<GraphHopperSettings>(configuration.GetSection("GraphHopper"));
         services.AddEndpointsApiExplorer();

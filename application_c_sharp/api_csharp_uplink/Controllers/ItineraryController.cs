@@ -29,6 +29,33 @@ public class ItineraryController(IItineraryRegister itineraryRegister, IItinerar
         }
     }
     
+    [HttpPost("addOneStation")]
+    [ProducesResponseType(typeof(StationDto), 201)]
+    [ProducesResponseType(400)]
+    [ProducesResponseType(500)]
+    public async Task<IActionResult> AddOneStation(string nameStation)
+    {
+        try
+        {
+            Station station = await itineraryRegister.AddOneStation(nameStation);
+            StationDto stationDtoGraph = new StationDto
+            {
+                NameStation = station.NameStation,
+                Position = new PositionDto
+                {
+                    Longitude = station.Position.Longitude,
+                    Latitude = station.Position.Latitude
+                }
+            };
+            return Created("", stationDtoGraph);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+            return ErrorManager.HandleError(e);
+        }
+    }
+    
     [HttpGet("{lineNumber:int}/{orientation}")]
     [ProducesResponseType(typeof(ItineraryDto), 200)]
     [ProducesResponseType(400)]

@@ -28,6 +28,15 @@ public class ItineraryComposant(IItineraryRepository itineraryRepository, IStati
         return await itineraryRepository.AddItinerary(itinerary);
     }
 
+    public async Task<Station> AddOneStation(string nameStation)
+    {
+        if (string.IsNullOrEmpty(nameStation))
+            throw new ArgumentNullException(nameof(nameStation), "Name station must not be null or empty");
+        Station station = await stationFinder.GetStation(nameStation);
+
+        return await graphItinerary.AddStationGraph(station);
+    }
+
     public async Task<Itinerary> FindItinerary(int lineNumber, string orientation)
     {
         if (lineNumber < 1)

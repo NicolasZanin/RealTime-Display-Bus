@@ -20,6 +20,24 @@ public class TimeComposant(IGraphPosition graphPosition, IGraphItinerary graphIt
         }
     }
 
+    public async Task<int> RegisterPositionOneStation(Position position)
+    {
+        Console.WriteLine("Register position one station");
+        return await graphPosition.RegisterPositionOneStation(position);
+    }
+    
+    public async Task<int> GetTimeToNextStation(string nameStation)
+    {
+        if (string.IsNullOrEmpty(nameStation))
+            throw new ArgumentNullException(nameof(nameStation), "Name of station must not be null or empty.");
+        
+        int time = await graphItinerary.GetTimeStation(nameStation);
+        if (time == -1)
+            throw new NotFoundException("Station not found or position not registered.");
+        
+        return await graphItinerary.GetTimeStation(nameStation);
+    }
+
     public async Task<int> GetTimeBetweenStations(int lineNumber, string nameStation1, string nameStation2)
     {
         if (string.IsNullOrEmpty(nameStation1) || string.IsNullOrEmpty(nameStation2))

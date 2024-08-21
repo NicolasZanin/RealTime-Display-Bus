@@ -62,9 +62,8 @@ public class GraphHelperService(IOptions<GraphHopperSettings> graphHopperSetting
             if (jsonResult == null)
                 throw new RequestExternalServiceException("Error in the request to the external service");
 
-            int time = jsonResult["paths"][0]["time"] / 1000;
-                
-            return new TimeDistance(time, distance);
+            int time = jsonResult["paths"][0]["time"];
+            return new TimeDistance(time < 1000? 1 : time / 1000, distance);
         }
         catch (Exception e)
         {
