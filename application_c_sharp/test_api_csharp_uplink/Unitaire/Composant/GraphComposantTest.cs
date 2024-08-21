@@ -196,4 +196,23 @@ public class GraphComposantTest
         
         Assert.Throws<NotFoundException>(() => _graphItinerary.GetMoreClosestStation(positionCard, null));
     }
+    
+    [Fact]
+    [Trait("Category", "Unit")]
+    public async Task GetTimeToNextOneStationTest()
+    {
+        int time = await _graphItinerary.GetTimeStation("Station1");
+        Assert.Equal(-1, time);
+        
+        Station stationExpect = new Station(new Position(1.0, 2.0), "Station1");
+        Station stationActual = await _graphItinerary.AddStationGraph(stationExpect);
+        Assert.Equal(stationExpect, stationActual);
+        
+        time = await _graphItinerary.GetTimeStation("Station1");
+        Assert.Equal(-1, time); // Car pas de position enregistrer
+        
+        await _graphItinerary.RegisterPositionOneStation(new Position(1.1, 2.1));
+        time = await _graphItinerary.GetTimeStation("Station1");
+        Assert.Equal(5, time);
+    }
 }

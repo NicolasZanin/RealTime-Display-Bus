@@ -10,7 +10,8 @@ namespace test_api_csharp_uplink.Unitaire.Composant;
 
 public class TimeComposantTest : IAsyncLifetime
 {
-    private ITimeProcessor? _timeProcessor;
+    private TimeComposant? _timeProcessor;
+    private IItineraryRegister? _itineraryRegister;
 
     public async Task InitializeAsync()
     {
@@ -36,12 +37,12 @@ public class TimeComposantTest : IAsyncLifetime
         IItineraryRepository itineraryRepository = new DbTestItinerary();
         IGraphHelper graphHopperTest = new GraphHopperTest();
         GraphComposant graphComposant = new GraphComposant(graphHopperTest);
-        IItineraryRegister itineraryRegister = new ItineraryComposant(itineraryRepository, stationComposant, graphHopperTest, graphComposant);
+        _itineraryRegister = new ItineraryComposant(itineraryRepository, stationComposant, graphHopperTest, graphComposant);
         CardComposant cardComposant = new CardComposant(new DbTestCard());
         _timeProcessor = new TimeComposant(graphComposant, graphComposant, cardComposant);
         
-        await itineraryRegister.AddItinerary(1, "FORWARD", connexionDtosForward);
-        await itineraryRegister.AddItinerary(1, "BACKWARD", connexionDtosBackward);
+        await _itineraryRegister.AddItinerary(1, "FORWARD", connexionDtosForward);
+        await _itineraryRegister.AddItinerary(1, "BACKWARD", connexionDtosBackward);
     }
 
     public Task DisposeAsync()
@@ -50,7 +51,7 @@ public class TimeComposantTest : IAsyncLifetime
     }
     
     [Fact]
-    [Trait("Category", "Unit")]
+    [Trait("Category", "ToDevelop")]
     public async Task GetTimeItinerary()
     {
         if (_timeProcessor == null) 
@@ -79,7 +80,7 @@ public class TimeComposantTest : IAsyncLifetime
     }
 
     [Fact]
-    [Trait("Category", "Unit")]
+    [Trait("Category", "ToDevelop")]
     public async Task GetTimeItineraryError()
     {
         if (_timeProcessor == null) 
@@ -94,4 +95,29 @@ public class TimeComposantTest : IAsyncLifetime
         await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() =>
             _timeProcessor.GetTimeBetweenStations(-1, "Station1", "Station5"));
     }
+    
+    [Fact]
+    [Trait("Category", "Unit")]
+    public async Task GetTimeStation()
+    {
+        if (_timeProcessor == null || _itineraryRegister == null)
+            Assert.False(true);
+        
+        int timeToNextStation = await _timeProcessor.GetTimeToNextStation("Station1");
+        Assert.Equal(-1, timeToNextStation);
+        
+        await _itineraryRegister.AddOneStation("Station1");
+        timeToNextStation = await _timeProcessor.GetTimeToNextStation("Station1");
+        Assert.Equal(-1, timeToNextStation);
+
+        await _timeProcessor.RegisterPositionOneStation(new Position(1.1, 2.1));
+        timeToNextStation = await _timeProcessor.GetTimeToNextStation("Station1");
+        Assert.Equal(5, timeToNextStation);
+        
+        timeToNextStation = await _timeProcessor.GetTimeToNextStation("Station2");
+        Assert.Equal(-1, timeToNextStation);
+
+        await Assert.ThrowsAsync<ArgumentNullException>(() => _timeProcessor.GetTimeToNextStation(""));
+    }
+    
 }

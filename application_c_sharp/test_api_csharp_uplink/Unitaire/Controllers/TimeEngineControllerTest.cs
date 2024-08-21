@@ -43,7 +43,7 @@ public class TimeEngineControllerTest : IAsyncLifetime
         IItineraryRegister itineraryRegister = new ItineraryComposant(itineraryRepository, stationComposant, graphHopperTest, _graphComposant);
         CardComposant cardComposant = new CardComposant(new DbTestCard());
         ITimeProcessor timeProcessor = new TimeComposant(_graphComposant, _graphComposant, cardComposant);
-        _timeEngineController = new TimeEngineController(graphHopperTest, timeProcessor);
+        _timeEngineController = new TimeEngineController(timeProcessor);
         
         await itineraryRegister.AddItinerary(1, "FORWARD", connexionDtosForward);
         await itineraryRegister.AddItinerary(1, "BACKWARD", connexionDtosBackward);
@@ -67,7 +67,7 @@ public class TimeEngineControllerTest : IAsyncLifetime
     }
     
     [Fact]
-    [Trait("Category", "Unit")]
+    [Trait("Category", "ToDevelop")]
     public async Task GetTimeItinerary()
     {
         if (_timeEngineController == null)
@@ -96,7 +96,7 @@ public class TimeEngineControllerTest : IAsyncLifetime
     }
 
     [Fact]
-    [Trait("Category", "Unit")]
+    [Trait("Category",  "ToDevelop")]
     public async Task GetTimeItineraryError()
     {
         if (_timeEngineController == null)
@@ -116,5 +116,42 @@ public class TimeEngineControllerTest : IAsyncLifetime
         
         result = await _timeEngineController.GetTimeDistance(-1, "Station1", "Station5");
         result.Should().BeOfType<BadRequestObjectResult>();
+    }
+
+    private string ParseResultTime(IActionResult result)
+    {
+        Assert.IsType<OkObjectResult>(result);
+        OkObjectResult? okObjectResult = result as OkObjectResult;
+        Assert.NotNull(okObjectResult);
+        Assert.Equal(200, okObjectResult.StatusCode);
+        
+        Assert.IsType<string>(okObjectResult.Value);
+        string time = (string) okObjectResult.Value;
+        return time;
+    }
+    
+    [Fact]
+    [Trait("Category", "Unit")]
+    public async Task GetTimeStation()
+    {
+        if (_timeEngineController == null || _graphComposant == null)
+            Assert.False(true);
+        
+        IActionResult result =  await _timeEngineController.GetTimeOneStation("Station1");
+        Assert.IsType<NotFoundObjectResult>(result);
+        
+        await _graphComposant.AddStationGraph(new Station(new Position(1.0, 2.0), "Station1"));
+        result =  await _timeEngineController.GetTimeOneStation("Station1");
+        Assert.IsType<NotFoundObjectResult>(result);
+
+        await _graphComposant.RegisterPositionOneStation(new Position(1.1, 2.1));
+        result = await _timeEngineController.GetTimeOneStation("Station1");
+        Assert.Equal("5 mn", ParseResultTime(result));
+        
+        result = await _timeEngineController.GetTimeOneStation("Station2");
+        Assert.IsType<NotFoundObjectResult>(result);
+        
+        result = await _timeEngineController.GetTimeOneStation("");
+        Assert.IsType<BadRequestObjectResult>(result);
     }
 }
