@@ -1,7 +1,8 @@
 using api_csharp_uplink.Composant;
+using api_csharp_uplink.Connectors;
 using api_csharp_uplink.DirException;
 using api_csharp_uplink.Entities;
-using api_csharp_uplink.Interface;
+using test_api_csharp_uplink.Unitaire.DBTest;
 
 namespace test_api_csharp_uplink.Unitaire.Composant;
 
@@ -9,7 +10,7 @@ public class GraphComposantTest
 {
     private static List<Connexion>? _connexionsForward;
     private static List<Connexion>? _connexionsBackward;
-    private readonly IGraphItinerary graphItinerary = new GraphComposant();
+    private readonly GraphComposant _graphItinerary = new(new GraphHopperTest(true));
 
     public GraphComposantTest()
     {
@@ -84,34 +85,34 @@ public class GraphComposantTest
         
         Itinerary itineraryForward = new Itinerary(1, "FORWARD", _connexionsForward);
         Itinerary itineraryBackward = new Itinerary(1, "BACKWARD", _connexionsBackward);
-        await graphItinerary.RegisterItineraryCard(itineraryForward);
-        await graphItinerary.RegisterItineraryCard(itineraryBackward);
+        await _graphItinerary.RegisterItineraryCard(itineraryForward);
+        await _graphItinerary.RegisterItineraryCard(itineraryBackward);
         
-        int timeBetweenStation = await graphItinerary.GetItineraryTime(1, "Station1", "Station5");
+        int timeBetweenStation = await _graphItinerary.GetItineraryTime(1, "Station1", "Station5");
         Assert.Equal(20, timeBetweenStation);
         
-        timeBetweenStation = await graphItinerary.GetItineraryTime(1, "Station5", "Station1");
+        timeBetweenStation = await _graphItinerary.GetItineraryTime(1, "Station5", "Station1");
         Assert.Equal(20, timeBetweenStation);
         
-        timeBetweenStation = await graphItinerary.GetItineraryTime(1, "StationF2", "StationF4");
+        timeBetweenStation = await _graphItinerary.GetItineraryTime(1, "StationF2", "StationF4");
         Assert.Equal(10, timeBetweenStation);
         
-        timeBetweenStation = await graphItinerary.GetItineraryTime(1, "StationF4", "StationF2");
+        timeBetweenStation = await _graphItinerary.GetItineraryTime(1, "StationF4", "StationF2");
         Assert.Equal(10, timeBetweenStation);
         
-        timeBetweenStation = await graphItinerary.GetItineraryTime(1, "StationF2", "StationB2");
+        timeBetweenStation = await _graphItinerary.GetItineraryTime(1, "StationF2", "StationB2");
         Assert.Equal(-1, timeBetweenStation);
         
-        timeBetweenStation = await graphItinerary.GetItineraryTime(1, "Station1", "StationB2");
+        timeBetweenStation = await _graphItinerary.GetItineraryTime(1, "Station1", "StationB2");
         Assert.Equal(5, timeBetweenStation);
         
-        timeBetweenStation = await graphItinerary.GetItineraryTime(1, "StationB2", "Station1");
+        timeBetweenStation = await _graphItinerary.GetItineraryTime(1, "StationB2", "Station1");
         Assert.Equal(5, timeBetweenStation);
         
-        timeBetweenStation = await graphItinerary.GetItineraryTime(1, "Station1", "Station1");
+        timeBetweenStation = await _graphItinerary.GetItineraryTime(1, "Station1", "Station1");
         Assert.Equal(-1, timeBetweenStation);
         
-        await Assert.ThrowsAsync<NotFoundException>(() => graphItinerary.GetItineraryTime(2, "Station1", "Station5"));
+        await Assert.ThrowsAsync<NotFoundException>(() => _graphItinerary.GetItineraryTime(2, "Station1", "Station5"));
     }
     
     [Fact]
@@ -123,16 +124,76 @@ public class GraphComposantTest
         
         Itinerary itineraryForward = new Itinerary(1, "FORWARD", _connexionsForward);
         Itinerary itineraryBackward = new Itinerary(1, "BACKWARD", _connexionsBackward);
-        await graphItinerary.RegisterItineraryCard(itineraryForward);
-        await graphItinerary.RegisterItineraryCard(itineraryBackward);
+        await _graphItinerary.RegisterItineraryCard(itineraryForward);
+        await _graphItinerary.RegisterItineraryCard(itineraryBackward);
         
-        await graphItinerary.RemoveItineraryCard(1, Orientation.FORWARD);
-        int time = await graphItinerary.GetItineraryTime(1, "Station1", "Station5");
+        await _graphItinerary.RemoveItineraryCard(1, Orientation.FORWARD);
+        int time = await _graphItinerary.GetItineraryTime(1, "Station1", "Station5");
         Assert.Equal(20, time); // The itinerary is still present in the backward orientation
         
-        await graphItinerary.RemoveItineraryCard(1, Orientation.BACKWARD);
+        await _graphItinerary.RemoveItineraryCard(1, Orientation.BACKWARD);
         
-        await Assert.ThrowsAsync<NotFoundException>(() => graphItinerary.GetItineraryTime(1, "Station1", "Station5"));
-        await Assert.ThrowsAsync<NotFoundException>(() => graphItinerary.RemoveItineraryCard(1, Orientation.FORWARD));
+        await Assert.ThrowsAsync<NotFoundException>(() => _graphItinerary.GetItineraryTime(1, "Station1", "Station5"));
+        await Assert.ThrowsAsync<NotFoundException>(() => _graphItinerary.RemoveItineraryCard(1, Orientation.FORWARD));
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void GetMoreClosestStationTest()
+    {
+        if (_connexionsForward == null)
+            Assert.False(true);
+
+        Parallel.For(0, _connexionsForward.Count - 1, i =>
+        {
+            double distance = GraphHelperService.DistanceHaversine(_connexionsForward[i].stationCurrent.Position,
+                _connexionsForward[i + 1].stationCurrent.Position);
+            _connexionsForward[i].distanceToNextStation = distance;
+        });
+        
+        LinkedList<Connexion> linkedList = new LinkedList<Connexion>(_connexionsForward);
+        Position positionCard = new Position(-1, -1);
+        (Station? station1, Station? station2) = _graphItinerary.GetMoreClosestStation(positionCard, linkedList);
+        Assert.Equal("Station1", station2?.NameStation);
+        Assert.Null(station1);
+        
+        positionCard = new Position(1.1, 2.2);
+        (station1, station2) = _graphItinerary.GetMoreClosestStation(positionCard, linkedList);
+        Assert.Equal("Station1", station1?.NameStation);
+        Assert.Equal("StationF2", station2?.NameStation);
+        
+        positionCard = new Position(5.1, 10.2);
+        (station1, station2) = _graphItinerary.GetMoreClosestStation(positionCard, linkedList);
+        Assert.Equal("Station5", station1?.NameStation);
+        Assert.Null(station2);
+        
+        positionCard = new Position(4.8, 9.5);
+        (station1, station2) = _graphItinerary.GetMoreClosestStation(positionCard, linkedList);
+        Assert.Equal("StationF4", station1?.NameStation);
+        Assert.Equal("Station5", station2?.NameStation);
+        
+        positionCard = new Position(2.9, 5.9);
+        (station1, station2) = _graphItinerary.GetMoreClosestStation(positionCard, linkedList);
+        Assert.Equal("StationF2", station1?.NameStation);
+        Assert.Equal("StationF3", station2?.NameStation);
+        
+        positionCard = new Position(3.1, 6.2);
+        (station1, station2) = _graphItinerary.GetMoreClosestStation(positionCard, linkedList);
+        Assert.Equal("StationF3", station1?.NameStation);
+        Assert.Equal("StationF4", station2?.NameStation);
+        
+        positionCard = new Position(4.1, 8.1);
+        (station1, station2) = _graphItinerary.GetMoreClosestStation(positionCard, linkedList);
+        Assert.Equal("StationF4", station1?.NameStation);
+        Assert.Equal("Station5", station2?.NameStation);
+        
+        Assert.NotNull(linkedList.First);
+        positionCard = new Position(0.0, 15.0);
+        (station1, station2) = _graphItinerary.GetMoreClosestStation(positionCard, 
+            new LinkedList<Connexion>([linkedList.First.Value]));
+        Assert.Null(station1);
+        Assert.Equal("Station1", station2?.NameStation);
+        
+        Assert.Throws<NotFoundException>(() => _graphItinerary.GetMoreClosestStation(positionCard, null));
     }
 }

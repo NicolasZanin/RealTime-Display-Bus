@@ -1,4 +1,5 @@
 using api_csharp_uplink.Composant;
+using api_csharp_uplink.Connectors;
 using api_csharp_uplink.Controllers;
 using api_csharp_uplink.Dto;
 using api_csharp_uplink.Interface;
@@ -21,7 +22,8 @@ public class PositionControllerTest
         _ = cardComposant.CreateCard(5, "0").Result;
         _ = cardComposant.CreateCard(5, "1").Result;
         
-        GraphComposant graphComposant = new GraphComposant();
+        IGraphHelper graphHelper = new GraphHopperTest();
+        GraphComposant graphComposant = new GraphComposant(graphHelper);
         IPositionProcessor positionProcessor = new TimeComposant(graphComposant, graphComposant, cardComposant);
         PositionComposant positionRegister = new(positionRepository, positionProcessor);
         _positionController = new PositionController(positionRegister);

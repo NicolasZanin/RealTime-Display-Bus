@@ -38,8 +38,8 @@ public class TimeEngineControllerTest : IAsyncLifetime
         List<ConnexionDto> connexionDtosBackward = GenerateConnexion.ConvertConnexionToDto(connexionsBackward);
         
         IItineraryRepository itineraryRepository = new DbTestItinerary();
-        _graphComposant = new GraphComposant();
-        GraphHopperTest graphHopperTest = new GraphHopperTest();
+        IGraphHelper graphHopperTest = new GraphHopperTest();
+        _graphComposant = new GraphComposant(graphHopperTest);
         IItineraryRegister itineraryRegister = new ItineraryComposant(itineraryRepository, stationComposant, graphHopperTest, _graphComposant);
         CardComposant cardComposant = new CardComposant(new DbTestCard());
         ITimeProcessor timeProcessor = new TimeComposant(_graphComposant, _graphComposant, cardComposant);

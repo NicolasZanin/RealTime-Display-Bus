@@ -47,8 +47,10 @@ public class GraphHelperService(IOptions<GraphHopperSettings> graphHopperSetting
     {
         try
         {
+            double distance = DistanceHaversine(position1, position2);
+            
             if (!graphHopperSettings.Value.Use) 
-                return new TimeDistance(5, 5.0);
+                return new TimeDistance(5, distance);
             
             string json = ConvertPositionToRequestGraphHopper(position1, position2);
             StringContent content = new(json, Encoding.UTF8, "application/json");
@@ -61,7 +63,6 @@ public class GraphHelperService(IOptions<GraphHopperSettings> graphHopperSetting
                 throw new RequestExternalServiceException("Error in the request to the external service");
 
             int time = jsonResult["paths"][0]["time"] / 1000;
-            double distance = jsonResult["paths"][0]["distance"];
                 
             return new TimeDistance(time, distance);
         }
@@ -69,5 +70,27 @@ public class GraphHelperService(IOptions<GraphHopperSettings> graphHopperSetting
         {
             throw new RequestExternalServiceException("Error in the request to the external service : " + e.Message);
         }
+    }
+
+    public static double DistanceHaversine(Position position1, Position position2)
+    {
+        double rayonTerre = 6371.0;
+        double piRadian = Math.PI / 180;
+        
+        double lat1Rad = position1.Latitude * piRadian;
+        double lon1Rad = position1.Longitude * piRadian;
+        double lat2Rad = position2.Latitude * piRadian;
+        double lon2Rad = position2.Longitude * piRadian;
+
+        // Différences des latitudes et longitudes
+        double deltaLat = lat2Rad - lat1Rad;
+        double deltaLon = lon2Rad - lon1Rad;
+
+        // Formule de Haversine
+        double a = Math.Sin(deltaLat / 2) * Math.Sin(deltaLat / 2) + Math.Cos(lat1Rad) * Math.Cos(lat2Rad) 
+            * Math.Sin(deltaLon / 2) * Math.Sin(deltaLon / 2);
+        double c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
+        
+        return rayonTerre * c;
     }
 }

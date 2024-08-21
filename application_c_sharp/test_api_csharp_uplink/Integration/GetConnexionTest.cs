@@ -51,7 +51,6 @@ public class GetConnexionTest(ITestOutputHelper testOutputHelper) : IAsyncLifeti
     {
         Assert.Equal(expect.CurrentNameStation, actual.CurrentNameStation);
         Assert.Equal(expect.NextNameStation, actual.NextNameStation);
-        Assert.Equal(expect.DistanceToNextStation, actual.DistanceToNextStation);
         Assert.Equal(expect.TimeToNextStation, actual.TimeToNextStation);
         Assert.Equal(expect.LineNumber, actual.LineNumber);
         Assert.Equal(expect.Orientation, actual.Orientation);

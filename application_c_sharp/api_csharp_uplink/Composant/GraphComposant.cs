@@ -1,4 +1,6 @@
 using System.Collections.Concurrent;
+using api_csharp_uplink.Connectors;
+using api_csharp_uplink.Connectors.ExternalEntities;
 using api_csharp_uplink.DirException;
 using api_csharp_uplink.Entities;
 using api_csharp_uplink.Interface;
@@ -6,31 +8,156 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace api_csharp_uplink.Composant;
 
-public class GraphComposant : IGraphPosition, IGraphItinerary
+public class GraphComposant(IGraphHelper graphHelperService, int timeCache=300) : IGraphPosition, IGraphItinerary
 {
     private readonly MemoryCache _cache = new(new MemoryCacheOptions());
     private readonly ConcurrentDictionary<LineOrientation, LinkedList<Connexion>> _graph = new();
     
-    public GraphComposant(int timeCache=300)
-    {
-         Console.WriteLine(_graph.Count);
-    }
-    public Task<int> RegisterPositionCard(Card card, Position position)
+    public async Task<int> RegisterPositionCard(Card card, Position position)
     {
         _cache.TryGetValue(card.DevEuiCard, out CardNearStation? value);
         
         if (value == null)
         {
             CardNearStation cardNewPosition = new(position);
-            _cache.Set(card.DevEuiCard, cardNewPosition, TimeSpan.FromMinutes(300));
+            _cache.Set(card.DevEuiCard, cardNewPosition, TimeSpan.FromMinutes(timeCache));
         }
         else
         {
             _cache.Remove(card.DevEuiCard);
-            _cache.Set(card.DevEuiCard, value, TimeSpan.FromMinutes(300));
+            _graph.TryGetValue(new LineOrientation(card.LineBus, value.Orientation), out LinkedList<Connexion>? connexions);
+            
+            (Station? station1, Station? station2) = GetMoreClosestStation(position, connexions);
+            
+            if (value.Time == -1)
+                value = GetOrientation(value, station1, station2, position, connexions);
+            
+            if (connexions != null && connexions.Last?.Value.stationCurrent.NameStation == station1?.NameStation)
+                value = new CardNearStation(position, 
+                    value.Orientation == Orientation.FORWARD? Orientation.BACKWARD : 
+                        Orientation.FORWARD, value.Time, value.Distance);
+            else
+                value = new CardNearStation(position, value.Orientation, value.Time, value.Distance);
+            
+            TimeDistance timeDistance = await graphHelperService.GetTimeAndDistance(value.Position, position);
+
+            value = new CardNearStation(position, value.Orientation, timeDistance.Time, timeDistance.Distance);
+            _cache.Set(card.DevEuiCard, value, TimeSpan.FromMinutes(timeCache));
+            
+            return timeDistance.Time;
         }
 
-        return Task.FromResult(300);
+        return timeCache;
+    }
+
+    private CardNearStation GetOrientation(CardNearStation lastPositionCard, Station? stationNearest1,
+        Station? stationNearest2, Position positionActual, LinkedList<Connexion>? connexionsForward)
+    {
+        
+        (Station? lastStationNearest1, Station? lastStationNearest2) = 
+            GetMoreClosestStation(lastPositionCard.Position, connexionsForward);
+        
+        string stationName1 = stationNearest1?.NameStation ?? "";
+        string stationName2 = stationNearest2?.NameStation ?? "";
+        string lastStationName1 = lastStationNearest1?.NameStation ?? "";
+        string lastStationName2 = lastStationNearest2?.NameStation ?? "";
+        
+        LinkedListNode<Connexion>? node = connexionsForward?.First;
+        
+        while (node != null) {
+            if (node.Value.stationCurrent.NameStation == stationName1 || node.Value.stationCurrent.NameStation == stationName2)
+                return new CardNearStation(positionActual, Orientation.BACKWARD);
+            
+            if (node.Value.stationCurrent.NameStation == lastStationName1 || node.Value.stationCurrent.NameStation == lastStationName2)
+                return new CardNearStation(positionActual);
+            
+            node = node.Next;
+        }
+
+        return new CardNearStation(positionActual);
+    }
+
+    public (Station? station1, Station? station2) GetMoreClosestStation(Position positionCard, LinkedList<Connexion>? connexions)
+    {
+        if (connexions == null)
+            throw new NotFoundException("The line is not found");
+        
+        if (connexions.Count == 1)
+            return (null, connexions.First?.Value.stationCurrent);
+        
+        List<double> distances = GetDistanceBetweenStation(positionCard, connexions);
+        return GetClosestStation(distances, connexions);
+    }
+    
+    private List<double> GetDistanceBetweenStation(Position positionCard, LinkedList<Connexion> connexions)
+    {
+        LinkedListNode<Connexion>? linkedConnexions = connexions.First;
+        List<double> distances = [];
+        
+        while (linkedConnexions != null)
+        {
+            Station station = linkedConnexions.Value.stationCurrent;
+            double distance = GraphHelperService.DistanceHaversine(positionCard, station.Position);
+            distances.Add(distance);
+            linkedConnexions = linkedConnexions.Next;
+        }
+
+        return distances;
+    }
+    
+    private (Station? station1, Station? station2) GetClosestStation(List<double> distances, LinkedList<Connexion> connexions)
+    {
+        if (connexions.First == null || connexions.Last == null)
+            return (null, null);
+        
+        double minDistance = Double.MaxValue;
+        int indexMin = -1;
+        
+        for (int i = 0; i < distances.Count; i++)
+        {
+            if (distances[i] >= minDistance) 
+                continue;
+            
+            minDistance = distances[i];
+            indexMin = i;
+        }
+
+        if (indexMin == 0)
+            return distances[1] > connexions.First.Value.distanceToNextStation
+                ? (null, connexions.First.Value.stationCurrent)
+                : (connexions.First.Value.stationCurrent, connexions.First.Next?.Value.stationCurrent);
+        if (indexMin == connexions.Count - 1)
+            return distances[connexions.Count - 2] > connexions.Last.Previous?.Value.distanceToNextStation
+                ? (connexions.Last.Value.stationCurrent, null)
+                : (connexions.Last.Previous?.Value.stationCurrent, connexions.Last.Value.stationCurrent);
+        
+        return GetClosestStationWith2StationMin(indexMin, distances, connexions);
+    }
+    
+    private (Station? station1, Station? station2) GetClosestStationWith2StationMin(int indexMin, List<double> distances, 
+        LinkedList<Connexion> connexions)
+    {
+        int indexCurrent = 0;
+        LinkedListNode<Connexion>? node = connexions.First;
+        
+        while (node != null)
+        {
+            if (indexCurrent == indexMin - 1)
+            {
+                double distanceLastStation = distances[indexMin - 1] - node.Value.distanceToNextStation;
+                double distanceNextStation = distances[indexMin + 1] - node.Next?.Value.distanceToNextStation ?? 0;
+                
+                if (distanceLastStation < distanceNextStation)
+                    return (node.Value.stationCurrent, node.Next?.Value.stationCurrent);
+                
+                return (node.Next?.Value.stationCurrent, node.Next?.Next?.Value.stationCurrent);
+            }
+
+            indexCurrent++;
+            node = node.Next;
+        }
+        
+        return (null, null);
     }
 
     public Task RegisterItineraryCard(Itinerary itinerary)

@@ -18,7 +18,7 @@ public class PositionComposantTest
         _ = cardComposant.CreateCard(5, "0").Result;
         _ = cardComposant.CreateCard(5, "1").Result;
         
-        GraphComposant graphComposant = new GraphComposant();
+        GraphComposant graphComposant = new GraphComposant(new GraphHopperTest());
         IPositionProcessor positionProcessor = new TimeComposant(graphComposant, graphComposant, cardComposant);
         
         _positionComposant = new PositionComposant(positionRepository, positionProcessor);

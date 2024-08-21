@@ -34,8 +34,9 @@ public class TimeComposantTest : IAsyncLifetime
         List<ConnexionDto> connexionDtosBackward = GenerateConnexion.ConvertConnexionToDto(connexionsBackward);
         
         IItineraryRepository itineraryRepository = new DbTestItinerary();
-        GraphComposant graphComposant = new GraphComposant();
-        IItineraryRegister itineraryRegister = new ItineraryComposant(itineraryRepository, stationComposant, new GraphHopperTest(), graphComposant);
+        IGraphHelper graphHopperTest = new GraphHopperTest();
+        GraphComposant graphComposant = new GraphComposant(graphHopperTest);
+        IItineraryRegister itineraryRegister = new ItineraryComposant(itineraryRepository, stationComposant, graphHopperTest, graphComposant);
         CardComposant cardComposant = new CardComposant(new DbTestCard());
         _timeProcessor = new TimeComposant(graphComposant, graphComposant, cardComposant);
         
