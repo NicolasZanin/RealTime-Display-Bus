@@ -102,20 +102,17 @@ public class TimeComposantTest : IAsyncLifetime
     {
         if (_timeProcessor == null || _itineraryRegister == null)
             Assert.False(true);
-        
-        int timeToNextStation = await _timeProcessor.GetTimeToNextStation("Station1");
-        Assert.Equal(-1, timeToNextStation);
+
+        await Assert.ThrowsAsync<NotFoundException>(() => _timeProcessor.GetTimeToNextStation("Station1"));
         
         await _itineraryRegister.AddOneStation("Station1");
-        timeToNextStation = await _timeProcessor.GetTimeToNextStation("Station1");
-        Assert.Equal(-1, timeToNextStation);
+        await Assert.ThrowsAsync<NotFoundException>(() => _timeProcessor.GetTimeToNextStation("Station1"));
 
         await _timeProcessor.RegisterPositionOneStation(new Position(1.1, 2.1));
-        timeToNextStation = await _timeProcessor.GetTimeToNextStation("Station1");
+        int timeToNextStation = await _timeProcessor.GetTimeToNextStation("Station1");
         Assert.Equal(5, timeToNextStation);
         
-        timeToNextStation = await _timeProcessor.GetTimeToNextStation("Station2");
-        Assert.Equal(-1, timeToNextStation);
+        await Assert.ThrowsAsync<NotFoundException>(() => _timeProcessor.GetTimeToNextStation("Station2"));
 
         await Assert.ThrowsAsync<ArgumentNullException>(() => _timeProcessor.GetTimeToNextStation(""));
     }
