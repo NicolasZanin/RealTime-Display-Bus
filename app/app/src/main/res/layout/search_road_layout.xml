@@ -83,12 +83,31 @@
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+    <EditText
+        android:id="@+id/searchStop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:hint="Search a stop..."
+        android:textColorHint="@color/blacktransparent"
+        android:textColor="@color/black"
+        android:textSize="30dp"
+        android:layout_marginTop="10dp"
+        android:paddingLeft="100px"
+        android:paddingRight="100px"
+        android:background="@drawable/edittextround"
+        app:layout_constraintTop_toBottomOf="@id/orangeHeader"
 
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+
+
+
+        />
     <ListView
         android:layout_width="match_parent"
-        android:layout_height="500sp"
+        android:layout_height="450sp"
         app:layout_constraintBottom_toTopOf="@id/bottomNavigationBar"
-        app:layout_constraintTop_toBottomOf="@id/orangeHeader"
+        app:layout_constraintTop_toBottomOf="@id/searchStop"
 
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"

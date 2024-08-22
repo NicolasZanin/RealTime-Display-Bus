@@ -1,9 +1,15 @@
 package com.example.myapplication.Activity;
 
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -14,6 +20,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.myapplication.Adapter.RoadInfoAdapter;
 import com.example.myapplication.Adapter.SearchRoadAdapter;
 import com.example.myapplication.Item.BusStopItem;
+import com.example.myapplication.Item.DataBase;
 import com.example.myapplication.Item.RoadInfoItem;
 import com.example.myapplication.R;
 
@@ -24,15 +31,20 @@ import java.util.List;
 
 public class SearchRoadActivity extends AppCompatActivity {
 
-    private ArrayList<BusStopItem> busStopItems = new ArrayList<>();
+    private ArrayList<BusStopItem> busStopItems ;
     private SearchRoadAdapter searchRoadAdapter;
     private RoadInfoAdapter roadInfoAdapter;
+    private ListView listRoads;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.search_road_layout);
-        createLists();
-        ListView listRoads = findViewById(R.id.listRoads);
+
+        busStopItems = new ArrayList<>();
+        busStopItems.addAll(DataBase.getInstance().getStations());
+
+
+        listRoads = findViewById(R.id.listRoads);
         TextView departure = findViewById(R.id.departure);
         TextView arrival = findViewById(R.id.arrival);
         searchRoadAdapter = new SearchRoadAdapter(this,busStopItems,departure,arrival);
@@ -72,40 +84,57 @@ public class SearchRoadActivity extends AppCompatActivity {
 
             }
         });
+        EditText editText =  findViewById(R.id.searchStop);
+        editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (hasFocus) {
+                    listRoads.setVisibility(View.INVISIBLE);
+                    listRoads.setClickable(false);
+                } else {
+                    listRoads.setVisibility(View.VISIBLE);
+                    listRoads.setClickable(true);
+                }
+            }
+        });
+        editText.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                if (event.getAction() == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
+
+                    String stationSearch = editText.getText().toString();
+                    ArrayList<BusStopItem> tmp = new ArrayList<>();
+
+                    for(BusStopItem busStopItem : busStopItems){
+                        if(busStopItem.getName().contains(stationSearch)){
+                            tmp.add(busStopItem);
+                        }
+                    }
+                    listRoads.setVisibility(View.VISIBLE);
+                    listRoads.setClickable(true);
+                    searchRoadAdapter = new SearchRoadAdapter(SearchRoadActivity.this,tmp,departure,arrival);
+                    listRoads.setAdapter(searchRoadAdapter);
+                    return true;
+                }
+                return false;
+            }
+        });
     }
-    private void createLists(){
-        List<String> listDepart = new ArrayList<>();
-        listDepart.add("Số 34 Nguyễn Lương Bằng");
-        listDepart.add("Kế trụ 504");
-        listDepart.add("Name Station 5");
-        listDepart.add("Số 128 Tôn Đức Thắng");
-        listDepart.add("Kế trụ 504");
-        listDepart.add("Name Station 9");
-
-        List<String> horaires = new ArrayList<>();
-        horaires.add("5h38");
-        horaires.add("5h53");
-        horaires.add("6h08");
-        horaires.add("6h18");
-        horaires.add("6h28");
-        horaires.add("6h38");
-        horaires.add("6h53");
-        horaires.add("7h08");
-        horaires.add("7h28");
-        horaires.add("7h48");
-        horaires.add("8h08");
-        horaires.add("8h38");
-        horaires.add("9h08");
-        horaires.add("9h38");
-        horaires.add("10h08");
-
-        HashMap<String,List<String>> hashMap = new HashMap<>();
-
-        hashMap.put("5",horaires);
-        for(int i = 0;i<listDepart.size();i++){
-            busStopItems.add(new BusStopItem(listDepart.get(i),"Danang,Vietnam",hashMap));
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent event) {
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            View view = getCurrentFocus();
+            if (view instanceof EditText) {
+                Rect outRect = new Rect();
+                view.getGlobalVisibleRect(outRect);
+                if (!outRect.contains((int)event.getRawX(), (int)event.getRawY())) {
+                    view.clearFocus();
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                }
+            }
         }
-
+        return super.dispatchTouchEvent(event);
     }
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void findRoads(BusStopItem b1, BusStopItem b2){
@@ -133,7 +162,7 @@ public class SearchRoadActivity extends AppCompatActivity {
                     roadList.add(new RoadInfoItem(s,
                             b1.getSchedulesAller().get(s).get(i),
                             b2.getSchedulesAller().get(s).get(i),
-                            minutesSinceMidnight-convertScheduleToInt(b1.getSchedulesAller().get(s).get(i))));
+                            convertScheduleToInt(b1.getSchedulesAller().get(s).get(i))-minutesSinceMidnight));
                 }
             }
         }

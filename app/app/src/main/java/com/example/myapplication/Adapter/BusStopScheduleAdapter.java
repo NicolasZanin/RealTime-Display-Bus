@@ -17,14 +17,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
-public class BusStopScheduleAdapter extends ArrayAdapter<Map.Entry<String, List<String>>> {
+public class BusStopScheduleAdapter extends ArrayAdapter<Map.Entry<Integer, List<String>>> {
 
     private Context mContext;
     private int mResource;
 
 
-    public BusStopScheduleAdapter(@NonNull Context context, int resource, @NonNull HashMap<String, List<String>> hashMap) {
+    public BusStopScheduleAdapter(@NonNull Context context, int resource, @NonNull TreeMap<Integer, List<String>> hashMap) {
         super(context, resource, new ArrayList<>(hashMap.entrySet()));
         this.mContext = context;
         this.mResource = resource;
@@ -44,10 +45,10 @@ public class BusStopScheduleAdapter extends ArrayAdapter<Map.Entry<String, List<
             holder = (ViewHolder) convertView.getTag();
         }
 
-        Map.Entry<String, List<String>> entry = getItem(position);
-
+        Map.Entry<Integer, List<String>> entry = getItem(position);
+        System.out.println(entry.getKey());
         if (entry != null) {
-            holder.keyTextView.setText(entry.getKey());
+            holder.keyTextView.setText(""+entry.getKey());
             MinuteAdapter minuteAdapter = new MinuteAdapter(mContext, entry.getValue());
             holder.minutesListView.setAdapter(minuteAdapter);
         }

@@ -4,16 +4,20 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+//This is the class for the BusStop we will retrieve from the API
 public class BusStopItem implements Parcelable {
 
     private String name;
     private String city;
+    //Schedules of the stop for the first direction of the line
     private HashMap<String,List<String>> schedulesAller;
+    //Schedules of the stop for the opposite direction of the line
     private HashMap<String,List<String>> schedulesRetour;
     public BusStopItem(String name, String city) {
         this.name = name;
@@ -25,6 +29,7 @@ public class BusStopItem implements Parcelable {
         this.name = name;
         this.city = city;
         this.schedulesAller = schedules;
+        schedulesRetour = new HashMap<>();
     }
     public BusStopItem(String name, String city,HashMap<String,List<String>> schedulesA,HashMap<String,List<String>> schedulesR) {
         this.name = name;
@@ -32,7 +37,7 @@ public class BusStopItem implements Parcelable {
         this.schedulesAller = schedulesA;
         this.schedulesRetour = schedulesR;
     }
-
+    //Parcelable constructor
     protected BusStopItem(Parcel in) {
         name = in.readString();
         city = in.readString();
@@ -66,6 +71,16 @@ public class BusStopItem implements Parcelable {
 
     public void setCity(String city) {
         this.city = city;
+    }
+    //An equals function just for the name of the bus stop
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+
+        BusStopItem station = (BusStopItem) obj;
+
+        return name != null ? name.equals(station.name) : station.name == null;
     }
 
     public HashMap<String, List<String>> getSchedulesAller() {

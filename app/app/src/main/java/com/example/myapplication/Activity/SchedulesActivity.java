@@ -11,8 +11,10 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.myapplication.Adapter.BusStopAdapter;
+import com.example.myapplication.Adapter.BusStopGeneralAdapter;
 import com.example.myapplication.Adapter.LineListAdapter;
 import com.example.myapplication.Item.BusStopItem;
+import com.example.myapplication.Item.DataBase;
 import com.example.myapplication.Item.LineList;
 import com.example.myapplication.R;
 
@@ -28,7 +30,7 @@ public class SchedulesActivity extends AppCompatActivity {
     private ArrayList<LineList> lineListsFavorite = new ArrayList<>();
     private ArrayList<BusStopItem> busStopItemList = new ArrayList<>();
     LineListAdapter lineListAdapter ;
-    BusStopAdapter busStopAdapter;
+    BusStopGeneralAdapter busStopAdapter;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -36,6 +38,7 @@ public class SchedulesActivity extends AppCompatActivity {
         setContentView(R.layout.schedules_layout);
         createLists();
         changeTitlecolor("line");
+        lineLists = (ArrayList<LineList>) DataBase.getInstance().getLines();
         lineListAdapter = new LineListAdapter(SchedulesActivity.this,lineLists);
         ListView listView = findViewById(R.id.listSchedules);
         listView.setAdapter(lineListAdapter);
@@ -85,7 +88,8 @@ public class SchedulesActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 changeTitlecolor("busstop");
-                busStopAdapter = new BusStopAdapter(SchedulesActivity.this,busStopItemList);
+                busStopItemList = (ArrayList<BusStopItem>) DataBase.getInstance().getStations();
+                busStopAdapter = new BusStopGeneralAdapter(SchedulesActivity.this,busStopItemList);
                 listView.setAdapter(busStopAdapter);
 
             }

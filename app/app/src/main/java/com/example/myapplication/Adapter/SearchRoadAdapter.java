@@ -48,7 +48,7 @@ public class SearchRoadAdapter extends ArrayAdapter<BusStopItem> {
             @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
             public void onClick(View v) {
-                    System.out.println(departure.getText());
+
                 if(departure.getText().equals("where do you want to start...")){
                     departure.setText(busStopItem.getName());
                     departure.setTextColor(Color.parseColor("#000000"));

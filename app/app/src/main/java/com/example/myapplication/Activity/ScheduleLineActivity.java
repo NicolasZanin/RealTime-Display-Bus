@@ -15,6 +15,7 @@ import com.example.myapplication.Adapter.BusStopAdapter;
 import com.example.myapplication.Adapter.TrafficInfoAdapter;
 import com.example.myapplication.Adapter.TrafficInfoLineAdapter;
 import com.example.myapplication.Item.BusStopItem;
+import com.example.myapplication.Item.DataBase;
 import com.example.myapplication.Item.LineList;
 import com.example.myapplication.Item.TrafficInfoItem;
 import com.example.myapplication.R;
@@ -31,11 +32,12 @@ public class ScheduleLineActivity extends AppCompatActivity {
     private ArrayList<BusStopItem> busStopItemList = new ArrayList<>();
     Boolean sens = true;
     private String nbLine;
+    private LineList lineList;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.schedule_line_activity);
-        LineList lineList = getIntent().getParcelableExtra("lineList");
+        lineList = getIntent().getParcelableExtra("lineList");
         TextView t1 = findViewById(R.id.busStopFirst);
         t1.setText("from: "+lineList.getDepart());
         TextView t2 = findViewById(R.id.busStopSecond);
@@ -45,8 +47,9 @@ public class ScheduleLineActivity extends AppCompatActivity {
         nbLine = lineList.getNbLine();
         changeTitlecolor("busStop");
         ListView listView = findViewById(R.id.listSchedulesLine);
-        createLists();
-        createAlert();
+
+        outerList = (ArrayList<TrafficInfoItem>) DataBase.getInstance().getAlerts();
+        createList();
         busStopAdapter = new BusStopAdapter(this,busStopItemList);
         listView.setAdapter(busStopAdapter);
         findViewById(R.id.homeButton).setOnClickListener(new View.OnClickListener() {
@@ -76,14 +79,19 @@ public class ScheduleLineActivity extends AppCompatActivity {
         findViewById(R.id.switchStationBTN).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 TextView t1 = findViewById(R.id.busStopFirst);
                 String busStop1 = t1.getText().toString().split(":")[1];
+
                 TextView t2 = findViewById(R.id.busStopSecond);
                 String busStop2 = t2.getText().toString().split(":")[1];
-                t1.setText("from:"+busStop1);
-                t2.setText("to:"+busStop2);
-                sens = !sens;
 
+                t1.setText("from:"+busStop2);
+                t2.setText("to:"+busStop1);
+                sens = !sens;
+                createList();
+                busStopAdapter = new BusStopAdapter(ScheduleLineActivity.this,busStopItemList);
+                listView.setAdapter(busStopAdapter);
             }
         });
         findViewById(R.id.busStopBTN).setOnClickListener(new View.OnClickListener() {
@@ -130,68 +138,38 @@ public class ScheduleLineActivity extends AppCompatActivity {
 
         }
     }
-    private void createLists(){
-        List<Integer> listImage = new ArrayList<>();
-        listImage.add(R.drawable.line1);
-        listImage.add(R.drawable.line2);
-        listImage.add(R.drawable.line3);
-        listImage.add(R.drawable.line4);
-        listImage.add(R.drawable.line5);
-        listImage.add(R.drawable.line6);
+    private void createList(){
+        List<BusStopItem> tmp = new ArrayList<>();
+        tmp.addAll(DataBase.getInstance().getStations());
+        if(sens) {
+            for (BusStopItem stop : DataBase.getInstance().getStations()) {
+                if ((stop.getSchedulesAller().get(nbLine) == null && stop.getSchedulesRetour().get(nbLine) == null) ||
+                        (stop.getSchedulesAller().get(nbLine) == null
+                        || stop.getSchedulesAller().get(nbLine).isEmpty())) {
+                    tmp.remove(stop);
+                }
 
-        List<String> listDepart = new ArrayList<>();
-        listDepart.add("Số 34 Nguyễn Lương Bằng");
-        listDepart.add("Kế trụ 504");
-        listDepart.add("Name Station 5");
-        listDepart.add("Số 128 Tôn Đức Thắng");
-        listDepart.add("Kế trụ 504");
-        listDepart.add("Name Station 9");
+            }
+        }else{
+            for (BusStopItem stop : DataBase.getInstance().getStations()) {
+                if ((stop.getSchedulesAller().get(nbLine) == null
+                        && stop.getSchedulesRetour().get(nbLine) == null)
+                        || (stop.getSchedulesRetour().get(nbLine) == null
+                        || stop.getSchedulesRetour().get(nbLine).isEmpty())) {
+                    tmp.remove(stop);
+                }
 
-
-        List<String> horaires = new ArrayList<>();
-        horaires.add("5h38");
-        horaires.add("5h53");
-        horaires.add("6h08");
-        horaires.add("6h18");
-        horaires.add("6h28");
-        horaires.add("6h38");
-        horaires.add("6h53");
-        horaires.add("7h08");
-        horaires.add("7h28");
-        horaires.add("7h48");
-        horaires.add("8h08");
-        horaires.add("8h38");
-        horaires.add("9h08");
-        horaires.add("9h38");
-        horaires.add("10h08");
-
-        HashMap<String,List<String>> hashMap = new HashMap<>();
-
-        hashMap.put("5",horaires);
-        List<String> horaires2 = new ArrayList<>();
-        horaires2.add("5h33");
-        horaires2.add("5h55");
-        horaires2.add("6h48");
-        horaires2.add("6h58");
-
-        horaires2.add("7h07");
-
-        HashMap<String,List<String>> hashMap2 = new HashMap<>();
-
-        hashMap2.put("5",horaires2);
-        for(int i = 0;i<listDepart.size();i++){
-            busStopItemList.add(new BusStopItem(listDepart.get(i),"Danang,Vietnam",hashMap,hashMap2));
+            }
         }
+        busStopItemList = (ArrayList<BusStopItem>) tmp;
 
 
     }
-
-    public void createAlert(){
-        outerList.add(new TrafficInfoItem("Alert Title 1","descrition Alert 1", Arrays.asList("1", "2", "3", "4", "5", "6")));
-        outerList.add(new TrafficInfoItem("Alert Title 2","descrition Alert 2", Arrays.asList( "1","5")));
-        outerList.add(new TrafficInfoItem("Alert Title 3","descrition Alert 3", Arrays.asList("1", "2", "3", "4", "5", "6")));
-        outerList.add(new TrafficInfoItem("Alert Title 4","descrition Alert 4", Arrays.asList("3")));
-        outerList.add(new TrafficInfoItem("Alert Title 5","descrition Alert 5", Arrays.asList("1", "5")));
-
+    public boolean getSens(){
+        return sens;
     }
+    public LineList getLine(){
+        return lineList;
+    }
+
 }

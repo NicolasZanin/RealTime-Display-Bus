@@ -11,17 +11,19 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.example.myapplication.Activity.BusStopScheduleActivity;
 import com.example.myapplication.Activity.ScheduleLineActivity;
 import com.example.myapplication.Item.BusStopItem;
-import com.example.myapplication.Activity.BusStopScheduleActivity;
+import com.example.myapplication.Item.DataBase;
 import com.example.myapplication.R;
 
 import java.util.ArrayList;
+import java.util.Set;
 
-public class BusStopAdapter extends ArrayAdapter<BusStopItem> {
+public class BusStopGeneralAdapter  extends ArrayAdapter<BusStopItem> {
 
     private Context mContext;
-    public BusStopAdapter(@NonNull Context context, ArrayList<BusStopItem> dataArrayList) {
+    public BusStopGeneralAdapter(@NonNull Context context, ArrayList<BusStopItem> dataArrayList) {
         super(context, R.layout.bus_stop_list,dataArrayList);
         mContext = context;
     }
@@ -42,9 +44,15 @@ public class BusStopAdapter extends ArrayAdapter<BusStopItem> {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(mContext, BusStopScheduleActivity.class);
-                intent.putExtra("line", ((ScheduleLineActivity)mContext).getLine());
-                intent.putExtra("busStop",busStopItem);
-                intent.putExtra("aller", ((ScheduleLineActivity)mContext).getSens());
+                if(!busStopItem.getSchedulesAller().isEmpty()) {
+                    intent.putExtra("aller", true);
+                }else{
+
+                    intent.putExtra("aller", false);
+                }
+                intent.putExtra("line", DataBase.getInstance().getLines().get(0));
+
+                intent.putExtra("busStop", busStopItem);
                 mContext.startActivity(intent);
             }
         });

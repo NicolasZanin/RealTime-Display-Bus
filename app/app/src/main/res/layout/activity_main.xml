@@ -55,7 +55,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/temperature"
-            android:text="30 °C"
+            android:text="00 °C"
             android:textStyle="bold"
             android:textSize="20dp"
             android:textColor="@color/black"

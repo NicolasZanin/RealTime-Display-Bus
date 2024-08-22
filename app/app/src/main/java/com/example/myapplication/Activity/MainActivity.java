@@ -10,7 +10,10 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.os.Looper;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -28,8 +31,12 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 
+import com.example.myapplication.Item.DataBase;
 import com.example.myapplication.R;
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -58,20 +65,18 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     GoogleMap gMap;
     LatLng userLocation;
     private FusedLocationProviderClient fusedLocationClient;
-
+    private LocationCallback locationCallback;
+    private boolean isFirstLocationUpdate = true;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
-        } else {
-            // Permission already granted, get the user's location
-            getUserLocation();
+        if(!DataBase.getInstance().isDataRetrieve()) {
+            DataBase.getInstance().retrieveDataFromAPI();
         }
+
+
         ImageView homeImg = findViewById(R.id.homeButton);
         homeImg.setImageResource(R.drawable.home_on);
         TextView hometxt = findViewById(R.id.textHomebutton);
@@ -82,6 +87,30 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        locationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                if (locationResult == null) {
+                    return;
+                }
+                for (Location location : locationResult.getLocations()) {
+
+                    userLocation = new LatLng(location.getLatitude(), location.getLongitude());
+                    gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation, 16));
+
+                    MarkerOptions markerOptions = new MarkerOptions()
+                            .position(userLocation)
+                            .icon(bitmapDescriptorFromVector(MainActivity.this, R.drawable.custom_marker));
+                    gMap.addMarker(markerOptions);
+
+                    if (isFirstLocationUpdate) {
+                        retrieveWeather();
+                        isFirstLocationUpdate = false;
+                    }
+                }
+            }
+        };
         findViewById(R.id.settingsPopup).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -291,31 +320,6 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
-    private void getUserLocation() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
-        fusedLocationClient.getLastLocation()
-                .addOnSuccessListener(this, new OnSuccessListener<Location>() {
-                    @Override
-                    public void onSuccess(Location location) {
-                        // Got last known location. In some rare situations this can be null.
-                        if (location != null) {
-                            userLocation = new LatLng(location.getLatitude(), location.getLongitude());
-                            gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation, 16));
-
-
-                            MarkerOptions markerOptions = new MarkerOptions()
-                                    .position(userLocation)
-                                    .icon(bitmapDescriptorFromVector(MainActivity.this, R.drawable.custom_marker));
-                            gMap.addMarker(markerOptions);
-                            retrieveWeather();
-                        }
-                    }
-                });
-    }
 
     private BitmapDescriptor bitmapDescriptorFromVector(Context context, int vectorResId) {
         Drawable vectorDrawable = ContextCompat.getDrawable(context, vectorResId);
@@ -326,37 +330,50 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         return BitmapDescriptorFactory.fromBitmap(bitmap);
     }
 
+    private void startLocationUpdates() {
+        LocationRequest locationRequest = LocationRequest.create();
+        locationRequest.setInterval(10000); // 10 seconds
+        locationRequest.setFastestInterval(5000); // 5 seconds
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            startLocationUpdates();
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        fusedLocationClient.removeLocationUpdates(locationCallback);
+    }
+
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
         this.gMap = googleMap;
         googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 
-        //googleMap.setMapType(GoogleMap.MAP_TYPE_NONE);
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
             gMap.setMyLocationEnabled(true);
-            getUserLocation();
+            startLocationUpdates();
         } else {
-            // If permission is not granted, request it
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
         }
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == 1) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                        == PackageManager.PERMISSION_GRANTED) {
-                    gMap.setMyLocationEnabled(true);
-                    getUserLocation();
-                }
-            } else {
-                // Permission denied
-            }
-        }
-    }
+
 
     private void retrieveWeather() {
         new Thread(new Runnable() {
@@ -366,7 +383,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                 String lon = ""+userLocation.longitude;
                 String apiKey = "d8cf44c10cf0a4aa3d330939e8562642";
                 String apiUrl = "https://api.openweathermap.org/data/2.5/weather?lat="+lat+"&lon="+lon+"&appid="+apiKey;
-                try {
+               try {
                     URL url = new URL(apiUrl);
                     HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                     conn.setRequestMethod("GET");
@@ -389,8 +406,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                     JSONObject mainObject = jsonResponse.getJSONObject("main");
                     int temp = (int) (mainObject.getDouble("temp") - 273.15);
 
-                    // Afficher les informations
-                    System.out.println("Weather Main: " + weatherMain);
+
                     ImageView logoWeather = findViewById(R.id.circleIcon);
                     if(weatherMain.contains("clouds")){
                         logoWeather.setImageResource(R.drawable.cloudy);

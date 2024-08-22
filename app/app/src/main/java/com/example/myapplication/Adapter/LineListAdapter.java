@@ -53,7 +53,7 @@
             favImage.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    System.out.println(lineList.getDepart());
+
                     lineList.setFavorite(!lineList.isFavorite());
                     if(lineList.isFavorite())
                         favImage.setImageResource(R.drawable.favorite_on);

@@ -33,7 +33,6 @@ public class RoadInfoAdapter extends ArrayAdapter<RoadInfoItem> {
             view = LayoutInflater.from(getContext()).inflate(R.layout.road_info_layout,parent,false);
         }
         ImageView imageView = view.findViewById(R.id.imageLineRoad);
-        System.out.println(roadInfoItem.getLine());
         switch (roadInfoItem.getLine()){
             case "1":
                 imageView.setBackgroundResource(R.drawable.line1);
