@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.myapplication.R;
 
 import java.util.List;
-
+//Adapter for the lines impacted by an alert
 public class InnerTIAdapter extends RecyclerView.Adapter<InnerTIAdapter.InnerViewHolder> {
 
     private List<String> innerList;
@@ -30,6 +30,7 @@ public class InnerTIAdapter extends RecyclerView.Adapter<InnerTIAdapter.InnerVie
 
     @Override
     public void onBindViewHolder(@NonNull InnerViewHolder holder, int position) {
+        //get the number of the line and choose the right logo
         switch (innerList.get(position)){
             case "1":
                 holder.imageView.setBackgroundResource(R.drawable.line1);

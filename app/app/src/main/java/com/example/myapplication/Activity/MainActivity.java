@@ -58,7 +58,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-
+//The main activity where the map is displayed and the pop up option
 public class MainActivity extends FragmentActivity implements OnMapReadyCallback {
     private boolean english = true;
     FrameLayout mapView;
@@ -71,7 +71,9 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        //initialisation of the location service for the user location
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        //call the function for retrieve the data from the API and check if it's already done or not
         if(!DataBase.getInstance().isDataRetrieve()) {
             DataBase.getInstance().retrieveDataFromAPI();
         }
@@ -83,27 +85,30 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         hometxt.setTextColor(Color.parseColor("#FFC656"));
 
         mapView = findViewById(R.id.map);
-
+        //creation of the map
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        //retrieve the user location in real time
         locationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(LocationResult locationResult) {
+                //if no location information quit the function
                 if (locationResult == null) {
                     return;
                 }
                 for (Location location : locationResult.getLocations()) {
-
+                    //create the location and move the map on it
                     userLocation = new LatLng(location.getLatitude(), location.getLongitude());
                     gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation, 16));
-
+                    //personalization of the marker
                     MarkerOptions markerOptions = new MarkerOptions()
                             .position(userLocation)
                             .icon(bitmapDescriptorFromVector(MainActivity.this, R.drawable.custom_marker));
                     gMap.addMarker(markerOptions);
-
+                    //retrieve the weather only on the fist location update
+                    //we consider that the user will not move far enough for this to have an impact on the weather
                     if (isFirstLocationUpdate) {
                         retrieveWeather();
                         isFirstLocationUpdate = false;
@@ -111,12 +116,14 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                 }
             }
         };
+        //on click for show the pop up option menu
         findViewById(R.id.settingsPopup).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 showPopupInitial(v);
             }
         });
+        //on click for return to schedule page
         findViewById(R.id.schedulesButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -125,6 +132,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
             }
         });
+        //on click for return to taffic info page
         findViewById(R.id.trafficInfoButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -133,6 +141,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
             }
         });
+        //on click for return to search road page
         findViewById(R.id.searchRoadBTN).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -142,7 +151,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
     }
-
+    //function to show the pop up option menu
     private void showPopupInitial(View anchorView) {
         LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
         View popupView = inflater.inflate(R.layout.popup_parametres, null);
@@ -150,8 +159,9 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
         int width = 700;
         int height = LinearLayout.LayoutParams.WRAP_CONTENT;
-        boolean focusable = true; // Lets taps outside the popup also dismiss it
+        boolean focusable = true;
         final PopupWindow popupWindow = new PopupWindow(popupView, width, height, focusable);
+        //active the background according to the language chose
         if (english) {
             ImageView img = popupView.findViewById(R.id.flag_uk);
             img.setBackgroundResource(R.drawable.bordureverte);
@@ -161,8 +171,9 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             img.setBackgroundResource(R.drawable.bordureverte);
 
         }
+        //set the pop up at the center of the screen
         popupWindow.showAtLocation(anchorView.getRootView(), Gravity.CENTER, 0, 0);
-
+        //on click to quit the pop up menu
         popupView.findViewById(R.id.exitParameters).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -171,20 +182,20 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
-        // Set up click listeners for each menu item
+        // on click for choose the english language
         popupView.findViewById(R.id.flag_uk).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Handle flag UK click
+
                 ImageView img = popupView.findViewById(R.id.flag_uk);
                 img.setBackgroundResource(R.drawable.bordureverte);
                 ImageView img2 = popupView.findViewById(R.id.flag_vn);
                 img2.setBackgroundResource(R.drawable.nobordure);
                 english = true;
-                //TODO changer la langue
+                //TODO change language
             }
         });
-
+        // on click for choose the vietnamese language
         popupView.findViewById(R.id.flag_vn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -194,10 +205,10 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                 ImageView img2 = popupView.findViewById(R.id.flag_vn);
                 img2.setBackgroundResource(R.drawable.bordureverte);
                 english = false;
-                //TODO changer la langue
+                //TODO change language
             }
         });
-
+        //on click to go to the setting page
         popupView.findViewById(R.id.settingsBTN).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -206,7 +217,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                 showPopupSettings(v);
             }
         });
-
+        //on click to go to the profile page
         popupView.findViewById(R.id.profileBTN).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -215,14 +226,14 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                 showPopupProfile(v);
             }
         });
-
+        //on click to go to the help page
         popupView.findViewById(R.id.helpBTN).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Handle help click
+                //TODO help page
             }
         });
-
+        //on click to quit the application
         popupView.findViewById(R.id.exitBTN).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -232,7 +243,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
     }
-
+    //function to show the setting page
     private void showPopupSettings(View anchorView) {
         LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
         View popupView = inflater.inflate(R.layout.popup_settings, null);
@@ -240,12 +251,12 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
         int width = 700;
         int height = LinearLayout.LayoutParams.WRAP_CONTENT;
-        boolean focusable = true; // Lets taps outside the popup also dismiss it
+        boolean focusable = true;
         final PopupWindow popupWindow = new PopupWindow(popupView, width, height, focusable);
 
-
+        //set the pop up at the center of the screen
         popupWindow.showAtLocation(anchorView.getRootView(), Gravity.CENTER, 0, 0);
-
+        //on click to return to the inital pop up menu
         popupView.findViewById(R.id.exitParameters).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -255,24 +266,24 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
-
+        //on click to interact with the notification button
         popupView.findViewById(R.id.notifBTN).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Handle profile click
+                //TODO notification settings
             }
         });
-
+        //on click to interact with the sound button
         popupView.findViewById(R.id.soundsBTN).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Handle help click
+                //TODO sound settings
             }
         });
 
 
     }
-
+    //function to show the profile page
     private void showPopupProfile(View anchorView) {
         LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
         View popupView = inflater.inflate(R.layout.popup_profile, null);
@@ -280,12 +291,12 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
         int width = 700;
         int height = LinearLayout.LayoutParams.WRAP_CONTENT;
-        boolean focusable = true; // Lets taps outside the popup also dismiss it
+        boolean focusable = true;
         final PopupWindow popupWindow = new PopupWindow(popupView, width, height, focusable);
 
-
+        //set the pop up at the center of the screen
         popupWindow.showAtLocation(anchorView.getRootView(), Gravity.CENTER, 0, 0);
-
+        //on click to return to the inital pop up menu
         popupView.findViewById(R.id.exitParameters).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -295,7 +306,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
-
+        //on click to connect to an account
         popupView.findViewById(R.id.connectBTN).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -304,23 +315,9 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                 //TODO connexion
             }
         });
-
-        popupView.findViewById(R.id.editPassword).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Handle help click
             }
-        });
-        popupView.findViewById(R.id.editUsername).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Handle help click
-            }
-        });
 
-    }
-
-
+    //function for convert the drawable into an icon
     private BitmapDescriptor bitmapDescriptorFromVector(Context context, int vectorResId) {
         Drawable vectorDrawable = ContextCompat.getDrawable(context, vectorResId);
         vectorDrawable.setBounds(0, 0, vectorDrawable.getIntrinsicWidth(), vectorDrawable.getIntrinsicHeight());
@@ -329,21 +326,23 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         vectorDrawable.draw(canvas);
         return BitmapDescriptorFactory.fromBitmap(bitmap);
     }
-
+    //function for update the location
     private void startLocationUpdates() {
         LocationRequest locationRequest = LocationRequest.create();
-        locationRequest.setInterval(10000); // 10 seconds
-        locationRequest.setFastestInterval(5000); // 5 seconds
+        //set the intervals and priority
+        locationRequest.setInterval(10000);
+        locationRequest.setFastestInterval(5000);
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-
+        //check the permission
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
             return;
         }
+        //call the location update on fusedLocationClient in real time
         fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
     }
-
+    //at the start of the activity call the location update
     @Override
     protected void onStart() {
         super.onStart();
@@ -352,18 +351,19 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             startLocationUpdates();
         }
     }
-
+    //at the end of the activity stop the location update
     @Override
     protected void onStop() {
         super.onStop();
         fusedLocationClient.removeLocationUpdates(locationCallback);
     }
-
+    //creation of the map when it's ready
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
         this.gMap = googleMap;
-        googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 
+        googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        //check permission or request it
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
             gMap.setMyLocationEnabled(true);
@@ -374,11 +374,12 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
 
-
+    //fucntion to retrieve weather data from an API
     private void retrieveWeather() {
         new Thread(new Runnable() {
             @Override
             public void run() {
+                //set variables and url
                 String lat = ""+userLocation.latitude;
                 String lon = ""+userLocation.longitude;
                 String apiKey = "d8cf44c10cf0a4aa3d330939e8562642";
@@ -391,22 +392,24 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                     BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
                     String inputLine;
                     StringBuilder response = new StringBuilder();
-
+                    //retrieve the answer
                     while ((inputLine = in.readLine()) != null) {
                         response.append(inputLine);
                     }
                     in.close();
 
-                    // Parser la réponse JSON
+                    //Create a JSON object
                     JSONObject jsonResponse = new JSONObject(response.toString());
+                    //get the weather description
                     JSONArray weatherArray = jsonResponse.getJSONArray("weather");
                     JSONObject weatherObject = weatherArray.getJSONObject(0);
-                    String weatherMain = weatherObject.getString("main").toLowerCase();
 
+                    String weatherMain = weatherObject.getString("main").toLowerCase();
+                    //get the temperature
                     JSONObject mainObject = jsonResponse.getJSONObject("main");
                     int temp = (int) (mainObject.getDouble("temp") - 273.15);
 
-
+                    //change the logo of the weather according to the description given by the API
                     ImageView logoWeather = findViewById(R.id.circleIcon);
                     if(weatherMain.contains("clouds")){
                         logoWeather.setImageResource(R.drawable.cloudy);
@@ -421,6 +424,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                     }else {
                         logoWeather.setImageResource(R.drawable.rainy);
                     }
+                    //display the temperature
                     TextView tempTxt = findViewById(R.id.temperature);
                     tempTxt.setText(temp +" °C");
 

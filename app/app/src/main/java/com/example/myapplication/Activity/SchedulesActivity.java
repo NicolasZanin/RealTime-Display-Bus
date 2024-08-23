@@ -22,10 +22,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-
+//the activity for display the lines and the bus stations
 public class SchedulesActivity extends AppCompatActivity {
 
-
+    //the 3 lists we will display in this activity
     private ArrayList<LineList> lineLists = new ArrayList<>();
     private ArrayList<LineList> lineListsFavorite = new ArrayList<>();
     private ArrayList<BusStopItem> busStopItemList = new ArrayList<>();
@@ -36,14 +36,16 @@ public class SchedulesActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.schedules_layout);
-        createLists();
+        //change the color of the active tab
         changeTitlecolor("line");
+        //retrieve the bus lines from the data base singleton
         lineLists = (ArrayList<LineList>) DataBase.getInstance().getLines();
+        //set the adapter to the listView
         lineListAdapter = new LineListAdapter(SchedulesActivity.this,lineLists);
         ListView listView = findViewById(R.id.listSchedules);
         listView.setAdapter(lineListAdapter);
 
-
+        //on click for return to home page
         findViewById(R.id.homeButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -52,6 +54,7 @@ public class SchedulesActivity extends AppCompatActivity {
 
             }
         });
+        //on click for return to taffic info page
         findViewById(R.id.trafficInfoButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -60,35 +63,43 @@ public class SchedulesActivity extends AppCompatActivity {
 
             }
         });
+        //on click for go to favorite list tab
         findViewById(R.id.titleFavoriteTxt).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 changeTitlecolor("favorite");
+                //check in the list of all the line which line is check as a favorite
                 lineListsFavorite = new ArrayList<>();
                 for(LineList l : lineLists){
                     if(l.isFavorite()){
                         lineListsFavorite.add(l);
                     }
                 }
+                //set the adapter to the listView with the favorite lines
                 lineListAdapter = new LineListAdapter(SchedulesActivity.this,lineListsFavorite);
                 listView.setAdapter(lineListAdapter);
 
             }
         });
+        //on click for go to the line list tab
         findViewById(R.id.titleLineTxt).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 changeTitlecolor("line");
+                //set the adapter to the listView with all the lines
                 lineListAdapter = new LineListAdapter(SchedulesActivity.this,lineLists);
                 listView.setAdapter(lineListAdapter);
 
             }
         });
+        //on click for go to the bus stop list tab
         findViewById(R.id.titleBusstopTxt).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 changeTitlecolor("busstop");
+                //retrieve all the bus stop from the data bas singleton
                 busStopItemList = (ArrayList<BusStopItem>) DataBase.getInstance().getStations();
+                //set the adapter to the listView all the bus stops
                 busStopAdapter = new BusStopGeneralAdapter(SchedulesActivity.this,busStopItemList);
                 listView.setAdapter(busStopAdapter);
 
@@ -96,8 +107,9 @@ public class SchedulesActivity extends AppCompatActivity {
         });
         listView.setClickable(true);
     }
-
+    //function to change the color of the active tab
     private void changeTitlecolor(String title) {
+        //for each tab change his color at black/grey and the other to white
         if(title =="line"){
             TextView textTitle = findViewById(R.id.titleLineTxt);
             TextView text1 = findViewById(R.id.titleFavoriteTxt);
@@ -126,73 +138,5 @@ public class SchedulesActivity extends AppCompatActivity {
 
         }
     }
-
-    private void createLists(){
-         List<Integer> listImage = new ArrayList<>();
-         listImage.add(R.drawable.line1);
-         listImage.add(R.drawable.line2);
-         listImage.add(R.drawable.line3);
-         listImage.add(R.drawable.line4);
-         listImage.add(R.drawable.line5);
-         listImage.add(R.drawable.line6);
-
-         List<String> listDepart = new ArrayList<>();
-         listDepart.add("Số 34 Nguyễn Lương Bằng");
-         listDepart.add("Kế trụ 504");
-         listDepart.add("Name Station 5");
-         listDepart.add("Số 128 Tôn Đức Thắng");
-         listDepart.add("Kế trụ 504");
-         listDepart.add("Name Station 9");
-
-        List<String> listArrivee = new ArrayList<>();
-        listArrivee.add("Số 34 Nguyễn Lương Bằng");
-        listArrivee.add("Kế trụ 504");
-        listArrivee.add("Name Station 5");
-        listArrivee.add("Số 128 Tôn Đức Thắng");
-        listArrivee.add("Kế trụ 504");
-        listArrivee.add("Name Station 9");
-
-        List<String> horaires = new ArrayList<>();
-        horaires.add("5h38");
-        horaires.add("5h53");
-        horaires.add("6h08");
-        horaires.add("6h18");
-        horaires.add("6h28");
-        horaires.add("6h38");
-        horaires.add("6h53");
-        horaires.add("7h08");
-        horaires.add("7h28");
-        horaires.add("7h48");
-        horaires.add("8h08");
-        horaires.add("8h38");
-        horaires.add("9h08");
-        horaires.add("9h38");
-        horaires.add("10h08");
-
-        HashMap<String,List<String>> hashMap = new HashMap<>();
-
-        hashMap.put("5",horaires);
-
-        List<String> horaires2 = new ArrayList<>();
-        horaires2.add("5h33");
-        horaires2.add("5h55");
-        horaires2.add("6h48");
-        horaires2.add("6h58");
-
-        horaires2.add("7h07");
-
-        HashMap<String,List<String>> hashMap2 = new HashMap<>();
-
-        hashMap2.put("5",horaires2);
-
-
-        for(int i = 0;i<listDepart.size();i++){
-            lineLists.add(new LineList(listImage.get(i),""+(i+1),listDepart.get(i),listArrivee.get(i)));
-            busStopItemList.add(new BusStopItem(listDepart.get(i),"Danang,Vietnam",hashMap,hashMap2));
-        }
-
-
-    }
-
 
 }

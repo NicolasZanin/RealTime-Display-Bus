@@ -18,7 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-
+//Adapter for the schedule of a bus stop
 public class BusStopScheduleAdapter extends ArrayAdapter<Map.Entry<Integer, List<String>>> {
 
     private Context mContext;
@@ -35,6 +35,7 @@ public class BusStopScheduleAdapter extends ArrayAdapter<Map.Entry<Integer, List
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         ViewHolder holder;
+        //create the view if it's null
         if(convertView == null){
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.hour_list, parent, false);
             holder = new ViewHolder();
@@ -46,7 +47,7 @@ public class BusStopScheduleAdapter extends ArrayAdapter<Map.Entry<Integer, List
         }
 
         Map.Entry<Integer, List<String>> entry = getItem(position);
-        System.out.println(entry.getKey());
+       //display the hour digit and call the other adpater for the minutes
         if (entry != null) {
             holder.keyTextView.setText(""+entry.getKey());
             MinuteAdapter minuteAdapter = new MinuteAdapter(mContext, entry.getValue());

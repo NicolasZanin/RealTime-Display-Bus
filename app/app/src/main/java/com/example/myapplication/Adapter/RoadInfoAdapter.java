@@ -17,7 +17,7 @@ import com.example.myapplication.Item.RoadInfoItem;
 import com.example.myapplication.R;
 
 import java.util.ArrayList;
-
+//Adapter for the road between 2 bus stop
 public class RoadInfoAdapter extends ArrayAdapter<RoadInfoItem> {
 
     public RoadInfoAdapter(@NonNull Context context, ArrayList<RoadInfoItem> dataArrayList) {
@@ -33,6 +33,7 @@ public class RoadInfoAdapter extends ArrayAdapter<RoadInfoItem> {
             view = LayoutInflater.from(getContext()).inflate(R.layout.road_info_layout,parent,false);
         }
         ImageView imageView = view.findViewById(R.id.imageLineRoad);
+        //get the number of the line and choose the right logo
         switch (roadInfoItem.getLine()){
             case "1":
                 imageView.setBackgroundResource(R.drawable.line1);
@@ -56,6 +57,7 @@ public class RoadInfoAdapter extends ArrayAdapter<RoadInfoItem> {
                 imageView.setBackgroundResource(R.drawable.line6);
                 break;
         }
+        //display the informations
         TextView departTxt = view.findViewById(R.id.textDepart);
         TextView arriveeTxt = view.findViewById(R.id.textArrival);
         TextView minuteToGo = view.findViewById(R.id.minuteTogo);

@@ -1,9 +1,14 @@
 package com.example.myapplication.Item;
 
+//This is the class for the information between 2 stops
 public class RoadInfoItem {
+    //the line
     private String line;
+    //the first stop
     private String departure;
+    //the second stop
     private String arrival;
+    //the time you have to wait until a bus come to the first stop
     private int timeLeft;
 
     public RoadInfoItem(String line,String departure, String arrival, int timeLeft) {

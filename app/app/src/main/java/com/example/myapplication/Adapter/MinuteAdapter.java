@@ -13,7 +13,7 @@ import androidx.annotation.Nullable;
 import com.example.myapplication.R;
 
 import java.util.List;
-
+//Adapter for the minutes in the schedule of a bus stop
 public class MinuteAdapter extends ArrayAdapter<String> {
 
     public MinuteAdapter(@NonNull Context context, List<String> dataArrayList) {
@@ -24,6 +24,7 @@ public class MinuteAdapter extends ArrayAdapter<String> {
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         ViewHolder holder;
+        //create the view if it's null
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.minute_list, parent, false);
             holder = new ViewHolder();
@@ -32,6 +33,7 @@ public class MinuteAdapter extends ArrayAdapter<String> {
         } else {
             holder = (ViewHolder) convertView.getTag();
         }
+        //create the string with all the minutes digit retrieved
         boolean ok = true;
         String s = "";
         int i = 0;

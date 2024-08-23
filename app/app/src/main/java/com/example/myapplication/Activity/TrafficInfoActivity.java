@@ -17,19 +17,22 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+//The activity for display all the alerts
 public class TrafficInfoActivity extends AppCompatActivity {
 private List<TrafficInfoItem> outerList = new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.trafficinfo_layout);
+        //retrieve the RecyclerView with his id
         RecyclerView outerRecyclerView = findViewById(R.id.listTrafficInfo);
         outerRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
-        
+        //retrieve the alerts from the data base singleton
         outerList = DataBase.getInstance().getAlerts();
+        //set the adapter to the RecyclerView
         TrafficInfoAdapter outerAdapter = new TrafficInfoAdapter(outerList);
         outerRecyclerView.setAdapter(outerAdapter);
-
+        //on click for return to home page
         findViewById(R.id.homeButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -38,6 +41,7 @@ private List<TrafficInfoItem> outerList = new ArrayList<>();
 
             }
         });
+        //on click for return to schedule page
         findViewById(R.id.schedulesButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

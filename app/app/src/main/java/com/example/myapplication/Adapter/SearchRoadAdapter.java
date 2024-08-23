@@ -18,7 +18,7 @@ import com.example.myapplication.Item.BusStopItem;
 import com.example.myapplication.R;
 
 import java.util.ArrayList;
-
+//Adapter for the searchRoadActivity with the list of the BusStopItem
 public class SearchRoadAdapter extends ArrayAdapter<BusStopItem> {
     private Context mContext;
     private TextView departure;
@@ -39,11 +39,14 @@ public class SearchRoadAdapter extends ArrayAdapter<BusStopItem> {
         if(view == null){
             view = LayoutInflater.from(getContext()).inflate(R.layout.bus_stop_list,parent,false);
         }
+        //display the informations
         TextView nameTxt = view.findViewById(R.id.busStopName);
         TextView cityTxt = view.findViewById(R.id.cityStopName);
 
         nameTxt.setText( busStopItem.getName());
         cityTxt.setText( busStopItem.getCity());
+        //on click on the item to add it on the departure/arrival textView
+        //and the item is remove form the list
         view.setOnClickListener(new View.OnClickListener() {
             @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
@@ -60,7 +63,7 @@ public class SearchRoadAdapter extends ArrayAdapter<BusStopItem> {
                     ((SearchRoadActivity) mContext).findRoads(busStopItem1,busStopItem2);
                 }
                 remove(busStopItem);
-                // Notifier l'adaptateur que les données ont changé
+                // Notify the adapter that the list has changed
                 notifyDataSetChanged();
             }
         });

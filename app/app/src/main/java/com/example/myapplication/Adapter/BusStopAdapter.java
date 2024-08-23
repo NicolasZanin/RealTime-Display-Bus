@@ -17,7 +17,7 @@ import com.example.myapplication.Activity.BusStopScheduleActivity;
 import com.example.myapplication.R;
 
 import java.util.ArrayList;
-
+//Adapter for the BusStopItem
 public class BusStopAdapter extends ArrayAdapter<BusStopItem> {
 
     private Context mContext;
@@ -33,11 +33,13 @@ public class BusStopAdapter extends ArrayAdapter<BusStopItem> {
         if(view == null){
             view = LayoutInflater.from(getContext()).inflate(R.layout.bus_stop_list,parent,false);
         }
+        //display the informations
         TextView nameTxt = view.findViewById(R.id.busStopName);
         TextView cityTxt = view.findViewById(R.id.cityStopName);
 
         nameTxt.setText(busStopItem.getName());
         cityTxt.setText(busStopItem.getCity());
+        //on click to go on BusStopScheduleActivity with the transfer of some information
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

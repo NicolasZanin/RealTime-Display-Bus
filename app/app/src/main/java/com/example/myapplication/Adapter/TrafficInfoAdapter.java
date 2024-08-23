@@ -15,7 +15,7 @@ import com.example.myapplication.R;
 import com.example.myapplication.Item.TrafficInfoItem;
 
 import java.util.List;
-
+//Adapter for the alerts in a RecyclerView
 public class TrafficInfoAdapter extends RecyclerView.Adapter<TrafficInfoAdapter.OuterViewHolder> {
 
     private List<TrafficInfoItem> outerList;
@@ -36,12 +36,14 @@ public class TrafficInfoAdapter extends RecyclerView.Adapter<TrafficInfoAdapter.
 
     @Override
     public void onBindViewHolder(@NonNull OuterViewHolder holder, int position) {
+        //display informations
         TrafficInfoItem item = outerList.get(position);
         holder.alertTitle.setText(item.getTitle());
         holder.description.setText(item.getDescription());
-        // Configure l'adaptateur pour la liste interne
+        // Call the adapter for the list of the lines
         InnerTIAdapter innerAdapter = new InnerTIAdapter(item.getNumbers());
         holder.innerRecyclerView.setAdapter(innerAdapter);
+        //on click to show/hide the description of the alert
         holder.plusBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -59,7 +61,7 @@ public class TrafficInfoAdapter extends RecyclerView.Adapter<TrafficInfoAdapter.
                 }
                  }
         });
-        // Définir le LinearLayoutManager avec une orientation horizontale pour la RecyclerView interne
+        // Set the LinearLayoutManager with a horizontal orientation for the internal RecyclerView
         holder.innerRecyclerView.setLayoutManager(new LinearLayoutManager(holder.itemView.getContext(), LinearLayoutManager.HORIZONTAL, false));
     }
 

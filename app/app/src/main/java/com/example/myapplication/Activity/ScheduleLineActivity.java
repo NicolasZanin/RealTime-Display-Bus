@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-
+//The activity for display all stations and the alerts of a line
 public class ScheduleLineActivity extends AppCompatActivity {
     private BusStopAdapter busStopAdapter;
     private ArrayList<TrafficInfoItem> outerList = new ArrayList<>();
@@ -37,6 +37,7 @@ public class ScheduleLineActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.schedule_line_activity);
+        //retrieve the LineList from the intent
         lineList = getIntent().getParcelableExtra("lineList");
         TextView t1 = findViewById(R.id.busStopFirst);
         t1.setText("from: "+lineList.getDepart());
@@ -45,9 +46,10 @@ public class ScheduleLineActivity extends AppCompatActivity {
         ImageView imageView = findViewById(R.id.nbLine);
         imageView.setImageResource(lineList.getImage());
         nbLine = lineList.getNbLine();
+        //change the color of the bus stop tab
         changeTitlecolor("busStop");
         ListView listView = findViewById(R.id.listSchedulesLine);
-
+        //retrieve the alerts from the data base singleton
         outerList = (ArrayList<TrafficInfoItem>) DataBase.getInstance().getAlerts();
         createList();
         busStopAdapter = new BusStopAdapter(this,busStopItemList);
@@ -138,9 +140,14 @@ public class ScheduleLineActivity extends AppCompatActivity {
 
         }
     }
+    //create the of the stops of the line
     private void createList(){
         List<BusStopItem> tmp = new ArrayList<>();
+        //retrieve the bus stops with the data base singleton
+        //create a copy because the list will change
         tmp.addAll(DataBase.getInstance().getStations());
+        //check the direction
+        //and remove stops that do not have schedules for this direction
         if(sens) {
             for (BusStopItem stop : DataBase.getInstance().getStations()) {
                 if ((stop.getSchedulesAller().get(nbLine) == null && stop.getSchedulesRetour().get(nbLine) == null) ||
