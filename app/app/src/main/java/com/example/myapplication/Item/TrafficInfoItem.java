@@ -12,7 +12,7 @@ public class TrafficInfoItem {
 
     public TrafficInfoItem(String title,String description, List<String> numbers) {
         this.title = title;
-        this.descrpition = description;
+        this.description = description;
         this.numbers = numbers;
     }
 
